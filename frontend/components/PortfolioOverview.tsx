@@ -35,7 +35,7 @@ export default function PortfolioOverview() {
     return value.toFixed(2);
   };
 
-  const timeframes = ['1D', '1W', '1M', '3M', '1Y', 'ALL'];
+  const timeframes = ['1D', '1W', '1M', '3M', '1Y', '5Y', '10Y', 'ALL'];
 
   // Determine colors based on performance
   const isOverallPositive = totalGain >= 0;
