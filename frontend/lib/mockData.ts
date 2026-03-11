@@ -9,6 +9,7 @@ export interface LuxuryItem {
   material?: string;
   size?: string;
   currentMarketValue: number;
+  retailPrice?: number;
   trend: MarketTrend;
   trendPercentage: number;
   imageUrl?: string;
@@ -37,8 +38,10 @@ export const luxuryDatabase: LuxuryItem[] = [
     material: 'Oystersteel',
     size: '41mm',
     currentMarketValue: 14500,
+    retailPrice: 10250,
     trend: 'up',
     trendPercentage: 2.4,
+    imageUrl: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=400&h=400&fit=crop',
   },
   {
     id: 'item-2',
@@ -48,8 +51,10 @@ export const luxuryDatabase: LuxuryItem[] = [
     material: 'Steel',
     size: '40mm',
     currentMarketValue: 115000,
+    retailPrice: 34890,
     trend: 'stable',
     trendPercentage: 0.5,
+    imageUrl: 'https://images.unsplash.com/photo-1587836374828-4dbafa94cf0e?w=400&h=400&fit=crop',
   },
   {
     id: 'item-3',
@@ -59,8 +64,10 @@ export const luxuryDatabase: LuxuryItem[] = [
     material: 'Steel',
     size: '41mm',
     currentMarketValue: 42000,
+    retailPrice: 27800,
     trend: 'down',
     trendPercentage: -1.2,
+    imageUrl: 'https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?w=400&h=400&fit=crop',
   },
   {
     id: 'item-4',
@@ -70,8 +77,10 @@ export const luxuryDatabase: LuxuryItem[] = [
     material: 'Togo Leather',
     size: '30cm',
     currentMarketValue: 22500,
+    retailPrice: 11900,
     trend: 'up',
     trendPercentage: 5.1,
+    imageUrl: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&h=400&fit=crop',
   },
   {
     id: 'item-5',
@@ -81,8 +90,10 @@ export const luxuryDatabase: LuxuryItem[] = [
     material: 'Epsom Leather',
     size: '25cm',
     currentMarketValue: 28000,
+    retailPrice: 10400,
     trend: 'up',
     trendPercentage: 8.4,
+    imageUrl: 'https://images.unsplash.com/photo-1566150905458-1bf1fc113f0d?w=400&h=400&fit=crop',
   },
   {
     id: 'item-6',
@@ -92,8 +103,10 @@ export const luxuryDatabase: LuxuryItem[] = [
     material: 'Caviar Leather',
     size: 'Medium',
     currentMarketValue: 10200,
+    retailPrice: 10200,
     trend: 'stable',
     trendPercentage: 0.0,
+    imageUrl: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=400&h=400&fit=crop',
   },
   {
     id: 'item-7',
@@ -103,8 +116,10 @@ export const luxuryDatabase: LuxuryItem[] = [
     material: '18K Yellow Gold',
     size: '17',
     currentMarketValue: 7350,
+    retailPrice: 7350,
     trend: 'up',
     trendPercentage: 1.5,
+    imageUrl: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=400&fit=crop',
   },
   {
     id: 'item-8',
@@ -114,8 +129,10 @@ export const luxuryDatabase: LuxuryItem[] = [
     material: '18K Yellow Gold, Onyx',
     size: '10 Motifs',
     currentMarketValue: 8400,
+    retailPrice: 7900,
     trend: 'up',
     trendPercentage: 3.2,
+    imageUrl: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=400&fit=crop',
   },
 ];
 

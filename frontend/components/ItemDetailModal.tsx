@@ -45,6 +45,12 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
   const trendColor = isPositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
   const trendHex = isPositive ? '#00A82D' : '#9B2226';
 
+  // Calculate retail premium/discount
+  const retailPrice = asset.retailPrice || asset.purchasePrice;
+  const retailDifference = asset.currentMarketValue - retailPrice;
+  const retailPremium = (retailDifference / retailPrice) * 100;
+  const isAboveRetail = retailDifference >= 0;
+
   // Generate mock historical data for this specific item based on timeframe
   const generateItemHistory = (timeframe: string) => {
     const startValue = asset.purchasePrice;
@@ -119,7 +125,6 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
   };
 
   const handleSavePurchase = () => {
-    // In a real app, this would save to backend/state management
     console.log('Saving purchase details:', { editedPurchasePrice, editedPurchaseDate });
     setIsEditingPurchase(false);
   };
@@ -136,7 +141,6 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
   };
 
   const handleSaveSpecs = () => {
-    // In a real app, this would save to backend/state management
     console.log('Saving specifications:', { editedCondition, editedMaterial, editedSize });
     setIsEditingSpecs(false);
   };
@@ -297,11 +301,20 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
                     {isPositive ? '+' : ''}{formatCurrency(totalGain)}
                   </span>
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
                   <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Market Trend</span>
                   <span className={`font-medium ${trendColor}`}>
                     {isPositive ? '+' : ''}{formatPercentage(asset.trendPercentage)}%
                   </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Retail Price</span>
+                  <div className="text-right">
+                    <div className="font-medium text-[#1A1A1A]">{formatCurrency(retailPrice)}</div>
+                    <div className={`text-xs font-medium ${isAboveRetail ? 'text-[#00A82D]' : 'text-[#9B2226]'}`}>
+                      {isAboveRetail ? '+' : ''}{formatPercentage(retailPremium)}% vs retail
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
