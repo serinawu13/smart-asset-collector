@@ -36,7 +36,7 @@ export default function Analytics() {
   const worstPerformer = sortedByPerformance[sortedByPerformance.length - 1];
 
   return (
-    <div className="space-y-8 mt-12 pt-12 border-t border-[#E8E8E3]">
+    <div className="mt-12 pt-12 border-t border-[#E8E8E3]">
       <h2 className="font-editorial text-2xl text-[#1A1A1A] mb-8">Vault Analytics</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
