@@ -26,8 +26,8 @@ export default function PortfolioOverview() {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(value);
   };
 
@@ -99,7 +99,7 @@ export default function PortfolioOverview() {
       <div className="py-6 border-b border-[#E8E8E3] flex justify-between items-center vault-hover px-4 -mx-4">
         <span className="font-editorial text-lg text-[#1A1A1A]">Total Appreciation</span>
         <span className={`font-medium ${overallTrendClass}`}>
-          {isOverallPositive ? '+' : ''}{formatCurrency(totalGain)} ({isOverallPositive ? '+' : ''}{totalGainPercent.toFixed(2)}%)
+          {isOverallPositive ? '+' : ''}{formatCurrency(totalGain)} ({isOverallPositive ? '+' : ''}{totalGainPercent.toFixed(0)}%)
         </span>
       </div>
     </div>
