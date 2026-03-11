@@ -101,28 +101,33 @@ export default function Watchlist() {
                   const trendColor = isPositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
 
                   return (
-                    <button
+                    <div
                       key={item.watchlistId}
-                      onClick={() => handleItemClick(item)}
-                      className="w-full p-4 md:p-6 pl-8 md:pl-12 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 vault-hover border-b border-[#E8E8E3] last:border-0 text-left"
+                      className="p-4 md:p-6 pl-8 md:pl-12 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 vault-hover border-b border-[#E8E8E3] last:border-0"
                     >
-                      {/* Left: Name & Model */}
-                      <div className="flex-1 min-w-0">
+                      {/* Left: Name & Model - Clickable */}
+                      <button
+                        onClick={() => handleItemClick(item)}
+                        className="flex-1 min-w-0 text-left"
+                      >
                         <div className="font-editorial text-base md:text-lg text-[#1A1A1A] truncate">{item.brand}</div>
                         <div className="text-xs text-[#7A7A75] mt-1 uppercase tracking-wider truncate">{item.model}</div>
-                      </div>
+                      </button>
 
                       {/* Right: Price & Alert */}
                       <div className="flex items-center gap-3 md:gap-4 flex-shrink-0">
-                        <div className="text-left sm:text-right">
+                        <button
+                          onClick={() => handleItemClick(item)}
+                          className="text-left sm:text-right"
+                        >
                           <div className={`font-medium text-sm md:text-base ${trendColor}`}>{formatCurrency(item.currentMarketValue)}</div>
                           <div className="text-xs text-[#7A7A75] mt-1 uppercase tracking-wider">
                             Target: {formatCurrency(item.targetPrice || 0)}
                           </div>
-                        </div>
+                        </button>
                         <button 
                           onClick={(e) => {
-                            e.stopPropagation(); // Prevent opening modal when clicking bell
+                            e.stopPropagation();
                             console.log('Toggle alert for:', item.brand);
                           }}
                           className={`p-2 rounded-full transition-colors ${item.alertActive ? 'bg-[#1A1A1A] text-[#FAF9F6]' : 'bg-[#E8E8E3] text-[#7A7A75]'}`}
@@ -130,7 +135,7 @@ export default function Watchlist() {
                           <Bell className="w-4 h-4" />
                         </button>
                       </div>
-                    </button>
+                    </div>
                   );
                 })}
               </div>
