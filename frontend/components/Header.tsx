@@ -23,30 +23,23 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Navigation & Profile */}
-      <div className="flex items-center gap-3 md:gap-8">
-        {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-[#7A7A75] uppercase tracking-widest">
-          <a href="#" className="text-[#1A1A1A] border-b border-[#1A1A1A] pb-1">Portfolio</a>
-        </nav>
+      {/* Profile Actions */}
+      <div className="flex items-center gap-3 md:gap-5">
+        {/* Mobile Menu Button */}
+        <button className="lg:hidden p-2 hover:bg-[#E8E8E3] rounded-full transition-colors">
+          <Menu className="w-5 h-5 text-[#1A1A1A]" />
+        </button>
 
-        <div className="flex items-center gap-3 md:gap-5 md:border-l border-[#E8E8E3] md:pl-8">
-          {/* Mobile Menu Button */}
-          <button className="lg:hidden p-2 hover:bg-[#E8E8E3] rounded-full transition-colors">
-            <Menu className="w-5 h-5 text-[#1A1A1A]" />
-          </button>
+        {/* Notifications */}
+        <button className="relative p-2 hover:bg-[#E8E8E3] rounded-full transition-colors">
+          <Bell className="w-4 h-4 md:w-5 md:h-5 text-[#1A1A1A]" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#9B2226] rounded-full"></span>
+        </button>
 
-          {/* Notifications */}
-          <button className="relative p-2 hover:bg-[#E8E8E3] rounded-full transition-colors">
-            <Bell className="w-4 h-4 md:w-5 md:h-5 text-[#1A1A1A]" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#9B2226] rounded-full"></span>
-          </button>
-
-          {/* Profile */}
-          <button className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#1A1A1A] flex items-center justify-center hover:bg-[#333333] transition-colors">
-            <User className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#FAF9F6]" />
-          </button>
-        </div>
+        {/* Profile */}
+        <button className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#1A1A1A] flex items-center justify-center hover:bg-[#333333] transition-colors">
+          <User className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#FAF9F6]" />
+        </button>
       </div>
     </header>
   );
