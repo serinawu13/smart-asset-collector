@@ -16,8 +16,8 @@ export default function Analytics() {
     return acc;
   }, [] as { name: string; value: number }[]);
 
-  // Editorial colors: Deep Charcoal, Dark Green, Burgundy, Muted Gray
-  const COLORS = ['#1A1A1A', '#1E3F20', '#722F37', '#7A7A75'];
+  // Neutral editorial colors for the pie chart (reserving green/red strictly for gains/losses)
+  const COLORS = ['#1A1A1A', '#4A4A4A', '#7A7A75', '#B0B0AB'];
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {

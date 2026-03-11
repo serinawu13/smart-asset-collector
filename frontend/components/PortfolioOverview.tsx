@@ -33,6 +33,14 @@ export default function PortfolioOverview() {
 
   const timeframes = ['1D', '1W', '1M', '3M', '1Y', 'ALL'];
 
+  // Determine colors based on performance
+  const isOverallPositive = totalGain >= 0;
+  const isDailyPositive = dailyChange >= 0;
+  
+  const overallTrendHex = isOverallPositive ? '#1E3F20' : '#722F37';
+  const overallTrendClass = isOverallPositive ? 'text-[#1E3F20]' : 'text-[#722F37]';
+  const dailyTrendClass = isDailyPositive ? 'text-[#1E3F20]' : 'text-[#722F37]';
+
   return (
     <div className="flex flex-col w-full">
       {/* Big Number Header */}
@@ -42,8 +50,8 @@ export default function PortfolioOverview() {
           {formatCurrency(totalValue)}
         </h1>
         <div className="flex items-center gap-3 text-base font-medium">
-          <span className="text-[#1E3F20] bg-[#1E3F20]/10 px-3 py-1 rounded-none">
-            +{formatCurrency(dailyChange)} (+{dailyChangePercent}%)
+          <span className={`${dailyTrendClass}`}>
+            {isDailyPositive ? '+' : ''}{formatCurrency(dailyChange)} ({isDailyPositive ? '+' : ''}{dailyChangePercent}%)
           </span>
           <span className="text-[#7A7A75] uppercase tracking-wider text-xs">Today</span>
         </div>
@@ -57,10 +65,10 @@ export default function PortfolioOverview() {
             <Line 
               type="monotone" 
               dataKey="value" 
-              stroke="#1A1A1A" 
+              stroke={overallTrendHex} 
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 5, fill: "#1A1A1A", stroke: "#FAF9F6", strokeWidth: 2 }}
+              activeDot={{ r: 5, fill: overallTrendHex, stroke: "#FAF9F6", strokeWidth: 2 }}
               isAnimationActive={true}
             />
           </LineChart>
@@ -86,15 +94,12 @@ export default function PortfolioOverview() {
         </div>
       </div>
 
-      {/* Buying Power / Summary Row */}
-      <div className="py-6 border-b border-[#E8E8E3] flex justify-between items-center vault-hover px-4 -mx-4">
-        <span className="font-editorial text-lg text-[#1A1A1A]">Liquid Capital</span>
-        <span className="font-medium text-[#1A1A1A]">{formatCurrency(12450)}</span>
-      </div>
-      
+      {/* Summary Row */}
       <div className="py-6 border-b border-[#E8E8E3] flex justify-between items-center vault-hover px-4 -mx-4">
         <span className="font-editorial text-lg text-[#1A1A1A]">Total Appreciation</span>
-        <span className="font-medium text-[#1E3F20]">+{formatCurrency(totalGain)} (+{totalGainPercent.toFixed(2)}%)</span>
+        <span className={`font-medium ${overallTrendClass}`}>
+          {isOverallPositive ? '+' : ''}{formatCurrency(totalGain)} ({isOverallPositive ? '+' : ''}{totalGainPercent.toFixed(2)}%)
+        </span>
       </div>
     </div>
   );
