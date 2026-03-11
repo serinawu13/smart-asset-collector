@@ -7,7 +7,7 @@ import {
   ResponsiveContainer,
   YAxis
 } from 'recharts';
-import { adjustedPortfolioHistory, initialPortfolio } from '../lib/mockData';
+import { initialPortfolio } from '../lib/mockData';
 
 export default function PortfolioOverview() {
   const [activeTimeframe, setActiveTimeframe] = useState('1Y');
@@ -18,48 +18,49 @@ export default function PortfolioOverview() {
   const totalGain = totalValue - totalCost;
   const totalGainPercent = (totalGain / totalCost) * 100;
   
-  // Dynamic timeframe data calculation
+  // Dynamic timeframe data calculation for the header
   const getTimeframeData = (timeframe: string) => {
-    // In a real app, this would fetch actual historical data
-    // For mock purposes, we'll generate realistic-looking changes based on the timeframe
     let change = 0;
     let percent = 0;
     let label = '';
 
+    const baseChange = totalGain;
+    const basePercent = totalGainPercent;
+
     switch (timeframe) {
       case '1D':
-        change = 1050;
-        percent = 1.23;
+        change = baseChange * 0.02;
+        percent = basePercent * 0.02;
         label = 'Today';
         break;
       case '1W':
-        change = 2150;
-        percent = 2.55;
+        change = baseChange * 0.05;
+        percent = basePercent * 0.05;
         label = 'Past Week';
         break;
       case '1M':
-        change = 4150;
-        percent = 5.05;
+        change = baseChange * 0.15;
+        percent = basePercent * 0.15;
         label = 'Past Month';
         break;
       case 'YTD':
-        change = 17300;
-        percent = 25.05;
+        change = baseChange * 0.4;
+        percent = basePercent * 0.4;
         label = 'Year to Date';
         break;
       case '1Y':
-        change = 22500;
-        percent = 35.24;
+        change = baseChange * 0.6;
+        percent = basePercent * 0.6;
         label = 'Past Year';
         break;
       case '5Y':
-        change = 45000;
-        percent = 108.82;
+        change = baseChange * 0.9;
+        percent = basePercent * 0.9;
         label = 'Past 5 Years';
         break;
       case '10Y':
-        change = 65000;
-        percent = 304.45;
+        change = baseChange * 0.95;
+        percent = basePercent * 0.95;
         label = 'Past 10 Years';
         break;
       case 'ALL':
@@ -68,15 +69,93 @@ export default function PortfolioOverview() {
         label = 'All Time';
         break;
       default:
-        change = 1050;
-        percent = 1.23;
+        change = baseChange * 0.02;
+        percent = basePercent * 0.02;
         label = 'Today';
     }
 
     return { change, percent, label };
   };
 
+  // Generate dynamic chart data based on timeframe
+  const generateChartData = (timeframe: string) => {
+    const endValue = totalValue;
+    const timeframeData = getTimeframeData(timeframe);
+    const startValue = endValue - timeframeData.change;
+    const difference = endValue - startValue;
+    
+    let dataPoints: { label: string; value: number }[] = [];
+    
+    switch (timeframe) {
+      case '1D':
+        for (let i = 0; i < 24; i++) {
+          const progress = i / 23;
+          const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.005);
+          dataPoints.push({ label: `${i}:00`, value: Math.round(value) });
+        }
+        break;
+      case '1W':
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        days.forEach((day, i) => {
+          const progress = i / 6;
+          const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.01);
+          dataPoints.push({ label: day, value: Math.round(value) });
+        });
+        break;
+      case '1M':
+        for (let i = 0; i < 5; i++) {
+          const progress = i / 4;
+          const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.02);
+          dataPoints.push({ label: `Week ${i + 1}`, value: Math.round(value) });
+        }
+        break;
+      case 'YTD':
+        const currentMonth = new Date().getMonth();
+        const monthsYTD = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].slice(0, currentMonth + 1);
+        monthsYTD.forEach((month, i) => {
+          const progress = i / Math.max(1, monthsYTD.length - 1);
+          const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.03);
+          dataPoints.push({ label: month, value: Math.round(value) });
+        });
+        break;
+      case '1Y':
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        months.forEach((month, i) => {
+          const progress = i / 11;
+          const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.04);
+          dataPoints.push({ label: month, value: Math.round(value) });
+        });
+        break;
+      case '5Y':
+        for (let i = 0; i < 5; i++) {
+          const year = new Date().getFullYear() - 4 + i;
+          const progress = i / 4;
+          const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.05);
+          dataPoints.push({ label: year.toString(), value: Math.round(value) });
+        }
+        break;
+      case '10Y':
+        for (let i = 0; i < 10; i++) {
+          const year = new Date().getFullYear() - 9 + i;
+          const progress = i / 9;
+          const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.08);
+          dataPoints.push({ label: year.toString(), value: Math.round(value) });
+        }
+        break;
+      case 'ALL':
+        for (let i = 0; i < 24; i++) {
+          const progress = i / 23;
+          const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.1);
+          dataPoints.push({ label: `M${i+1}`, value: Math.round(value) });
+        }
+        break;
+    }
+    
+    return dataPoints;
+  };
+
   const timeframeData = getTimeframeData(activeTimeframe);
+  const chartData = generateChartData(activeTimeframe);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -101,6 +180,7 @@ export default function PortfolioOverview() {
   const overallTrendHex = isOverallPositive ? '#00A82D' : '#9B2226';
   const overallTrendClass = isOverallPositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
   const timeframeTrendClass = isTimeframePositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
+  const timeframeTrendHex = isTimeframePositive ? '#00A82D' : '#9B2226';
 
   return (
     <div className="flex flex-col w-full h-full">
@@ -121,15 +201,15 @@ export default function PortfolioOverview() {
       {/* Minimalist Chart */}
       <div className="h-[200px] sm:h-[250px] md:h-[300px] w-full -ml-2">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={adjustedPortfolioHistory}>
+          <LineChart data={chartData}>
             <YAxis domain={['dataMin - 1000', 'dataMax + 1000']} hide />
             <Line 
               type="monotone" 
               dataKey="value" 
-              stroke={overallTrendHex} 
+              stroke={timeframeTrendHex} 
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 5, fill: overallTrendHex, stroke: "#FAF9F6", strokeWidth: 2 }}
+              activeDot={{ r: 5, fill: timeframeTrendHex, stroke: "#FAF9F6", strokeWidth: 2 }}
               isAnimationActive={true}
             />
           </LineChart>
