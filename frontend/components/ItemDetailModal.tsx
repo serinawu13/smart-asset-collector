@@ -290,14 +290,9 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
               <div className="space-y-3">
                 <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
                   <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Total Return</span>
-                  <div className="text-right">
-                    <div className={`font-medium ${trendColor}`}>
-                      {isPositive ? '+' : ''}{formatCurrency(totalGain)}
-                    </div>
-                    <div className={`text-xs font-medium ${trendColor}`}>
-                      {isPositive ? '+' : ''}{formatPercentage(totalROI)}%
-                    </div>
-                  </div>
+                  <span className={`font-medium ${trendColor}`}>
+                    {isPositive ? '+' : ''}{formatCurrency(totalGain)} ({isPositive ? '+' : ''}{formatPercentage(totalROI)}%)
+                  </span>
                 </div>
                 <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
                   <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Market Trend</span>
