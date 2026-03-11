@@ -35,7 +35,7 @@ export default function AssetList({ onAddClick }: AssetListProps) {
       <div className="flex flex-col">
         {initialPortfolio.map((asset) => {
           const isPositive = asset.trendPercentage >= 0;
-          const trendColor = isPositive ? 'text-[#1E3F20]' : 'text-[#722F37]';
+          const trendColor = isPositive ? 'text-[#2D6A4F]' : 'text-[#9B2226]';
 
           return (
             <div key={asset.portfolioId} className="p-6 flex justify-between items-center vault-hover border-b border-[#E8E8E3] last:border-0">

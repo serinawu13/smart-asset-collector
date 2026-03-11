@@ -27,7 +27,7 @@ export default function Watchlist() {
       <div className="flex flex-col">
         {initialWatchlist.map((item) => {
           const isPositive = item.trendPercentage >= 0;
-          const trendColor = isPositive ? 'text-[#1E3F20]' : 'text-[#722F37]';
+          const trendColor = isPositive ? 'text-[#2D6A4F]' : 'text-[#9B2226]';
 
           return (
             <div key={item.watchlistId} className="p-6 flex justify-between items-center vault-hover border-b border-[#E8E8E3] last:border-0">
@@ -39,7 +39,7 @@ export default function Watchlist() {
 
               {/* Right: Price & Trend */}
               <div className="text-right">
-                <div className="font-medium text-[#1A1A1A]">{formatCurrency(item.currentMarketValue)}</div>
+                <div className={`font-medium ${trendColor}`}>{formatCurrency(item.currentMarketValue)}</div>
                 <div className={`text-xs font-medium mt-1 uppercase tracking-wider ${trendColor}`}>
                   {isPositive ? '+' : ''}{item.trendPercentage}%
                 </div>

@@ -80,7 +80,7 @@ export default function Analytics() {
           <div className="vault-card p-8">
             <p className="text-xs text-[#7A7A75] mb-2 uppercase tracking-widest">Best Performer</p>
             <p className="font-editorial text-3xl text-[#1A1A1A]">{initialPortfolio[1].brand}</p>
-            <p className="text-sm text-[#1E3F20] mt-2 font-medium uppercase tracking-wider">+8.4% All Time</p>
+            <p className="text-sm text-[#2D6A4F] mt-2 font-medium uppercase tracking-wider">+8.4% All Time</p>
           </div>
         </div>
       </div>

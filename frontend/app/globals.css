@@ -5,8 +5,8 @@
 @theme {
   --color-paper: #FAF9F6;
   --color-charcoal: #1A1A1A;
-  --color-burgundy: #722F37;
-  --color-forest: #1E3F20;
+  --color-burgundy: #9B2226; /* Brightened slightly for better contrast */
+  --color-forest: #2D6A4F; /* Brightened from #1E3F20 to a more vibrant, readable green */
   --color-border-light: #E8E8E3;
   --color-muted-text: #7A7A75;
 }

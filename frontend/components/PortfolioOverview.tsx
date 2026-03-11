@@ -37,9 +37,10 @@ export default function PortfolioOverview() {
   const isOverallPositive = totalGain >= 0;
   const isDailyPositive = dailyChange >= 0;
   
-  const overallTrendHex = isOverallPositive ? '#1E3F20' : '#722F37';
-  const overallTrendClass = isOverallPositive ? 'text-[#1E3F20]' : 'text-[#722F37]';
-  const dailyTrendClass = isDailyPositive ? 'text-[#1E3F20]' : 'text-[#722F37]';
+  // Updated to brighter, more readable colors
+  const overallTrendHex = isOverallPositive ? '#2D6A4F' : '#9B2226';
+  const overallTrendClass = isOverallPositive ? 'text-[#2D6A4F]' : 'text-[#9B2226]';
+  const dailyTrendClass = isDailyPositive ? 'text-[#2D6A4F]' : 'text-[#9B2226]';
 
   return (
     <div className="flex flex-col w-full">
