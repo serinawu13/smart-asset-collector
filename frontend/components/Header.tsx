@@ -8,7 +8,7 @@ export default function Header() {
     <header className="h-16 md:h-20 px-4 md:px-8 flex items-center justify-between border-b border-[#E8E8E3] bg-[#FAF9F6] sticky top-0 z-50">
       {/* Logo */}
       <div className="flex items-center gap-2 cursor-pointer">
-        <span className="text-2xl md:text-3xl font-editorial font-bold tracking-widest text-[#1A1A1A]">SAC.</span>
+        <span className="text-2xl md:text-3xl font-editorial font-bold tracking-widest text-[#1A1A1A]">SAC</span>
       </div>
       
       {/* Search - Hidden on mobile, centered on desktop */}
