@@ -90,7 +90,7 @@ export default function AssetList({ onAddClick }: AssetListProps) {
 
                 return (
                   <div key={asset.portfolioId} className="p-6 pl-12 flex justify-between items-center vault-hover border-b border-[#E8E8E3] last:border-0">
-                    {/* Left: Name & Category */}
+                    {/* Left: Name & Model */}
                     <div>
                       <div className="font-editorial text-lg text-[#1A1A1A]">{asset.brand}</div>
                       <div className="text-xs text-[#7A7A75] mt-1 uppercase tracking-wider">{asset.model}</div>
