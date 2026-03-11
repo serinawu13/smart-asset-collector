@@ -15,6 +15,10 @@ export default function Watchlist() {
     }).format(value);
   };
 
+  const formatPercentage = (value: number) => {
+    return value.toFixed(2);
+  };
+
   const toggleCategory = (category: string) => {
     setExpandedCategories(prev => 
       prev.includes(category) 

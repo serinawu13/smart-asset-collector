@@ -31,6 +31,10 @@ export default function PortfolioOverview() {
     }).format(value);
   };
 
+  const formatPercentage = (value: number) => {
+    return value.toFixed(2);
+  };
+
   const timeframes = ['1D', '1W', '1M', '3M', '1Y', 'ALL'];
 
   // Determine colors based on performance
@@ -52,7 +56,7 @@ export default function PortfolioOverview() {
         </h1>
         <div className="flex flex-wrap items-center gap-2 md:gap-3 text-sm font-medium">
           <span className={`${dailyTrendClass}`}>
-            {isDailyPositive ? '+' : ''}{formatCurrency(dailyChange)} ({isDailyPositive ? '+' : ''}{dailyChangePercent}%)
+            {isDailyPositive ? '+' : ''}{formatCurrency(dailyChange)} ({isDailyPositive ? '+' : ''}{formatPercentage(dailyChangePercent)}%)
           </span>
           <span className="text-[#7A7A75] uppercase tracking-wider text-xs">Today</span>
         </div>
@@ -99,7 +103,7 @@ export default function PortfolioOverview() {
       <div className="py-3 md:py-4 border-b border-[#E8E8E3] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 vault-hover px-4 -mx-4">
         <span className="font-editorial text-base md:text-lg text-[#1A1A1A]">Total Appreciation</span>
         <span className={`font-medium text-sm md:text-base ${overallTrendClass}`}>
-          {isOverallPositive ? '+' : ''}{formatCurrency(totalGain)} ({isOverallPositive ? '+' : ''}{totalGainPercent.toFixed(0)}%)
+          {isOverallPositive ? '+' : ''}{formatCurrency(totalGain)} ({isOverallPositive ? '+' : ''}{formatPercentage(totalGainPercent)}%)
         </span>
       </div>
     </div>

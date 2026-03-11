@@ -19,6 +19,10 @@ export default function AssetList({ onAddClick }: AssetListProps) {
     }).format(value);
   };
 
+  const formatPercentage = (value: number) => {
+    return value.toFixed(2);
+  };
+
   const toggleCategory = (category: string) => {
     setExpandedCategories(prev => 
       prev.includes(category) 
@@ -100,7 +104,7 @@ export default function AssetList({ onAddClick }: AssetListProps) {
                     <div className="text-left sm:text-right flex-shrink-0">
                       <div className={`font-medium text-sm md:text-base ${trendColor}`}>{formatCurrency(asset.currentMarketValue)}</div>
                       <div className={`text-xs font-medium mt-1 uppercase tracking-wider ${trendColor}`}>
-                        {isPositive ? '+' : ''}{asset.trendPercentage.toFixed(0)}%
+                        {isPositive ? '+' : ''}{formatPercentage(asset.trendPercentage)}%
                       </div>
                     </div>
                   </div>
