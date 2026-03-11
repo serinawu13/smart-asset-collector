@@ -101,7 +101,7 @@ export default function PortfolioOverview() {
 
       {/* Summary Row */}
       <div className="py-3 md:py-4 border-b border-[#E8E8E3] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 vault-hover px-4 -mx-4">
-        <span className="font-editorial text-base md:text-lg text-[#1A1A1A]">Total Appreciation</span>
+        <span className="font-editorial text-base md:text-lg text-[#1A1A1A]">Total Return</span>
         <span className={`font-medium text-sm md:text-base ${overallTrendClass}`}>
           {isOverallPositive ? '+' : ''}{formatCurrency(totalGain)} ({isOverallPositive ? '+' : ''}{formatPercentage(totalGainPercent)}%)
         </span>
