@@ -1,9 +1,8 @@
 "use client";
 
 import React from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { initialPortfolio } from '../lib/mockData';
-import { TrendingUp, TrendingDown } from 'lucide-react';
 
 export default function Analytics() {
   // Calculate category allocation
@@ -17,17 +16,8 @@ export default function Analytics() {
     return acc;
   }, [] as { name: string; value: number }[]);
 
-  const COLORS = ['#fbbf24', '#f59e0b', '#d97706', '#b45309'];
-
-  // Calculate best/worst performers
-  const performanceData = initialPortfolio.map(item => ({
-    ...item,
-    roi: ((item.currentMarketValue - item.purchasePrice) / item.purchasePrice) * 100,
-    profit: item.currentMarketValue - item.purchasePrice
-  })).sort((a, b) => b.roi - a.roi);
-
-  const bestPerformer = performanceData[0];
-  const worstPerformer = performanceData[performanceData.length - 1];
+  // Robinhood-esque colors (Green, Dark Green, Gray, etc.)
+  const COLORS = ['#00C805', '#008A03', '#333333', '#666666'];
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -39,25 +29,20 @@ export default function Analytics() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-zinc-100">Analytics & Insights</h2>
-        <p className="text-sm text-zinc-500">Deep dive into your portfolio performance</p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Allocation Chart */}
-        <div className="glass-card rounded-2xl p-6">
-          <h3 className="text-lg font-semibold text-zinc-100 mb-6">Asset Allocation</h3>
-          <div className="h-[300px] w-full">
+        <div className="rh-card p-6">
+          <h3 className="text-lg font-bold text-white mb-4">Asset Allocation</h3>
+          <div className="h-[200px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={categoryData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={80}
-                  outerRadius={110}
-                  paddingAngle={5}
+                  innerRadius={60}
+                  outerRadius={80}
+                  paddingAngle={2}
                   dataKey="value"
                   stroke="none"
                 >
@@ -67,74 +52,35 @@ export default function Analytics() {
                 </Pie>
                 <Tooltip 
                   formatter={(value: number) => formatCurrency(value)}
-                  contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px', color: '#fafafa' }}
-                  itemStyle={{ color: '#fbbf24' }}
-                />
-                <Legend 
-                  verticalAlign="bottom" 
-                  height={36}
-                  iconType="circle"
-                  formatter={(value) => <span className="text-zinc-300">{value}</span>}
+                  contentStyle={{ backgroundColor: '#000000', borderColor: '#27272a', borderRadius: '8px', color: '#ffffff' }}
+                  itemStyle={{ color: '#00C805' }}
                 />
               </PieChart>
             </ResponsiveContainer>
           </div>
+          <div className="mt-4 space-y-2">
+            {categoryData.map((category, index) => (
+              <div key={category.name} className="flex justify-between items-center text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                  <span className="text-zinc-300">{category.name}</span>
+                </div>
+                <span className="font-medium text-white">{formatCurrency(category.value)}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Performance Highlights */}
-        <div className="space-y-6">
-          {/* Best Performer */}
-          <div className="glass-card rounded-2xl p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-10 -mt-10" />
-            <h3 className="text-sm font-medium text-zinc-400 mb-4 uppercase tracking-wider">Top Performer</h3>
-            <div className="flex items-start justify-between">
-              <div>
-                <h4 className="text-xl font-bold text-zinc-100">{bestPerformer.brand}</h4>
-                <p className="text-sm text-zinc-400">{bestPerformer.model}</p>
-              </div>
-              <div className="text-right">
-                <div className="flex items-center gap-1 text-emerald-400 font-bold text-xl">
-                  <TrendingUp className="w-5 h-5" />
-                  +{bestPerformer.roi.toFixed(1)}%
-                </div>
-                <p className="text-sm text-zinc-500">+{formatCurrency(bestPerformer.profit)}</p>
-              </div>
-            </div>
+        {/* Quick Stats */}
+        <div className="space-y-4">
+          <div className="rh-card p-6">
+            <p className="text-sm text-zinc-500 mb-1">Total Assets</p>
+            <p className="text-3xl font-medium text-white">{initialPortfolio.length}</p>
           </div>
-
-          {/* Worst Performer */}
-          <div className="glass-card rounded-2xl p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 rounded-full blur-3xl -mr-10 -mt-10" />
-            <h3 className="text-sm font-medium text-zinc-400 mb-4 uppercase tracking-wider">Needs Attention</h3>
-            <div className="flex items-start justify-between">
-              <div>
-                <h4 className="text-xl font-bold text-zinc-100">{worstPerformer.brand}</h4>
-                <p className="text-sm text-zinc-400">{worstPerformer.model}</p>
-              </div>
-              <div className="text-right">
-                <div className="flex items-center gap-1 text-rose-400 font-bold text-xl">
-                  {worstPerformer.roi >= 0 ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
-                  {worstPerformer.roi > 0 ? '+' : ''}{worstPerformer.roi.toFixed(1)}%
-                </div>
-                <p className="text-sm text-zinc-500">
-                  {worstPerformer.profit > 0 ? '+' : ''}{formatCurrency(worstPerformer.profit)}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-4">
-              <p className="text-xs text-zinc-500 mb-1">Total Assets</p>
-              <p className="text-2xl font-bold text-zinc-100">{initialPortfolio.length}</p>
-            </div>
-            <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-4">
-              <p className="text-xs text-zinc-500 mb-1">Avg. ROI</p>
-              <p className="text-2xl font-bold text-amber-400">
-                +{(performanceData.reduce((acc, item) => acc + item.roi, 0) / performanceData.length).toFixed(1)}%
-              </p>
-            </div>
+          <div className="rh-card p-6">
+            <p className="text-sm text-zinc-500 mb-1">Best Performer</p>
+            <p className="text-xl font-medium text-white">{initialPortfolio[1].brand}</p>
+            <p className="text-sm text-[#00C805] mt-1">+8.4% All Time</p>
           </div>
         </div>
       </div>

@@ -1,43 +1,46 @@
 "use client";
 
 import React from 'react';
-import { Bell, Search, User } from 'lucide-react';
+import { Search, Bell, User, Gem } from 'lucide-react';
 
-interface HeaderProps {
-  title: string;
-}
-
-export default function Header({ title }: HeaderProps) {
+export default function Header() {
   return (
-    <header className="h-20 px-8 flex items-center justify-between border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-xl sticky top-0 z-10">
-      <h1 className="text-2xl font-bold tracking-tight text-zinc-100">{title}</h1>
+    <header className="h-16 px-6 flex items-center justify-between border-b border-zinc-800 bg-black sticky top-0 z-50">
+      {/* Logo */}
+      <div className="flex items-center gap-2 cursor-pointer">
+        <Gem className="w-6 h-6 text-[#00C805]" />
+        <span className="text-xl font-bold tracking-tight text-white">SAC</span>
+      </div>
       
-      <div className="flex items-center gap-6">
-        {/* Search */}
-        <div className="relative hidden md:block">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+      {/* Search - Centered */}
+      <div className="hidden md:flex flex-1 max-w-md mx-8">
+        <div className="relative w-full group">
+          <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-white transition-colors" />
           <input 
             type="text" 
             placeholder="Search assets, brands..." 
-            className="w-64 bg-zinc-900 border border-zinc-800 rounded-full py-2 pl-10 pr-4 text-sm text-zinc-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all"
+            className="w-full bg-zinc-900 hover:bg-zinc-800 border border-transparent rounded-full py-2.5 pl-11 pr-4 text-sm text-white focus:outline-none focus:bg-zinc-900 focus:border-zinc-700 transition-all"
           />
         </div>
+      </div>
 
-        {/* Notifications */}
-        <button className="relative p-2 rounded-full hover:bg-zinc-900 transition-colors">
-          <Bell className="w-5 h-5 text-zinc-400" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-amber-500 rounded-full border-2 border-zinc-950"></span>
-        </button>
+      {/* Navigation & Profile */}
+      <div className="flex items-center gap-6">
+        <nav className="hidden lg:flex items-center gap-6 text-sm font-bold text-white">
+          <a href="#" className="hover:text-[#00C805] transition-colors">Portfolio</a>
+          <a href="#" className="hover:text-[#00C805] transition-colors">Cash</a>
+          <a href="#" className="hover:text-[#00C805] transition-colors">Messages</a>
+          <a href="#" className="hover:text-[#00C805] transition-colors">Account</a>
+        </nav>
 
-        {/* Profile */}
-        <div className="flex items-center gap-3 pl-6 border-l border-zinc-800/50">
-          <div className="text-right hidden sm:block">
-            <p className="text-sm font-medium text-zinc-200">Alex Collector</p>
-            <p className="text-xs text-zinc-500">Premium Member</p>
-          </div>
-          <div className="w-10 h-10 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center">
-            <User className="w-5 h-5 text-zinc-400" />
-          </div>
+        <div className="flex items-center gap-4">
+          <button className="relative p-2 hover:bg-zinc-900 rounded-full transition-colors">
+            <Bell className="w-5 h-5 text-white" />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#00C805] rounded-full"></span>
+          </button>
+          <button className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 transition-colors">
+            <User className="w-4 h-4 text-white" />
+          </button>
         </div>
       </div>
     </header>

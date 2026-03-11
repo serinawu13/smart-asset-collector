@@ -2,88 +2,68 @@
 
 import React from 'react';
 import { initialWatchlist } from '../lib/mockData';
-import { Bell, BellRing, TrendingUp, TrendingDown, Minus, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 export default function Watchlist() {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-      maximumFractionDigits: 0,
+      maximumFractionDigits: 2,
     }).format(value);
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-zinc-100">Watchlist</h2>
-          <p className="text-sm text-zinc-500">Track market prices for your next acquisition</p>
-        </div>
-        <button className="flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-100 px-4 py-2 rounded-lg font-medium transition-all">
-          <Plus className="w-4 h-4" />
-          Add to Watchlist
+    <div className="rh-card">
+      {/* Header */}
+      <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
+        <h2 className="font-bold text-lg text-white">Lists</h2>
+        <button className="p-1.5 rounded-full hover:bg-zinc-800 transition-colors text-white">
+          <Plus className="w-5 h-5" />
         </button>
       </div>
 
-      <div className="glass-card rounded-2xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-zinc-800/50 bg-zinc-900/30">
-                <th className="p-4 text-xs font-semibold text-zinc-400 uppercase tracking-wider">Asset</th>
-                <th className="p-4 text-xs font-semibold text-zinc-400 uppercase tracking-wider">Category</th>
-                <th className="p-4 text-xs font-semibold text-zinc-400 uppercase tracking-wider">Market Value</th>
-                <th className="p-4 text-xs font-semibold text-zinc-400 uppercase tracking-wider">Target Price</th>
-                <th className="p-4 text-xs font-semibold text-zinc-400 uppercase tracking-wider">Trend</th>
-                <th className="p-4 text-xs font-semibold text-zinc-400 uppercase tracking-wider text-right">Alerts</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-800/50">
-              {initialWatchlist.map((item) => (
-                <tr key={item.watchlistId} className="hover:bg-zinc-900/30 transition-colors">
-                  <td className="p-4">
-                    <div className="font-bold text-zinc-100">{item.brand}</div>
-                    <div className="text-sm text-zinc-500">{item.model}</div>
-                  </td>
-                  <td className="p-4">
-                    <span className="px-2 py-1 text-xs font-medium rounded-md bg-zinc-800 text-zinc-300">
-                      {item.category}
-                    </span>
-                  </td>
-                  <td className="p-4 font-medium text-zinc-100">
-                    {formatCurrency(item.currentMarketValue)}
-                  </td>
-                  <td className="p-4 text-zinc-400">
-                    {item.targetPrice ? formatCurrency(item.targetPrice) : '-'}
-                  </td>
-                  <td className="p-4">
-                    <div className="flex items-center gap-1">
-                      {item.trend === 'up' && <TrendingUp className="w-4 h-4 text-emerald-400" />}
-                      {item.trend === 'down' && <TrendingDown className="w-4 h-4 text-rose-400" />}
-                      {item.trend === 'stable' && <Minus className="w-4 h-4 text-zinc-400" />}
-                      <span className={`text-sm font-medium ${
-                        item.trend === 'up' ? 'text-emerald-400' : 
-                        item.trend === 'down' ? 'text-rose-400' : 'text-zinc-400'
-                      }`}>
-                        {item.trendPercentage > 0 ? '+' : ''}{item.trendPercentage}%
-                      </span>
-                    </div>
-                  </td>
-                  <td className="p-4 text-right">
-                    <button className={`p-2 rounded-lg transition-colors ${
-                      item.alertActive 
-                        ? 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30' 
-                        : 'bg-zinc-800 text-zinc-500 hover:bg-zinc-700'
-                    }`}>
-                      {item.alertActive ? <BellRing className="w-4 h-4" /> : <Bell className="w-4 h-4" />}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {/* Subheader */}
+      <div className="px-4 py-2 bg-zinc-900/30 border-b border-zinc-800">
+        <h3 className="text-sm font-bold text-white">Watchlist</h3>
+      </div>
+
+      {/* List */}
+      <div className="flex flex-col">
+        {initialWatchlist.map((item) => {
+          const isPositive = item.trendPercentage >= 0;
+          const trendColor = isPositive ? 'text-[#00C805]' : 'text-[#FF5000]';
+
+          return (
+            <div key={item.watchlistId} className="p-4 flex justify-between items-center rh-hover border-b border-zinc-800 last:border-0">
+              {/* Left: Name & Category */}
+              <div>
+                <div className="font-bold text-white">{item.brand}</div>
+                <div className="text-xs text-zinc-500 mt-0.5">{item.category}</div>
+              </div>
+
+              {/* Middle: Mini Chart */}
+              <div className="hidden sm:block w-16 h-8">
+                <svg viewBox="0 0 100 30" className="w-full h-full preserve-3d">
+                  <path 
+                    d={isPositive ? "M0,25 Q25,25 50,15 T100,5" : "M0,5 Q25,5 50,15 T100,25"} 
+                    fill="none" 
+                    stroke={isPositive ? "#00C805" : "#FF5000"} 
+                    strokeWidth="2"
+                  />
+                </svg>
+              </div>
+
+              {/* Right: Price & Trend */}
+              <div className="text-right">
+                <div className="font-medium text-white">{formatCurrency(item.currentMarketValue)}</div>
+                <div className={`text-sm font-medium mt-0.5 ${trendColor}`}>
+                  {isPositive ? '+' : ''}{item.trendPercentage}%
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

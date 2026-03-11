@@ -2,33 +2,33 @@
 @import "tw-animate-css";
 
 @theme {
-  --color-background: #09090b;
-  --color-foreground: #fafafa;
+  --color-background: #000000;
+  --color-foreground: #ffffff;
   
-  --color-card: #18181b;
-  --color-card-foreground: #fafafa;
+  --color-card: #000000;
+  --color-card-foreground: #ffffff;
   
-  --color-popover: #18181b;
-  --color-popover-foreground: #fafafa;
+  --color-popover: #000000;
+  --color-popover-foreground: #ffffff;
   
-  --color-primary: #fbbf24;
-  --color-primary-foreground: #09090b;
+  --color-primary: #00C805;
+  --color-primary-foreground: #000000;
   
-  --color-secondary: #27272a;
-  --color-secondary-foreground: #fafafa;
+  --color-secondary: #1e1e24;
+  --color-secondary-foreground: #ffffff;
   
-  --color-muted: #27272a;
-  --color-muted-foreground: #a1a1aa;
+  --color-muted: #1e1e24;
+  --color-muted-foreground: #8A8A8E;
   
-  --color-accent: #27272a;
-  --color-accent-foreground: #fafafa;
+  --color-accent: #1e1e24;
+  --color-accent-foreground: #ffffff;
   
-  --color-destructive: #7f1d1d;
-  --color-destructive-foreground: #fafafa;
+  --color-destructive: #FF5000;
+  --color-destructive-foreground: #ffffff;
   
   --color-border: #27272a;
   --color-input: #27272a;
-  --color-ring: #fbbf24;
+  --color-ring: #00C805;
   
   --radius-lg: 0.5rem;
   --radius-md: calc(0.5rem - 2px);
@@ -43,34 +43,22 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
-/* Custom Scrollbar for the Terminal feel */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 0px;
+  background: transparent;
 }
 
-::-webkit-scrollbar-track {
-  background: #09090b;
+/* Utilities */
+.rh-card {
+  @apply bg-black border border-zinc-800 rounded-xl overflow-hidden;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #27272a;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
-}
-
-/* Utility for glassmorphism */
-.glass-panel {
-  @apply bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/50 shadow-xl;
-}
-
-.glass-card {
-  @apply bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 hover:bg-zinc-900/60 hover:border-zinc-700/50 transition-all duration-300;
+.rh-hover {
+  @apply hover:bg-zinc-900/50 transition-colors cursor-pointer;
 }
 
