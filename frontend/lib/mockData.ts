@@ -142,6 +142,13 @@ export const initialPortfolio: PortfolioAsset[] = [
     purchaseDate: '2020-02-14',
     condition: 'Good',
   },
+  {
+    ...luxuryDatabase[2], // Audemars Piguet Royal Oak
+    portfolioId: 'port-4',
+    purchasePrice: 45000, // Bought higher than current market value (42000)
+    purchaseDate: '2023-01-10',
+    condition: 'Excellent',
+  }
 ];
 
 // User's Watchlist
@@ -176,19 +183,19 @@ export const portfolioHistory = [
   { month: 'Dec', value: 34350 }, // Current total: 14500 + 22500 + 7350 = 44350 (Wait, let's adjust the chart to match current total)
 ];
 
-// Adjusting history to match current total of 44,350
+// Adjusting history to match current total of 86,350
 export const adjustedPortfolioHistory = [
-  { month: 'Jan', value: 29050 },
-  { month: 'Feb', value: 30100 },
-  { month: 'Mar', value: 31800 },
-  { month: 'Apr', value: 32200 },
-  { month: 'May', value: 33050 },
-  { month: 'Jun', value: 35500 }, 
-  { month: 'Jul', value: 37100 },
-  { month: 'Aug', value: 39400 },
-  { month: 'Sep', value: 41800 },
-  { month: 'Oct', value: 42200 },
-  { month: 'Nov', value: 43350 },
-  { month: 'Dec', value: 44350 }, 
+  { month: 'Jan', value: 69050 },
+  { month: 'Feb', value: 70100 },
+  { month: 'Mar', value: 71800 },
+  { month: 'Apr', value: 72200 },
+  { month: 'May', value: 73050 },
+  { month: 'Jun', value: 75500 }, 
+  { month: 'Jul', value: 77100 },
+  { month: 'Aug', value: 79400 },
+  { month: 'Sep', value: 81800 },
+  { month: 'Oct', value: 82200 },
+  { month: 'Nov', value: 84350 },
+  { month: 'Dec', value: 86350 }, 
 ];
 
