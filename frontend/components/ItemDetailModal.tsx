@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Edit2, Check, XIcon } from 'lucide-react';
 import { PortfolioAsset } from '../lib/mockData';
 import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
 
@@ -13,6 +13,15 @@ interface ItemDetailModalProps {
 
 export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailModalProps) {
   const [activeTimeframe, setActiveTimeframe] = useState('1Y');
+  const [isEditingPurchase, setIsEditingPurchase] = useState(false);
+  const [isEditingSpecs, setIsEditingSpecs] = useState(false);
+  
+  // Editable fields state
+  const [editedPurchasePrice, setEditedPurchasePrice] = useState('');
+  const [editedPurchaseDate, setEditedPurchaseDate] = useState('');
+  const [editedCondition, setEditedCondition] = useState('');
+  const [editedMaterial, setEditedMaterial] = useState('');
+  const [editedSize, setEditedSize] = useState('');
 
   if (!isOpen || !asset) return null;
 
@@ -46,7 +55,6 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
     
     switch (timeframe) {
       case '1D':
-        // 24 hours (hourly data)
         for (let i = 0; i < 24; i++) {
           const progress = i / 23;
           const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.02);
@@ -54,7 +62,6 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
         }
         break;
       case '1W':
-        // 7 days
         const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
         days.forEach((day, i) => {
           const progress = i / 6;
@@ -63,7 +70,6 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
         });
         break;
       case '1M':
-        // 30 days (weekly data points)
         for (let i = 0; i < 5; i++) {
           const progress = i / 4;
           const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.04);
@@ -71,7 +77,6 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
         }
         break;
       case '3M':
-        // 3 months (monthly data)
         for (let i = 0; i < 12; i++) {
           const progress = i / 11;
           const value = startValue + (difference * progress * 0.25) + (Math.random() - 0.5) * (startValue * 0.04);
@@ -79,7 +84,6 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
         }
         break;
       case '1Y':
-        // 12 months
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         months.forEach((month, i) => {
           const progress = i / 11;
@@ -88,7 +92,6 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
         });
         break;
       case 'ALL':
-        // Since purchase date to now
         const purchaseDate = new Date(asset.purchaseDate);
         const now = new Date();
         const monthsDiff = Math.max(1, Math.floor((now.getTime() - purchaseDate.getTime()) / (1000 * 60 * 60 * 24 * 30)));
@@ -107,6 +110,40 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
 
   const itemHistory = generateItemHistory(activeTimeframe);
   const timeframes = ['1D', '1W', '1M', '3M', '1Y', 'ALL'];
+
+  // Edit handlers
+  const handleEditPurchase = () => {
+    setEditedPurchasePrice(asset.purchasePrice.toString());
+    setEditedPurchaseDate(asset.purchaseDate);
+    setIsEditingPurchase(true);
+  };
+
+  const handleSavePurchase = () => {
+    // In a real app, this would save to backend/state management
+    console.log('Saving purchase details:', { editedPurchasePrice, editedPurchaseDate });
+    setIsEditingPurchase(false);
+  };
+
+  const handleCancelPurchase = () => {
+    setIsEditingPurchase(false);
+  };
+
+  const handleEditSpecs = () => {
+    setEditedCondition(asset.condition);
+    setEditedMaterial(asset.material || '');
+    setEditedSize(asset.size || '');
+    setIsEditingSpecs(true);
+  };
+
+  const handleSaveSpecs = () => {
+    // In a real app, this would save to backend/state management
+    console.log('Saving specifications:', { editedCondition, editedMaterial, editedSize });
+    setIsEditingSpecs(false);
+  };
+
+  const handleCancelSpecs = () => {
+    setIsEditingSpecs(false);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1A1A1A]/60 backdrop-blur-sm">
@@ -188,15 +225,58 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {/* Purchase Details */}
             <div className="vault-card p-6">
-              <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-3">Purchase Details</p>
+              <div className="flex justify-between items-center mb-3">
+                <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest">Purchase Details</p>
+                {!isEditingPurchase ? (
+                  <button 
+                    onClick={handleEditPurchase}
+                    className="p-1.5 hover:bg-[#E8E8E3] transition-colors rounded"
+                  >
+                    <Edit2 className="w-3.5 h-3.5 text-[#7A7A75]" />
+                  </button>
+                ) : (
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={handleSavePurchase}
+                      className="p-1.5 hover:bg-[#00A82D]/10 transition-colors rounded"
+                    >
+                      <Check className="w-3.5 h-3.5 text-[#00A82D]" />
+                    </button>
+                    <button 
+                      onClick={handleCancelPurchase}
+                      className="p-1.5 hover:bg-[#9B2226]/10 transition-colors rounded"
+                    >
+                      <XIcon className="w-3.5 h-3.5 text-[#9B2226]" />
+                    </button>
+                  </div>
+                )}
+              </div>
               <div className="space-y-3">
                 <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
                   <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Purchase Price</span>
-                  <span className="font-medium text-[#1A1A1A]">{formatCurrency(asset.purchasePrice)}</span>
+                  {isEditingPurchase ? (
+                    <input
+                      type="number"
+                      value={editedPurchasePrice}
+                      onChange={(e) => setEditedPurchasePrice(e.target.value)}
+                      className="font-medium text-[#1A1A1A] bg-white border border-[#E8E8E3] px-2 py-1 text-sm text-right w-32"
+                    />
+                  ) : (
+                    <span className="font-medium text-[#1A1A1A]">{formatCurrency(asset.purchasePrice)}</span>
+                  )}
                 </div>
                 <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
                   <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Purchase Date</span>
-                  <span className="font-medium text-[#1A1A1A]">{new Date(asset.purchaseDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                  {isEditingPurchase ? (
+                    <input
+                      type="date"
+                      value={editedPurchaseDate}
+                      onChange={(e) => setEditedPurchaseDate(e.target.value)}
+                      className="font-medium text-[#1A1A1A] bg-white border border-[#E8E8E3] px-2 py-1 text-sm"
+                    />
+                  ) : (
+                    <span className="font-medium text-[#1A1A1A]">{new Date(asset.purchaseDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                  )}
                 </div>
               </div>
             </div>
@@ -229,24 +309,78 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
 
           {/* Specifications */}
           <div className="vault-card p-6">
-            <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-3">Specifications</p>
+            <div className="flex justify-between items-center mb-3">
+              <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest">Specifications</p>
+              {!isEditingSpecs ? (
+                <button 
+                  onClick={handleEditSpecs}
+                  className="p-1.5 hover:bg-[#E8E8E3] transition-colors rounded"
+                >
+                  <Edit2 className="w-3.5 h-3.5 text-[#7A7A75]" />
+                </button>
+              ) : (
+                <div className="flex gap-2">
+                  <button 
+                    onClick={handleSaveSpecs}
+                    className="p-1.5 hover:bg-[#00A82D]/10 transition-colors rounded"
+                  >
+                    <Check className="w-3.5 h-3.5 text-[#00A82D]" />
+                  </button>
+                  <button 
+                    onClick={handleCancelSpecs}
+                    className="p-1.5 hover:bg-[#9B2226]/10 transition-colors rounded"
+                  >
+                    <XIcon className="w-3.5 h-3.5 text-[#9B2226]" />
+                  </button>
+                </div>
+              )}
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
                 <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Condition</span>
-                <span className="font-medium text-[#1A1A1A]">{asset.condition}</span>
+                {isEditingSpecs ? (
+                  <select
+                    value={editedCondition}
+                    onChange={(e) => setEditedCondition(e.target.value)}
+                    className="font-medium text-[#1A1A1A] bg-white border border-[#E8E8E3] px-2 py-1 text-sm"
+                  >
+                    <option value="Pristine">Pristine</option>
+                    <option value="Excellent">Excellent</option>
+                    <option value="Good">Good</option>
+                    <option value="Fair">Fair</option>
+                  </select>
+                ) : (
+                  <span className="font-medium text-[#1A1A1A]">{asset.condition}</span>
+                )}
               </div>
-              {asset.material && (
-                <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
-                  <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Material</span>
-                  <span className="font-medium text-[#1A1A1A]">{asset.material}</span>
-                </div>
-              )}
-              {asset.size && (
-                <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
-                  <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Size</span>
-                  <span className="font-medium text-[#1A1A1A]">{asset.size}</span>
-                </div>
-              )}
+              <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
+                <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Material</span>
+                {isEditingSpecs ? (
+                  <input
+                    type="text"
+                    value={editedMaterial}
+                    onChange={(e) => setEditedMaterial(e.target.value)}
+                    placeholder="Enter material"
+                    className="font-medium text-[#1A1A1A] bg-white border border-[#E8E8E3] px-2 py-1 text-sm text-right w-40"
+                  />
+                ) : (
+                  <span className="font-medium text-[#1A1A1A]">{asset.material || '—'}</span>
+                )}
+              </div>
+              <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
+                <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Size</span>
+                {isEditingSpecs ? (
+                  <input
+                    type="text"
+                    value={editedSize}
+                    onChange={(e) => setEditedSize(e.target.value)}
+                    placeholder="Enter size"
+                    className="font-medium text-[#1A1A1A] bg-white border border-[#E8E8E3] px-2 py-1 text-sm text-right w-40"
+                  />
+                ) : (
+                  <span className="font-medium text-[#1A1A1A]">{asset.size || '—'}</span>
+                )}
+              </div>
             </div>
           </div>
         </div>
