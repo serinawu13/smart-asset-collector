@@ -16,8 +16,8 @@ export default function Analytics() {
     return acc;
   }, [] as { name: string; value: number }[]);
 
-  // Robinhood-esque colors (Green, Dark Green, Gray, etc.)
-  const COLORS = ['#00C805', '#008A03', '#333333', '#666666'];
+  // Editorial colors: Deep Charcoal, Dark Green, Burgundy, Muted Gray
+  const COLORS = ['#1A1A1A', '#1E3F20', '#722F37', '#7A7A75'];
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -28,20 +28,20 @@ export default function Analytics() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Allocation Chart */}
-        <div className="rh-card p-6">
-          <h3 className="text-lg font-bold text-white mb-4">Asset Allocation</h3>
-          <div className="h-[200px] w-full">
+        <div className="vault-card p-8">
+          <h3 className="font-editorial text-2xl text-[#1A1A1A] mb-8">Asset Allocation</h3>
+          <div className="h-[240px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={categoryData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
+                  innerRadius={70}
+                  outerRadius={100}
                   paddingAngle={2}
                   dataKey="value"
                   stroke="none"
@@ -52,35 +52,35 @@ export default function Analytics() {
                 </Pie>
                 <Tooltip 
                   formatter={(value: number) => formatCurrency(value)}
-                  contentStyle={{ backgroundColor: '#000000', borderColor: '#27272a', borderRadius: '8px', color: '#ffffff' }}
-                  itemStyle={{ color: '#00C805' }}
+                  contentStyle={{ backgroundColor: '#1A1A1A', borderColor: '#1A1A1A', borderRadius: '0px', color: '#FAF9F6' }}
+                  itemStyle={{ color: '#FAF9F6' }}
                 />
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="mt-4 space-y-2">
+          <div className="mt-8 space-y-4">
             {categoryData.map((category, index) => (
-              <div key={category.name} className="flex justify-between items-center text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
-                  <span className="text-zinc-300">{category.name}</span>
+              <div key={category.name} className="flex justify-between items-center text-sm border-b border-[#E8E8E3] pb-2 last:border-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                  <span className="text-[#7A7A75] uppercase tracking-widest text-xs">{category.name}</span>
                 </div>
-                <span className="font-medium text-white">{formatCurrency(category.value)}</span>
+                <span className="font-medium text-[#1A1A1A]">{formatCurrency(category.value)}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Quick Stats */}
-        <div className="space-y-4">
-          <div className="rh-card p-6">
-            <p className="text-sm text-zinc-500 mb-1">Total Assets</p>
-            <p className="text-3xl font-medium text-white">{initialPortfolio.length}</p>
+        <div className="space-y-8">
+          <div className="vault-card p-8 bg-[#1A1A1A] text-[#FAF9F6]">
+            <p className="text-xs text-[#7A7A75] mb-2 uppercase tracking-widest">Total Assets</p>
+            <p className="font-editorial text-5xl">{initialPortfolio.length}</p>
           </div>
-          <div className="rh-card p-6">
-            <p className="text-sm text-zinc-500 mb-1">Best Performer</p>
-            <p className="text-xl font-medium text-white">{initialPortfolio[1].brand}</p>
-            <p className="text-sm text-[#00C805] mt-1">+8.4% All Time</p>
+          <div className="vault-card p-8">
+            <p className="text-xs text-[#7A7A75] mb-2 uppercase tracking-widest">Best Performer</p>
+            <p className="font-editorial text-3xl text-[#1A1A1A]">{initialPortfolio[1].brand}</p>
+            <p className="text-sm text-[#1E3F20] mt-2 font-medium uppercase tracking-wider">+8.4% All Time</p>
           </div>
         </div>
       </div>

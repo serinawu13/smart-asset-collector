@@ -36,30 +36,31 @@ export default function PortfolioOverview() {
   return (
     <div className="flex flex-col w-full">
       {/* Big Number Header */}
-      <div className="mb-6">
-        <h1 className="text-5xl md:text-6xl font-medium tracking-tight text-white mb-2">
+      <div className="mb-10">
+        <p className="text-sm font-medium text-[#7A7A75] uppercase tracking-widest mb-4">Total Vault Value</p>
+        <h1 className="text-6xl md:text-7xl font-editorial text-[#1A1A1A] mb-4">
           {formatCurrency(totalValue)}
         </h1>
-        <div className="flex items-center gap-2 text-sm md:text-base font-medium">
-          <span className="text-[#00C805]">
+        <div className="flex items-center gap-3 text-base font-medium">
+          <span className="text-[#1E3F20] bg-[#1E3F20]/10 px-3 py-1 rounded-none">
             +{formatCurrency(dailyChange)} (+{dailyChangePercent}%)
           </span>
-          <span className="text-zinc-500">Today</span>
+          <span className="text-[#7A7A75] uppercase tracking-wider text-xs">Today</span>
         </div>
       </div>
 
       {/* Minimalist Chart */}
-      <div className="h-[250px] md:h-[300px] w-full -ml-2">
+      <div className="h-[300px] md:h-[400px] w-full -ml-2">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={adjustedPortfolioHistory}>
             <YAxis domain={['dataMin - 1000', 'dataMax + 1000']} hide />
             <Line 
               type="monotone" 
               dataKey="value" 
-              stroke="#00C805" 
+              stroke="#1A1A1A" 
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 4, fill: "#00C805", stroke: "#000", strokeWidth: 2 }}
+              activeDot={{ r: 5, fill: "#1A1A1A", stroke: "#FAF9F6", strokeWidth: 2 }}
               isAnimationActive={true}
             />
           </LineChart>
@@ -67,16 +68,16 @@ export default function PortfolioOverview() {
       </div>
 
       {/* Timeframe Selector */}
-      <div className="flex items-center justify-between border-b border-zinc-800 pb-4 mt-4">
-        <div className="flex gap-1 md:gap-4">
+      <div className="flex items-center justify-between border-b border-[#E8E8E3] pb-4 mt-8">
+        <div className="flex gap-2 md:gap-6">
           {timeframes.map((period) => (
             <button 
               key={period}
               onClick={() => setActiveTimeframe(period)}
-              className={`px-3 py-1.5 text-sm font-bold rounded-md transition-colors ${
+              className={`px-2 py-1 text-xs font-medium uppercase tracking-widest transition-colors ${
                 activeTimeframe === period 
-                  ? 'text-[#00C805] bg-[#00C805]/10' 
-                  : 'text-zinc-500 hover:text-white'
+                  ? 'text-[#1A1A1A] border-b border-[#1A1A1A]' 
+                  : 'text-[#7A7A75] hover:text-[#1A1A1A]'
               }`}
             >
               {period}
@@ -86,14 +87,14 @@ export default function PortfolioOverview() {
       </div>
 
       {/* Buying Power / Summary Row */}
-      <div className="py-5 border-b border-zinc-800 flex justify-between items-center hover:bg-zinc-900/30 transition-colors cursor-pointer px-2 -mx-2 rounded-lg">
-        <span className="font-medium text-white">Buying Power</span>
-        <span className="font-medium text-white">{formatCurrency(12450)}</span>
+      <div className="py-6 border-b border-[#E8E8E3] flex justify-between items-center vault-hover px-4 -mx-4">
+        <span className="font-editorial text-lg text-[#1A1A1A]">Liquid Capital</span>
+        <span className="font-medium text-[#1A1A1A]">{formatCurrency(12450)}</span>
       </div>
       
-      <div className="py-5 border-b border-zinc-800 flex justify-between items-center hover:bg-zinc-900/30 transition-colors cursor-pointer px-2 -mx-2 rounded-lg">
-        <span className="font-medium text-white">Total Return</span>
-        <span className="font-medium text-[#00C805]">+{formatCurrency(totalGain)} (+{totalGainPercent.toFixed(2)}%)</span>
+      <div className="py-6 border-b border-[#E8E8E3] flex justify-between items-center vault-hover px-4 -mx-4">
+        <span className="font-editorial text-lg text-[#1A1A1A]">Total Appreciation</span>
+        <span className="font-medium text-[#1E3F20]">+{formatCurrency(totalGain)} (+{totalGainPercent.toFixed(2)}%)</span>
       </div>
     </div>
   );

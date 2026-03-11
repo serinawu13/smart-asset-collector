@@ -13,20 +13,21 @@ export default function AssetList({ onAddClick }: AssetListProps) {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-      maximumFractionDigits: 2,
+      maximumFractionDigits: 0,
     }).format(value);
   };
 
   return (
-    <div className="rh-card">
+    <div className="vault-card">
       {/* Header */}
-      <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-        <h2 className="font-bold text-lg text-white">Portfolio</h2>
+      <div className="p-6 border-b border-[#E8E8E3] flex justify-between items-center bg-[#FAF9F6]">
+        <h2 className="font-editorial text-2xl text-[#1A1A1A]">Collection</h2>
         <button 
           onClick={onAddClick}
-          className="p-1.5 rounded-full hover:bg-zinc-800 transition-colors text-white"
+          className="p-2 border border-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-[#FAF9F6] transition-colors text-[#1A1A1A] flex items-center gap-2 text-xs uppercase tracking-widest font-medium"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-4 h-4" />
+          <span>Acquire</span>
         </button>
       </div>
 
@@ -34,32 +35,20 @@ export default function AssetList({ onAddClick }: AssetListProps) {
       <div className="flex flex-col">
         {initialPortfolio.map((asset) => {
           const isPositive = asset.trendPercentage >= 0;
-          const trendColor = isPositive ? 'text-[#00C805]' : 'text-[#FF5000]';
+          const trendColor = isPositive ? 'text-[#1E3F20]' : 'text-[#722F37]';
 
           return (
-            <div key={asset.portfolioId} className="p-4 flex justify-between items-center rh-hover border-b border-zinc-800 last:border-0">
+            <div key={asset.portfolioId} className="p-6 flex justify-between items-center vault-hover border-b border-[#E8E8E3] last:border-0">
               {/* Left: Name & Category */}
               <div>
-                <div className="font-bold text-white">{asset.brand}</div>
-                <div className="text-xs text-zinc-500 mt-0.5">{asset.category} • {asset.model.substring(0, 15)}...</div>
-              </div>
-
-              {/* Middle: Mini Chart (Simulated with a simple SVG line for aesthetic) */}
-              <div className="hidden sm:block w-16 h-8">
-                <svg viewBox="0 0 100 30" className="w-full h-full preserve-3d">
-                  <path 
-                    d={isPositive ? "M0,25 Q25,25 50,15 T100,5" : "M0,5 Q25,5 50,15 T100,25"} 
-                    fill="none" 
-                    stroke={isPositive ? "#00C805" : "#FF5000"} 
-                    strokeWidth="2"
-                  />
-                </svg>
+                <div className="font-editorial text-lg text-[#1A1A1A]">{asset.brand}</div>
+                <div className="text-xs text-[#7A7A75] mt-1 uppercase tracking-wider">{asset.category} • {asset.model}</div>
               </div>
 
               {/* Right: Price & Trend */}
               <div className="text-right">
-                <div className="font-medium text-white">{formatCurrency(asset.currentMarketValue)}</div>
-                <div className={`text-sm font-medium mt-0.5 ${trendColor}`}>
+                <div className="font-medium text-[#1A1A1A]">{formatCurrency(asset.currentMarketValue)}</div>
+                <div className={`text-xs font-medium mt-1 uppercase tracking-wider ${trendColor}`}>
                   {isPositive ? '+' : ''}{asset.trendPercentage}%
                 </div>
               </div>

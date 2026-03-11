@@ -39,110 +39,110 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm">
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1A1A1A]/40 backdrop-blur-sm">
+      <div className="bg-[#FAF9F6] border border-[#E8E8E3] w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-zinc-800/50">
+        <div className="flex items-center justify-between p-8 border-b border-[#E8E8E3] bg-white">
           <div>
-            <h2 className="text-xl font-bold text-zinc-100">Add New Asset</h2>
-            <p className="text-sm text-zinc-500">
-              {step === 1 ? 'Select an item from the database' : 'Enter purchase details'}
+            <h2 className="font-editorial text-3xl text-[#1A1A1A]">Acquire Asset</h2>
+            <p className="text-xs text-[#7A7A75] uppercase tracking-widest mt-2">
+              {step === 1 ? 'Select from the archive' : 'Enter acquisition details'}
             </p>
           </div>
           <button 
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-zinc-800 text-zinc-400 transition-colors"
+            className="p-2 hover:bg-[#E8E8E3] text-[#1A1A1A] transition-colors rounded-full"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto flex-1">
+        <div className="p-8 overflow-y-auto flex-1 bg-[#FAF9F6]">
           {step === 1 ? (
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div className="relative">
-                <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+                <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-[#7A7A75]" />
                 <input 
                   type="text" 
-                  placeholder="Search by brand or model (e.g., Rolex Submariner)" 
+                  placeholder="Search by brand or model..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-3 pl-11 pr-4 text-zinc-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all"
+                  className="w-full bg-white border border-[#E8E8E3] py-4 pl-12 pr-4 text-[#1A1A1A] placeholder:text-[#7A7A75] focus:outline-none focus:border-[#1A1A1A] transition-all"
                 />
               </div>
 
-              <div className="space-y-2 mt-4">
+              <div className="space-y-3 mt-6">
                 {filteredItems.map(item => (
                   <div 
                     key={item.id}
                     onClick={() => setSelectedItem(item)}
-                    className={`p-4 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
+                    className={`p-5 border cursor-pointer transition-all flex items-center justify-between bg-white ${
                       selectedItem?.id === item.id 
-                        ? 'bg-amber-500/10 border-amber-500/50' 
-                        : 'bg-zinc-950/50 border-zinc-800/50 hover:border-zinc-700'
+                        ? 'border-[#1A1A1A] shadow-sm' 
+                        : 'border-[#E8E8E3] hover:border-[#1A1A1A]/50'
                     }`}
                   >
                     <div>
-                      <h4 className="font-bold text-zinc-100">{item.brand}</h4>
-                      <p className="text-sm text-zinc-400">{item.model}</p>
-                      <div className="flex gap-2 mt-2">
-                        <span className="text-xs text-zinc-500 bg-zinc-900 px-2 py-1 rounded-md">{item.category}</span>
-                        <span className="text-xs text-zinc-500 bg-zinc-900 px-2 py-1 rounded-md">Market: ${item.currentMarketValue.toLocaleString()}</span>
+                      <h4 className="font-editorial text-xl text-[#1A1A1A]">{item.brand}</h4>
+                      <p className="text-sm text-[#7A7A75] mt-1">{item.model}</p>
+                      <div className="flex gap-3 mt-3">
+                        <span className="text-xs text-[#1A1A1A] uppercase tracking-widest border border-[#E8E8E3] px-2 py-1">{item.category}</span>
+                        <span className="text-xs text-[#1A1A1A] uppercase tracking-widest border border-[#E8E8E3] px-2 py-1">Est: ${item.currentMarketValue.toLocaleString()}</span>
                       </div>
                     </div>
                     {selectedItem?.id === item.id && (
-                      <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center">
-                        <Check className="w-4 h-4 text-zinc-950" />
+                      <div className="w-8 h-8 bg-[#1A1A1A] flex items-center justify-center rounded-full">
+                        <Check className="w-4 h-4 text-[#FAF9F6]" />
                       </div>
                     )}
                   </div>
                 ))}
                 {filteredItems.length === 0 && (
-                  <div className="text-center py-8 text-zinc-500">
-                    No items found matching "{searchQuery}"
+                  <div className="text-center py-12 text-[#7A7A75] font-editorial text-lg">
+                    No items found in the archive matching "{searchQuery}"
                   </div>
                 )}
               </div>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-8">
               {selectedItem && (
-                <div className="p-4 rounded-xl bg-zinc-950/50 border border-zinc-800/50 mb-6">
-                  <h4 className="font-bold text-zinc-100">{selectedItem.brand}</h4>
-                  <p className="text-sm text-zinc-400">{selectedItem.model}</p>
+                <div className="p-6 bg-white border border-[#E8E8E3]">
+                  <h4 className="font-editorial text-2xl text-[#1A1A1A]">{selectedItem.brand}</h4>
+                  <p className="text-sm text-[#7A7A75] mt-1">{selectedItem.model}</p>
                 </div>
               )}
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-zinc-400 mb-1">Purchase Price (USD)</label>
+                  <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">Acquisition Price (USD)</label>
                   <input 
                     type="number" 
                     value={purchasePrice}
                     onChange={(e) => setPurchasePrice(e.target.value)}
                     placeholder="e.g. 10500"
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-3 px-4 text-zinc-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all"
+                    className="w-full bg-white border border-[#E8E8E3] py-3 px-4 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] transition-all"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-zinc-400 mb-1">Purchase Date</label>
+                  <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">Date of Acquisition</label>
                   <input 
                     type="date" 
                     value={purchaseDate}
                     onChange={(e) => setPurchaseDate(e.target.value)}
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-3 px-4 text-zinc-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all"
+                    className="w-full bg-white border border-[#E8E8E3] py-3 px-4 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-zinc-400 mb-1">Condition</label>
+                  <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">Condition</label>
                   <select 
                     value={condition}
                     onChange={(e) => setCondition(e.target.value)}
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-3 px-4 text-zinc-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all appearance-none"
+                    className="w-full bg-white border border-[#E8E8E3] py-3 px-4 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] transition-all appearance-none"
                   >
                     <option value="Pristine">Pristine / Unworn</option>
                     <option value="Excellent">Excellent</option>
@@ -157,18 +157,18 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-zinc-800/50 flex justify-end gap-3 bg-zinc-950/50">
+        <div className="p-6 border-t border-[#E8E8E3] flex justify-end gap-4 bg-white">
           {step === 2 && (
             <button 
               onClick={() => setStep(1)}
-              className="px-6 py-2 rounded-lg font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+              className="px-6 py-3 text-xs uppercase tracking-widest font-medium text-[#7A7A75] hover:text-[#1A1A1A] transition-colors"
             >
               Back
             </button>
           )}
           <button 
             onClick={onClose}
-            className="px-6 py-2 rounded-lg font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+            className="px-6 py-3 text-xs uppercase tracking-widest font-medium text-[#7A7A75] hover:text-[#1A1A1A] transition-colors"
           >
             Cancel
           </button>
@@ -176,7 +176,7 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
             <button 
               onClick={() => setStep(2)}
               disabled={!selectedItem}
-              className="px-6 py-2 rounded-lg font-medium bg-amber-500 text-zinc-950 hover:bg-amber-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-8 py-3 text-xs uppercase tracking-widest font-medium bg-[#1A1A1A] text-[#FAF9F6] hover:bg-[#333333] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Continue
             </button>
@@ -184,9 +184,9 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
             <button 
               onClick={handleSave}
               disabled={!purchasePrice || !purchaseDate}
-              className="px-6 py-2 rounded-lg font-medium bg-amber-500 text-zinc-950 hover:bg-amber-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-8 py-3 text-xs uppercase tracking-widest font-medium bg-[#1A1A1A] text-[#FAF9F6] hover:bg-[#333333] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Add to Portfolio
+              Add to Vault
             </button>
           )}
         </div>
