@@ -8,7 +8,6 @@ import Watchlist from '../components/Watchlist';
 import AddAssetModal from '../components/AddAssetModal';
 
 const PortfolioOverview = dynamic(() => import('../components/PortfolioOverview'), { ssr: false });
-const Analytics = dynamic(() => import('../components/Analytics'), { ssr: false });
 
 export default function Home() {
   const [isAddAssetModalOpen, setIsAddAssetModalOpen] = useState(false);
@@ -20,10 +19,9 @@ export default function Home() {
       <main className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pt-12 pb-24">
         <div className="flex flex-col lg:flex-row gap-16">
           
-          {/* Left Column: Main Chart & Analytics */}
+          {/* Left Column: Main Chart */}
           <div className="flex-1 lg:w-[60%]">
             <PortfolioOverview />
-            <Analytics />
           </div>
 
           {/* Right Column: Sidebar Lists */}
