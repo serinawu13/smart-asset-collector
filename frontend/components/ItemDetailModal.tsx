@@ -118,8 +118,6 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
             <p className="text-sm text-[#7A7A75] uppercase tracking-wider">{asset.model}</p>
             <div className="flex flex-wrap gap-3 mt-3">
               <span className="text-xs bg-[#F5F5F0] px-3 py-1 text-[#7A7A75] uppercase tracking-widest">{asset.category}</span>
-              <span className="text-xs bg-[#F5F5F0] px-3 py-1 text-[#7A7A75] uppercase tracking-widest">{asset.condition}</span>
-              {asset.material && <span className="text-xs bg-[#F5F5F0] px-3 py-1 text-[#7A7A75] uppercase tracking-widest">{asset.material}</span>}
             </div>
           </div>
           <button 
@@ -200,10 +198,6 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
                   <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Purchase Date</span>
                   <span className="font-medium text-[#1A1A1A]">{new Date(asset.purchaseDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Condition</span>
-                  <span className="font-medium text-[#1A1A1A]">{asset.condition}</span>
-                </div>
               </div>
             </div>
 
@@ -233,26 +227,28 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
             </div>
           </div>
 
-          {/* Additional Details */}
-          {(asset.material || asset.size) && (
-            <div className="vault-card p-6">
-              <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-3">Specifications</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {asset.material && (
-                  <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
-                    <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Material</span>
-                    <span className="font-medium text-[#1A1A1A]">{asset.material}</span>
-                  </div>
-                )}
-                {asset.size && (
-                  <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
-                    <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Size</span>
-                    <span className="font-medium text-[#1A1A1A]">{asset.size}</span>
-                  </div>
-                )}
+          {/* Specifications */}
+          <div className="vault-card p-6">
+            <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-3">Specifications</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
+                <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Condition</span>
+                <span className="font-medium text-[#1A1A1A]">{asset.condition}</span>
               </div>
+              {asset.material && (
+                <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
+                  <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Material</span>
+                  <span className="font-medium text-[#1A1A1A]">{asset.material}</span>
+                </div>
+              )}
+              {asset.size && (
+                <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
+                  <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Size</span>
+                  <span className="font-medium text-[#1A1A1A]">{asset.size}</span>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
