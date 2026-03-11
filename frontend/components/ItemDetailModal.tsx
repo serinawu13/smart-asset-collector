@@ -289,16 +289,15 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
               <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-3">Performance Metrics</p>
               <div className="space-y-3">
                 <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
-                  <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Total ROI</span>
-                  <span className={`font-medium ${trendColor}`}>
-                    {isPositive ? '+' : ''}{formatPercentage(totalROI)}%
-                  </span>
-                </div>
-                <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
-                  <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Total Gain/Loss</span>
-                  <span className={`font-medium ${trendColor}`}>
-                    {isPositive ? '+' : ''}{formatCurrency(totalGain)}
-                  </span>
+                  <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Total Return</span>
+                  <div className="text-right">
+                    <div className={`font-medium ${trendColor}`}>
+                      {isPositive ? '+' : ''}{formatCurrency(totalGain)}
+                    </div>
+                    <div className={`text-xs font-medium ${trendColor}`}>
+                      {isPositive ? '+' : ''}{formatPercentage(totalROI)}%
+                    </div>
+                  </div>
                 </div>
                 <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
                   <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Market Trend</span>
