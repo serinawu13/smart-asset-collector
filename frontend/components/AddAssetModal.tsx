@@ -137,7 +137,7 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
                 <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-[#7A7A75]" />
                 <input 
                   type="text" 
-                  placeholder={`Search ${selectedCategory?.toLowerCase()}s by brand or model...`}
+                  placeholder="Search by brand or model"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-white border border-[#E8E8E3] py-4 pl-12 pr-4 text-[#1A1A1A] placeholder:text-[#7A7A75] focus:outline-none focus:border-[#1A1A1A] transition-colors"
