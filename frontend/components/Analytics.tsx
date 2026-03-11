@@ -107,7 +107,7 @@ export default function Analytics() {
           </div>
 
           <div>
-            <h3 className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-4">Needs Attention</h3>
+            <h3 className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-4">Bottom Performer</h3>
             <div className="p-6 border border-[#E8E8E3] bg-white flex justify-between items-center">
               <div>
                 <div className="font-editorial text-xl text-[#1A1A1A]">{worstPerformer.brand}</div>
