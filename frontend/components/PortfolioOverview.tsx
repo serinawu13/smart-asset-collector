@@ -1,106 +1,91 @@
 "use client";
 
-import React, { useState } from 'react';
-import { 
-  LineChart, 
-  Line, 
-  ResponsiveContainer,
-  YAxis
-} from 'recharts';
-import { adjustedPortfolioHistory, initialPortfolio } from '../lib/mockData';
+import React from 'react';
+import { initialPortfolio, adjustedPortfolioHistory } from '../lib/mockData';
+import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
 
 export default function PortfolioOverview() {
-  const [activeTimeframe, setActiveTimeframe] = useState('1Y');
-
-  // Calculate totals
   const totalValue = initialPortfolio.reduce((sum, item) => sum + item.currentMarketValue, 0);
-  const totalCost = initialPortfolio.reduce((sum, item) => sum + item.purchasePrice, 0);
-  const totalGain = totalValue - totalCost;
-  const totalGainPercent = (totalGain / totalCost) * 100;
+  const totalPurchasePrice = initialPortfolio.reduce((sum, item) => sum + item.purchasePrice, 0);
   
-  // Mock daily change
-  const dailyChange = 1050;
-  const dailyChangePercent = 2.4;
+  const totalAppreciation = totalValue - totalPurchasePrice;
+  const totalAppreciationPercentage = (totalAppreciation / totalPurchasePrice) * 100;
+  
+  const isPositive = totalAppreciation >= 0;
+  // Using a much brighter, almost neon green for better visibility against the white background
+  const trendColor = isPositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
+  const overallTrendHex = isPositive ? '#00A82D' : '#9B2226';
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-      minimumFractionDigits: 0,
       maximumFractionDigits: 0,
+      minimumFractionDigits: 0,
     }).format(value);
   };
 
-  const timeframes = ['1D', '1W', '1M', '3M', '1Y', 'ALL'];
-
-  // Determine colors based on performance
-  const isOverallPositive = totalGain >= 0;
-  const isDailyPositive = dailyChange >= 0;
-  
-  // Updated to brighter, more readable colors
-  const overallTrendHex = isOverallPositive ? '#2D6A4F' : '#9B2226';
-  const overallTrendClass = isOverallPositive ? 'text-[#2D6A4F]' : 'text-[#9B2226]';
-  const dailyTrendClass = isDailyPositive ? 'text-[#2D6A4F]' : 'text-[#9B2226]';
-
   return (
-    <div className="flex flex-col w-full">
-      {/* Big Number Header */}
-      <div className="mb-10">
-        <p className="text-sm font-medium text-[#7A7A75] uppercase tracking-widest mb-4">Total Vault Value</p>
-        <h1 className="text-6xl md:text-7xl font-editorial text-[#1A1A1A] mb-4">
+    <div className="flex flex-col h-full">
+      {/* Main Balance Area */}
+      <div className="mb-12">
+        <h1 className="text-7xl font-editorial font-bold text-[#1A1A1A] tracking-tight mb-4">
           {formatCurrency(totalValue)}
         </h1>
-        <div className="flex items-center gap-3 text-base font-medium">
-          <span className={`${dailyTrendClass}`}>
-            {isDailyPositive ? '+' : ''}{formatCurrency(dailyChange)} ({isDailyPositive ? '+' : ''}{dailyChangePercent}%)
-          </span>
-          <span className="text-[#7A7A75] uppercase tracking-wider text-xs">Today</span>
+        
+        <div className="flex items-center gap-6">
+          <div>
+            <div className="text-xs text-[#7A7A75] uppercase tracking-widest mb-1">Today</div>
+            <div className={`text-xl font-medium ${trendColor}`}>
+              {isPositive ? '+' : ''}{formatCurrency(1250)} (+1.4%)
+            </div>
+          </div>
+          
+          <div className="w-px h-10 bg-[#E8E8E3]"></div>
+          
+          <div>
+            <div className="text-xs text-[#7A7A75] uppercase tracking-widest mb-1">Total Appreciation</div>
+            <div className={`text-xl font-medium ${trendColor}`}>
+              {isPositive ? '+' : ''}{formatCurrency(totalAppreciation)} ({isPositive ? '+' : ''}{totalAppreciationPercentage.toFixed(0)}%)
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Minimalist Chart */}
-      <div className="h-[300px] md:h-[400px] w-full -ml-2">
+      <div className="flex-1 min-h-[400px] w-full relative">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={adjustedPortfolioHistory}>
-            <YAxis domain={['dataMin - 1000', 'dataMax + 1000']} hide />
+            <YAxis domain={['dataMin - 5000', 'dataMax + 5000']} hide />
             <Line 
               type="monotone" 
               dataKey="value" 
               stroke={overallTrendHex} 
-              strokeWidth={2}
+              strokeWidth={3} 
               dot={false}
-              activeDot={{ r: 5, fill: overallTrendHex, stroke: "#FAF9F6", strokeWidth: 2 }}
+              activeDot={{ r: 6, fill: overallTrendHex, stroke: '#FAF9F6', strokeWidth: 2 }}
               isAnimationActive={true}
             />
           </LineChart>
         </ResponsiveContainer>
-      </div>
-
-      {/* Timeframe Selector */}
-      <div className="flex items-center justify-between border-b border-[#E8E8E3] pb-4 mt-8">
-        <div className="flex gap-2 md:gap-6">
-          {timeframes.map((period) => (
-            <button 
-              key={period}
-              onClick={() => setActiveTimeframe(period)}
-              className={`px-2 py-1 text-xs font-medium uppercase tracking-widest transition-colors ${
-                activeTimeframe === period 
-                  ? 'text-[#1A1A1A] border-b border-[#1A1A1A]' 
-                  : 'text-[#7A7A75] hover:text-[#1A1A1A]'
-              }`}
-            >
-              {period}
-            </button>
-          ))}
+        
+        {/* Timeframe Selector */}
+        <div className="absolute bottom-0 left-0 right-0 flex justify-between items-center border-t border-[#E8E8E3] pt-4">
+          <div className="flex gap-6">
+            {['1D', '1W', '1M', '3M', '1Y', 'ALL'].map((tf) => (
+              <button 
+                key={tf}
+                className={`text-sm font-medium transition-colors ${
+                  tf === '1Y' 
+                    ? 'text-[#1A1A1A] border-b-2 border-[#1A1A1A] pb-1' 
+                    : 'text-[#7A7A75] hover:text-[#1A1A1A] pb-1'
+                }`}
+              >
+                {tf}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
-
-      {/* Summary Row */}
-      <div className="py-6 border-b border-[#E8E8E3] flex justify-between items-center vault-hover px-4 -mx-4">
-        <span className="font-editorial text-lg text-[#1A1A1A]">Total Appreciation</span>
-        <span className={`font-medium ${overallTrendClass}`}>
-          {isOverallPositive ? '+' : ''}{formatCurrency(totalGain)} ({isOverallPositive ? '+' : ''}{totalGainPercent.toFixed(0)}%)
-        </span>
       </div>
     </div>
   );

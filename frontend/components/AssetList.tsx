@@ -35,7 +35,8 @@ export default function AssetList({ onAddClick }: AssetListProps) {
       <div className="flex flex-col">
         {initialPortfolio.map((asset) => {
           const isPositive = asset.trendPercentage >= 0;
-          const trendColor = isPositive ? 'text-[#2D6A4F]' : 'text-[#9B2226]';
+          // Using a much brighter, almost neon green for better visibility against the white background
+          const trendColor = isPositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
 
           return (
             <div key={asset.portfolioId} className="p-6 flex justify-between items-center vault-hover border-b border-[#E8E8E3] last:border-0">
@@ -49,7 +50,7 @@ export default function AssetList({ onAddClick }: AssetListProps) {
               <div className="text-right">
                 <div className={`font-medium ${trendColor}`}>{formatCurrency(asset.currentMarketValue)}</div>
                 <div className={`text-xs font-medium mt-1 uppercase tracking-wider ${trendColor}`}>
-                  {isPositive ? '+' : ''}{asset.trendPercentage}%
+                  {isPositive ? '+' : ''}{asset.trendPercentage.toFixed(0)}%
                 </div>
               </div>
             </div>
