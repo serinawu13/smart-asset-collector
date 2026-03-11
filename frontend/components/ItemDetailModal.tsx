@@ -45,11 +45,8 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
   const trendColor = isPositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
   const trendHex = isPositive ? '#00A82D' : '#9B2226';
 
-  // Calculate retail premium/discount
+  // Get retail price
   const retailPrice = asset.retailPrice || asset.purchasePrice;
-  const retailDifference = asset.currentMarketValue - retailPrice;
-  const retailPremium = (retailDifference / retailPrice) * 100;
-  const isAboveRetail = retailDifference >= 0;
 
   // Generate mock historical data for this specific item based on timeframe
   const generateItemHistory = (timeframe: string) => {
@@ -309,12 +306,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Retail Price</span>
-                  <div className="text-right">
-                    <div className="font-medium text-[#1A1A1A]">{formatCurrency(retailPrice)}</div>
-                    <div className={`text-xs font-medium ${isAboveRetail ? 'text-[#00A82D]' : 'text-[#9B2226]'}`}>
-                      {isAboveRetail ? '+' : ''}{formatPercentage(retailPremium)}% vs retail
-                    </div>
-                  </div>
+                  <span className="font-medium text-[#1A1A1A]">{formatCurrency(retailPrice)}</span>
                 </div>
               </div>
             </div>
