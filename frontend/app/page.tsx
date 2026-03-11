@@ -17,19 +17,21 @@ export default function Home() {
     <div className="min-h-screen bg-[#FAF9F6]">
       <Header />
       
-      <main className="max-w-[1600px] mx-auto px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Left Column - Portfolio Chart */}
-          <div className="lg:col-span-2">
+      <main className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pt-12 pb-24">
+        <div className="flex flex-col lg:flex-row gap-16">
+          
+          {/* Left Column: Main Chart & Analytics */}
+          <div className="flex-1 lg:w-[60%]">
             <PortfolioOverview />
             <Analytics />
           </div>
 
-          {/* Right Column - Asset List & Watchlist */}
-          <div className="lg:col-span-1">
+          {/* Right Column: Sidebar Lists */}
+          <div className="w-full lg:w-[40%] space-y-12">
             <AssetList onAddClick={() => setIsAddAssetModalOpen(true)} />
             <Watchlist />
           </div>
+
         </div>
       </main>
 
