@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { PortfolioAsset } from '../lib/mockData';
 import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
@@ -12,6 +12,8 @@ interface ItemDetailModalProps {
 }
 
 export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailModalProps) {
+  const [activeTimeframe, setActiveTimeframe] = useState('1Y');
+
   if (!isOpen || !asset) return null;
 
   const formatCurrency = (value: number) => {
@@ -34,22 +36,77 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
   const trendColor = isPositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
   const trendHex = isPositive ? '#00A82D' : '#9B2226';
 
-  // Generate mock historical data for this specific item
-  const generateItemHistory = () => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  // Generate mock historical data for this specific item based on timeframe
+  const generateItemHistory = (timeframe: string) => {
     const startValue = asset.purchasePrice;
     const endValue = asset.currentMarketValue;
     const difference = endValue - startValue;
     
-    return months.map((month, index) => {
-      // Create a gradual progression from purchase price to current value
-      const progress = index / (months.length - 1);
-      const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.05);
-      return { month, value: Math.round(value) };
-    });
+    let dataPoints: { label: string; value: number }[] = [];
+    
+    switch (timeframe) {
+      case '1D':
+        // 24 hours (hourly data)
+        for (let i = 0; i < 24; i++) {
+          const progress = i / 23;
+          const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.02);
+          dataPoints.push({ label: `${i}:00`, value: Math.round(value) });
+        }
+        break;
+      case '1W':
+        // 7 days
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        days.forEach((day, i) => {
+          const progress = i / 6;
+          const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.03);
+          dataPoints.push({ label: day, value: Math.round(value) });
+        });
+        break;
+      case '1M':
+        // 30 days (weekly data points)
+        for (let i = 0; i < 5; i++) {
+          const progress = i / 4;
+          const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.04);
+          dataPoints.push({ label: `Week ${i + 1}`, value: Math.round(value) });
+        }
+        break;
+      case '3M':
+        // 3 months (monthly data)
+        for (let i = 0; i < 12; i++) {
+          const progress = i / 11;
+          const value = startValue + (difference * progress * 0.25) + (Math.random() - 0.5) * (startValue * 0.04);
+          dataPoints.push({ label: `W${i + 1}`, value: Math.round(value) });
+        }
+        break;
+      case '1Y':
+        // 12 months
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        months.forEach((month, i) => {
+          const progress = i / 11;
+          const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.05);
+          dataPoints.push({ label: month, value: Math.round(value) });
+        });
+        break;
+      case 'ALL':
+        // Since purchase date to now
+        const purchaseDate = new Date(asset.purchaseDate);
+        const now = new Date();
+        const monthsDiff = Math.max(1, Math.floor((now.getTime() - purchaseDate.getTime()) / (1000 * 60 * 60 * 24 * 30)));
+        const allMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        
+        for (let i = 0; i < Math.min(monthsDiff, 24); i++) {
+          const progress = i / (Math.min(monthsDiff, 24) - 1);
+          const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.05);
+          dataPoints.push({ label: allMonths[i % 12], value: Math.round(value) });
+        }
+        break;
+    }
+    
+    return dataPoints;
   };
 
-  const itemHistory = generateItemHistory();
+  const itemHistory = generateItemHistory(activeTimeframe);
+  const timeframes = ['1D', '1W', '1M', '3M', '1Y', 'ALL'];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1A1A1A]/60 backdrop-blur-sm">
@@ -91,7 +148,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
 
           {/* Performance Chart */}
           <div>
-            <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-4">12-Month Performance</p>
+            <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-4">Performance History</p>
             <div className="h-[250px] md:h-[300px] w-full -ml-2">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={itemHistory}>
@@ -107,6 +164,25 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
                   />
                 </LineChart>
               </ResponsiveContainer>
+            </div>
+
+            {/* Timeframe Selector */}
+            <div className="flex items-center justify-between border-b border-[#E8E8E3] pb-3 mt-4 overflow-x-auto">
+              <div className="flex gap-3 md:gap-6">
+                {timeframes.map((period) => (
+                  <button 
+                    key={period}
+                    onClick={() => setActiveTimeframe(period)}
+                    className={`px-2 py-1 text-xs font-medium uppercase tracking-widest transition-colors whitespace-nowrap ${
+                      activeTimeframe === period 
+                        ? 'text-[#1A1A1A] border-b border-[#1A1A1A]' 
+                        : 'text-[#7A7A75] hover:text-[#1A1A1A]'
+                    }`}
+                  >
+                    {period}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
