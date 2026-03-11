@@ -20,6 +20,7 @@ export interface PortfolioAsset extends LuxuryItem {
   purchasePrice: number;
   purchaseDate: string;
   condition: string;
+  serialNumber?: string;
 }
 
 export interface WatchlistItem extends LuxuryItem {
@@ -141,16 +142,18 @@ export const initialPortfolio: PortfolioAsset[] = [
   {
     ...luxuryDatabase[0], // Rolex Submariner
     portfolioId: 'port-1',
-    purchasePrice: 10250, // Retail price
+    purchasePrice: 10250,
     purchaseDate: '2021-05-15',
     condition: 'Excellent',
+    serialNumber: 'M8K12345',
   },
   {
     ...luxuryDatabase[3], // Birkin 30
     portfolioId: 'port-2',
-    purchasePrice: 11900, // Retail price
+    purchasePrice: 11900,
     purchaseDate: '2022-11-10',
     condition: 'Pristine',
+    serialNumber: 'Z1234567',
   },
   {
     ...luxuryDatabase[6], // Cartier Love
@@ -162,9 +165,10 @@ export const initialPortfolio: PortfolioAsset[] = [
   {
     ...luxuryDatabase[2], // Audemars Piguet Royal Oak
     portfolioId: 'port-4',
-    purchasePrice: 45000, // Bought higher than current market value (42000)
+    purchasePrice: 45000,
     purchaseDate: '2023-01-10',
     condition: 'Excellent',
+    serialNumber: 'H12345',
   }
 ];
 
@@ -191,13 +195,13 @@ export const portfolioHistory = [
   { month: 'Mar', value: 27800 },
   { month: 'Apr', value: 28200 },
   { month: 'May', value: 29050 },
-  { month: 'Jun', value: 31500 }, // Added Birkin
+  { month: 'Jun', value: 31500 },
   { month: 'Jul', value: 32100 },
   { month: 'Aug', value: 33400 },
   { month: 'Sep', value: 33800 },
   { month: 'Oct', value: 34200 },
   { month: 'Nov', value: 34350 },
-  { month: 'Dec', value: 34350 }, // Current total: 14500 + 22500 + 7350 = 44350 (Wait, let's adjust the chart to match current total)
+  { month: 'Dec', value: 34350 },
 ];
 
 // Adjusting history to match current total of 86,350

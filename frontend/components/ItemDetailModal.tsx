@@ -22,6 +22,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
   const [editedCondition, setEditedCondition] = useState('');
   const [editedMaterial, setEditedMaterial] = useState('');
   const [editedSize, setEditedSize] = useState('');
+  const [editedSerialNumber, setEditedSerialNumber] = useState('');
 
   if (!isOpen || !asset) return null;
 
@@ -134,11 +135,12 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
     setEditedCondition(asset.condition);
     setEditedMaterial(asset.material || '');
     setEditedSize(asset.size || '');
+    setEditedSerialNumber(asset.serialNumber || '');
     setIsEditingSpecs(true);
   };
 
   const handleSaveSpecs = () => {
-    console.log('Saving specifications:', { editedCondition, editedMaterial, editedSize });
+    console.log('Saving specifications:', { editedCondition, editedMaterial, editedSize, editedSerialNumber });
     setIsEditingSpecs(false);
   };
 
@@ -384,6 +386,20 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
                   />
                 ) : (
                   <span className="font-medium text-[#1A1A1A]">{asset.size || '—'}</span>
+                )}
+              </div>
+              <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
+                <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Serial Number</span>
+                {isEditingSpecs ? (
+                  <input
+                    type="text"
+                    value={editedSerialNumber}
+                    onChange={(e) => setEditedSerialNumber(e.target.value)}
+                    placeholder="Enter serial #"
+                    className="font-medium text-[#1A1A1A] bg-white border border-[#E8E8E3] px-2 py-1 text-sm text-right w-40"
+                  />
+                ) : (
+                  <span className="font-medium text-[#1A1A1A]">{asset.serialNumber || '—'}</span>
                 )}
               </div>
             </div>
