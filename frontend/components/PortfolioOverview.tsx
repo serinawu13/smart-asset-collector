@@ -37,7 +37,6 @@ export default function PortfolioOverview() {
   const isOverallPositive = totalGain >= 0;
   const isDailyPositive = dailyChange >= 0;
   
-  // Use the exact hex codes for the graph line
   const overallTrendHex = isOverallPositive ? '#1E3F20' : '#722F37';
   const overallTrendClass = isOverallPositive ? 'text-[#1E3F20]' : 'text-[#722F37]';
   const dailyTrendClass = isDailyPositive ? 'text-[#1E3F20]' : 'text-[#722F37]';

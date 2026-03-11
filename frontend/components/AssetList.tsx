@@ -47,7 +47,7 @@ export default function AssetList({ onAddClick }: AssetListProps) {
 
               {/* Right: Price & Trend */}
               <div className="text-right">
-                <div className="font-medium text-[#1A1A1A]">{formatCurrency(asset.currentMarketValue)}</div>
+                <div className={`font-medium ${trendColor}`}>{formatCurrency(asset.currentMarketValue)}</div>
                 <div className={`text-xs font-medium mt-1 uppercase tracking-wider ${trendColor}`}>
                   {isPositive ? '+' : ''}{asset.trendPercentage}%
                 </div>
