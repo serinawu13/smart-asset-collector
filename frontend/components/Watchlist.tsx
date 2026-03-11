@@ -145,11 +145,14 @@ export default function Watchlist() {
       </div>
 
       {/* Item Detail Modal */}
-      <ItemDetailModal 
-        isOpen={isDetailModalOpen}
-        onClose={() => setIsDetailModalOpen(false)}
-        asset={selectedItem}
-      />
+      {isDetailModalOpen && (
+        <ItemDetailModal 
+          isOpen={isDetailModalOpen}
+          onClose={() => setIsDetailModalOpen(false)}
+          asset={selectedItem}
+          isWatchlistItem={true}
+        />
+      )}
     </>
   );
 }
