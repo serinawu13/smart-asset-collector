@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Search, Bell, User } from 'lucide-react';
+import { Search, Bell, User, FileText } from 'lucide-react';
 
 export default function Header() {
   return (
@@ -28,13 +28,21 @@ export default function Header() {
         <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-[#7A7A75] uppercase tracking-widest">
           <a href="#" className="text-[#1A1A1A] border-b border-[#1A1A1A] pb-1">Portfolio</a>
           <a href="#" className="hover:text-[#1A1A1A] transition-colors pb-1">Markets</a>
-          <a href="#" className="hover:text-[#1A1A1A] transition-colors pb-1">Journal</a>
+          <a 
+            href="https://docs.google.com/document/d/1-2-3-4-5-6-7-8-9-0/edit" // Placeholder link, replace with actual PRD link if needed
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="hover:text-[#1A1A1A] transition-colors pb-1 flex items-center gap-1.5"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            PRD
+          </a>
         </nav>
 
         <div className="flex items-center gap-5 border-l border-[#E8E8E3] pl-8">
           <button className="relative p-2 hover:bg-[#E8E8E3] rounded-full transition-colors">
             <Bell className="w-5 h-5 text-[#1A1A1A]" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#722F37] rounded-full"></span>
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#9B2226] rounded-full"></span>
           </button>
           <button className="w-9 h-9 rounded-full bg-[#1A1A1A] flex items-center justify-center hover:bg-[#333333] transition-colors">
             <User className="w-4 h-4 text-[#FAF9F6]" />
