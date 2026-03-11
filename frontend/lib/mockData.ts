@@ -8,6 +8,7 @@ export interface LuxuryItem {
   category: AssetCategory;
   material?: string;
   size?: string;
+  color?: string;
   currentMarketValue: number;
   retailPrice?: number;
   trend: MarketTrend;
@@ -77,6 +78,7 @@ export const luxuryDatabase: LuxuryItem[] = [
     category: 'Bag',
     material: 'Togo Leather',
     size: '30cm',
+    color: 'Noir (Black)',
     currentMarketValue: 22500,
     retailPrice: 11900,
     trend: 'up',
@@ -90,6 +92,7 @@ export const luxuryDatabase: LuxuryItem[] = [
     category: 'Bag',
     material: 'Epsom Leather',
     size: '25cm',
+    color: 'Gold',
     currentMarketValue: 28000,
     retailPrice: 10400,
     trend: 'up',
@@ -103,6 +106,7 @@ export const luxuryDatabase: LuxuryItem[] = [
     category: 'Bag',
     material: 'Caviar Leather',
     size: 'Medium',
+    color: 'Beige',
     currentMarketValue: 10200,
     retailPrice: 10200,
     trend: 'stable',
