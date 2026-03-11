@@ -36,10 +36,10 @@ export default function Watchlist() {
   const categoryOrder = ['Jewelry', 'Watch', 'Bag'];
 
   return (
-    <div className="vault-card mt-8">
+    <div className="vault-card mt-6 md:mt-8">
       {/* Header */}
-      <div className="p-6 border-b border-[#E8E8E3] bg-[#FAF9F6]">
-        <h2 className="font-editorial text-2xl text-[#1A1A1A]">Watchlist</h2>
+      <div className="p-4 md:p-6 border-b border-[#E8E8E3] bg-[#FAF9F6]">
+        <h2 className="font-editorial text-xl md:text-2xl text-[#1A1A1A]">Watchlist</h2>
       </div>
 
       {/* Categorized List */}
@@ -56,7 +56,7 @@ export default function Watchlist() {
               {/* Category Header */}
               <button
                 onClick={() => toggleCategory(category)}
-                className="w-full p-4 flex justify-between items-center vault-hover border-b border-[#E8E8E3] bg-[#F5F5F0]"
+                className="w-full p-3 md:p-4 flex justify-between items-center vault-hover border-b border-[#E8E8E3] bg-[#F5F5F0]"
               >
                 <div className="flex items-center gap-2">
                   {isExpanded ? (
@@ -78,17 +78,17 @@ export default function Watchlist() {
                 const trendColor = isPositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
 
                 return (
-                  <div key={item.watchlistId} className="p-6 pl-12 flex justify-between items-center vault-hover border-b border-[#E8E8E3] last:border-0">
+                  <div key={item.watchlistId} className="p-4 md:p-6 pl-8 md:pl-12 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 vault-hover border-b border-[#E8E8E3] last:border-0">
                     {/* Left: Name & Model */}
-                    <div>
-                      <div className="font-editorial text-lg text-[#1A1A1A]">{item.brand}</div>
-                      <div className="text-xs text-[#7A7A75] mt-1 uppercase tracking-wider">{item.model}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-editorial text-base md:text-lg text-[#1A1A1A] truncate">{item.brand}</div>
+                      <div className="text-xs text-[#7A7A75] mt-1 uppercase tracking-wider truncate">{item.model}</div>
                     </div>
 
                     {/* Right: Price & Alert */}
-                    <div className="text-right flex items-center gap-4">
-                      <div>
-                        <div className={`font-medium ${trendColor}`}>{formatCurrency(item.currentMarketValue)}</div>
+                    <div className="flex items-center gap-3 md:gap-4 flex-shrink-0">
+                      <div className="text-left sm:text-right">
+                        <div className={`font-medium text-sm md:text-base ${trendColor}`}>{formatCurrency(item.currentMarketValue)}</div>
                         <div className="text-xs text-[#7A7A75] mt-1 uppercase tracking-wider">
                           Target: {formatCurrency(item.targetPrice || 0)}
                         </div>
