@@ -43,14 +43,14 @@ export default function PortfolioOverview() {
   const dailyTrendClass = isDailyPositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full h-full">
       {/* Big Number Header */}
-      <div className="mb-10">
-        <p className="text-sm font-medium text-[#7A7A75] uppercase tracking-widest mb-4">Total Vault Value</p>
-        <h1 className="text-6xl md:text-7xl font-editorial text-[#1A1A1A] mb-4">
+      <div className="mb-6">
+        <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">Total Vault Value</p>
+        <h1 className="text-5xl md:text-6xl font-editorial text-[#1A1A1A] mb-3">
           {formatCurrency(totalValue)}
         </h1>
-        <div className="flex items-center gap-3 text-base font-medium">
+        <div className="flex items-center gap-3 text-sm font-medium">
           <span className={`${dailyTrendClass}`}>
             {isDailyPositive ? '+' : ''}{formatCurrency(dailyChange)} ({isDailyPositive ? '+' : ''}{dailyChangePercent}%)
           </span>
@@ -59,7 +59,7 @@ export default function PortfolioOverview() {
       </div>
 
       {/* Minimalist Chart */}
-      <div className="h-[300px] md:h-[400px] w-full -ml-2">
+      <div className="h-[250px] md:h-[300px] w-full -ml-2">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={adjustedPortfolioHistory}>
             <YAxis domain={['dataMin - 1000', 'dataMax + 1000']} hide />
@@ -77,7 +77,7 @@ export default function PortfolioOverview() {
       </div>
 
       {/* Timeframe Selector */}
-      <div className="flex items-center justify-between border-b border-[#E8E8E3] pb-4 mt-8">
+      <div className="flex items-center justify-between border-b border-[#E8E8E3] pb-3 mt-4">
         <div className="flex gap-2 md:gap-6">
           {timeframes.map((period) => (
             <button 
@@ -96,7 +96,7 @@ export default function PortfolioOverview() {
       </div>
 
       {/* Summary Row */}
-      <div className="py-6 border-b border-[#E8E8E3] flex justify-between items-center vault-hover px-4 -mx-4">
+      <div className="py-4 border-b border-[#E8E8E3] flex justify-between items-center vault-hover px-4 -mx-4">
         <span className="font-editorial text-lg text-[#1A1A1A]">Total Appreciation</span>
         <span className={`font-medium ${overallTrendClass}`}>
           {isOverallPositive ? '+' : ''}{formatCurrency(totalGain)} ({isOverallPositive ? '+' : ''}{totalGainPercent.toFixed(0)}%)
