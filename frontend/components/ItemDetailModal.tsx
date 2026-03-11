@@ -180,7 +180,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset }: ItemDetailMo
               <span className={`${trendColor}`}>
                 {isPositive ? '+' : ''}{formatCurrency(totalGain)} ({isPositive ? '+' : ''}{formatPercentage(totalROI)}%)
               </span>
-              <span className="text-[#7A7A75] uppercase tracking-wider text-xs">Since Purchase</span>
+              <span className="text-[#7A7A75] uppercase tracking-wider text-xs">Today</span>
             </div>
           </div>
 
