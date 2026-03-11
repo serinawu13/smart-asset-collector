@@ -1,13 +1,16 @@
 "use client";
 
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
-import PortfolioOverview from '../components/PortfolioOverview';
 import AssetList from '../components/AssetList';
-import Analytics from '../components/Analytics';
 import Watchlist from '../components/Watchlist';
 import AddAssetModal from '../components/AddAssetModal';
+
+// Dynamically import components that use Recharts to avoid SSR hydration issues
+const PortfolioOverview = dynamic(() => import('../components/PortfolioOverview'), { ssr: false });
+const Analytics = dynamic(() => import('../components/Analytics'), { ssr: false });
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('dashboard');
