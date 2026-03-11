@@ -82,12 +82,16 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
           dataPoints.push({ label: `Week ${i + 1}`, value: Math.round(value) });
         }
         break;
-      case '3M':
-        for (let i = 0; i < 12; i++) {
-          const progress = i / 11;
-          const value = startValue + (difference * progress * 0.25) + (Math.random() - 0.5) * (startValue * 0.04);
-          dataPoints.push({ label: `W${i + 1}`, value: Math.round(value) });
-        }
+      case 'YTD':
+        // Year to date (from Jan 1st to current month)
+        const currentMonth = new Date().getMonth(); // 0-11
+        const monthsYTD = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].slice(0, currentMonth + 1);
+        
+        monthsYTD.forEach((month, i) => {
+          const progress = i / Math.max(1, monthsYTD.length - 1);
+          const value = startValue + (difference * progress * 0.5) + (Math.random() - 0.5) * (startValue * 0.04);
+          dataPoints.push({ label: month, value: Math.round(value) });
+        });
         break;
       case '1Y':
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -131,7 +135,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
   };
 
   const itemHistory = generateItemHistory(activeTimeframe);
-  const timeframes = ['1D', '1W', '1M', '3M', '1Y', '5Y', '10Y', 'ALL'];
+  const timeframes = ['1D', '1W', '1M', 'YTD', '1Y', '5Y', '10Y', 'ALL'];
 
   // Edit handlers
   const handleEditPurchase = () => {
