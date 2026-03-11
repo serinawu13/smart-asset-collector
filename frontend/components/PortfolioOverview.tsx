@@ -50,7 +50,7 @@ export default function PortfolioOverview() {
     <div className="flex flex-col w-full h-full">
       {/* Big Number Header */}
       <div className="mb-4 md:mb-6">
-        <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">Total Vault Value</p>
+        <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">All Assets</p>
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-editorial text-[#1A1A1A] mb-2 md:mb-3">
           {formatCurrency(totalValue)}
         </h1>
