@@ -83,8 +83,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
         }
         break;
       case 'YTD':
-        // Year to date (from Jan 1st to current month)
-        const currentMonth = new Date().getMonth(); // 0-11
+        const currentMonth = new Date().getMonth();
         const monthsYTD = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].slice(0, currentMonth + 1);
         
         monthsYTD.forEach((month, i) => {
@@ -136,6 +135,72 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
 
   const itemHistory = generateItemHistory(activeTimeframe);
   const timeframes = ['1D', '1W', '1M', 'YTD', '1Y', '5Y', '10Y', 'ALL'];
+
+  // Dynamic timeframe data calculation for the header
+  const getTimeframeData = (timeframe: string) => {
+    // In a real app, this would calculate actual historical differences
+    // For mock purposes, we generate realistic-looking changes based on the timeframe
+    let change = 0;
+    let percent = 0;
+    let label = '';
+
+    // Base the mock changes on the actual total gain to keep it somewhat realistic
+    const baseChange = totalGain;
+    const basePercent = totalROI;
+
+    switch (timeframe) {
+      case '1D':
+        change = baseChange * 0.02;
+        percent = basePercent * 0.02;
+        label = 'Today';
+        break;
+      case '1W':
+        change = baseChange * 0.05;
+        percent = basePercent * 0.05;
+        label = 'Past Week';
+        break;
+      case '1M':
+        change = baseChange * 0.15;
+        percent = basePercent * 0.15;
+        label = 'Past Month';
+        break;
+      case 'YTD':
+        change = baseChange * 0.4;
+        percent = basePercent * 0.4;
+        label = 'Year to Date';
+        break;
+      case '1Y':
+        change = baseChange * 0.6;
+        percent = basePercent * 0.6;
+        label = 'Past Year';
+        break;
+      case '5Y':
+        change = baseChange * 0.9;
+        percent = basePercent * 0.9;
+        label = 'Past 5 Years';
+        break;
+      case '10Y':
+        change = baseChange * 0.95;
+        percent = basePercent * 0.95;
+        label = 'Past 10 Years';
+        break;
+      case 'ALL':
+        change = totalGain;
+        percent = totalROI;
+        label = 'All Time';
+        break;
+      default:
+        change = baseChange * 0.02;
+        percent = basePercent * 0.02;
+        label = 'Today';
+    }
+
+    return { change, percent, label };
+  };
+
+  const timeframeData = getTimeframeData(activeTimeframe);
+  const isTimeframePositive = timeframeData.change >= 0;
+  const timeframeTrendColor = isTimeframePositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
 
   // Edit handlers
   const handleEditPurchase = () => {
@@ -201,10 +266,10 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
             </h3>
             {!isWatchlistItem && (
               <div className="flex items-center gap-3 text-sm font-medium">
-                <span className={`${trendColor}`}>
-                  {isPositive ? '+' : ''}{formatCurrency(totalGain)} ({isPositive ? '+' : ''}{formatPercentage(totalROI)}%)
+                <span className={`${timeframeTrendColor}`}>
+                  {isTimeframePositive ? '+' : ''}{formatCurrency(timeframeData.change)} ({isTimeframePositive ? '+' : ''}{formatPercentage(timeframeData.percent)}%)
                 </span>
-                <span className="text-[#7A7A75] uppercase tracking-wider text-xs">Today</span>
+                <span className="text-[#7A7A75] uppercase tracking-wider text-xs">{timeframeData.label}</span>
               </div>
             )}
           </div>

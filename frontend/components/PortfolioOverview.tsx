@@ -18,9 +18,65 @@ export default function PortfolioOverview() {
   const totalGain = totalValue - totalCost;
   const totalGainPercent = (totalGain / totalCost) * 100;
   
-  // Mock daily change
-  const dailyChange = 1050;
-  const dailyChangePercent = 2.4;
+  // Dynamic timeframe data calculation
+  const getTimeframeData = (timeframe: string) => {
+    // In a real app, this would fetch actual historical data
+    // For mock purposes, we'll generate realistic-looking changes based on the timeframe
+    let change = 0;
+    let percent = 0;
+    let label = '';
+
+    switch (timeframe) {
+      case '1D':
+        change = 1050;
+        percent = 1.23;
+        label = 'Today';
+        break;
+      case '1W':
+        change = 2150;
+        percent = 2.55;
+        label = 'Past Week';
+        break;
+      case '1M':
+        change = 4150;
+        percent = 5.05;
+        label = 'Past Month';
+        break;
+      case 'YTD':
+        change = 17300;
+        percent = 25.05;
+        label = 'Year to Date';
+        break;
+      case '1Y':
+        change = 22500;
+        percent = 35.24;
+        label = 'Past Year';
+        break;
+      case '5Y':
+        change = 45000;
+        percent = 108.82;
+        label = 'Past 5 Years';
+        break;
+      case '10Y':
+        change = 65000;
+        percent = 304.45;
+        label = 'Past 10 Years';
+        break;
+      case 'ALL':
+        change = totalGain;
+        percent = totalGainPercent;
+        label = 'All Time';
+        break;
+      default:
+        change = 1050;
+        percent = 1.23;
+        label = 'Today';
+    }
+
+    return { change, percent, label };
+  };
+
+  const timeframeData = getTimeframeData(activeTimeframe);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -39,12 +95,12 @@ export default function PortfolioOverview() {
 
   // Determine colors based on performance
   const isOverallPositive = totalGain >= 0;
-  const isDailyPositive = dailyChange >= 0;
+  const isTimeframePositive = timeframeData.change >= 0;
   
   // Updated to brighter, more readable colors
   const overallTrendHex = isOverallPositive ? '#00A82D' : '#9B2226';
   const overallTrendClass = isOverallPositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
-  const dailyTrendClass = isDailyPositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
+  const timeframeTrendClass = isTimeframePositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
 
   return (
     <div className="flex flex-col w-full h-full">
@@ -55,10 +111,10 @@ export default function PortfolioOverview() {
           {formatCurrency(totalValue)}
         </h1>
         <div className="flex flex-wrap items-center gap-2 md:gap-3 text-sm font-medium">
-          <span className={`${dailyTrendClass}`}>
-            {isDailyPositive ? '+' : ''}{formatCurrency(dailyChange)} ({isDailyPositive ? '+' : ''}{formatPercentage(dailyChangePercent)}%)
+          <span className={`${timeframeTrendClass}`}>
+            {isTimeframePositive ? '+' : ''}{formatCurrency(timeframeData.change)} ({isTimeframePositive ? '+' : ''}{formatPercentage(timeframeData.percent)}%)
           </span>
-          <span className="text-[#7A7A75] uppercase tracking-wider text-xs">Today</span>
+          <span className="text-[#7A7A75] uppercase tracking-wider text-xs">{timeframeData.label}</span>
         </div>
       </div>
 
