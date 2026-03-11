@@ -16,7 +16,10 @@ export default function Analytics() {
     return acc;
   }, [] as { name: string; value: number }[]);
 
-  // Neutral editorial colors for the pie chart (reserving green/red strictly for gains/losses)
+  // Sort by value descending
+  categoryData.sort((a, b) => b.value - a.value);
+
+  // Editorial neutral colors for the pie chart
   const COLORS = ['#1A1A1A', '#4A4A4A', '#7A7A75', '#B0B0AB'];
 
   const formatCurrency = (value: number) => {
@@ -27,21 +30,28 @@ export default function Analytics() {
     }).format(value);
   };
 
+  // Find best and worst performers
+  const sortedByPerformance = [...initialPortfolio].sort((a, b) => b.trendPercentage - a.trendPercentage);
+  const bestPerformer = sortedByPerformance[0];
+  const worstPerformer = sortedByPerformance[sortedByPerformance.length - 1];
+
   return (
-    <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div className="mt-12 pt-12 border-t border-[#E8E8E3]">
+      <h2 className="font-editorial text-2xl text-[#1A1A1A] mb-8">Vault Analytics</h2>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
         {/* Allocation Chart */}
-        <div className="vault-card p-8">
-          <h3 className="font-editorial text-2xl text-[#1A1A1A] mb-8">Asset Allocation</h3>
-          <div className="h-[240px] w-full">
+        <div className="md:col-span-1">
+          <h3 className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-6">Asset Allocation</h3>
+          <div className="h-[200px] w-full relative">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={categoryData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={70}
-                  outerRadius={100}
+                  innerRadius={60}
+                  outerRadius={80}
                   paddingAngle={2}
                   dataKey="value"
                   stroke="none"
@@ -52,35 +62,64 @@ export default function Analytics() {
                 </Pie>
                 <Tooltip 
                   formatter={(value: number) => formatCurrency(value)}
-                  contentStyle={{ backgroundColor: '#1A1A1A', borderColor: '#1A1A1A', borderRadius: '0px', color: '#FAF9F6' }}
+                  contentStyle={{ backgroundColor: '#1A1A1A', border: 'none', borderRadius: '0px', color: '#FAF9F6' }}
                   itemStyle={{ color: '#FAF9F6' }}
                 />
               </PieChart>
             </ResponsiveContainer>
+            {/* Center Text */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span className="text-xs text-[#7A7A75] uppercase tracking-widest">Total Assets</span>
+              <span className="font-editorial text-xl text-[#1A1A1A]">{initialPortfolio.length}</span>
+            </div>
           </div>
-          <div className="mt-8 space-y-4">
-            {categoryData.map((category, index) => (
-              <div key={category.name} className="flex justify-between items-center text-sm border-b border-[#E8E8E3] pb-2 last:border-0">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
-                  <span className="text-[#7A7A75] uppercase tracking-widest text-xs">{category.name}</span>
+          
+          {/* Legend */}
+          <div className="mt-6 space-y-3">
+            {categoryData.map((entry, index) => (
+              <div key={entry.name} className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                  <span className="text-[#1A1A1A]">{entry.name}</span>
                 </div>
-                <span className="font-medium text-[#1A1A1A]">{formatCurrency(category.value)}</span>
+                <span className="font-medium text-[#1A1A1A]">{formatCurrency(entry.value)}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Quick Stats */}
-        <div className="space-y-8">
-          <div className="vault-card p-8 bg-[#1A1A1A] text-[#FAF9F6]">
-            <p className="text-xs text-[#7A7A75] mb-2 uppercase tracking-widest">Total Assets</p>
-            <p className="font-editorial text-5xl">{initialPortfolio.length}</p>
+        {/* Performance Highlights */}
+        <div className="md:col-span-2 space-y-8">
+          <div>
+            <h3 className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-4">Top Performer</h3>
+            <div className="p-6 border border-[#E8E8E3] bg-white flex justify-between items-center">
+              <div>
+                <div className="font-editorial text-xl text-[#1A1A1A]">{bestPerformer.brand}</div>
+                <div className="text-sm text-[#7A7A75] mt-1">{bestPerformer.model}</div>
+              </div>
+              <div className="text-right">
+                <div className="font-medium text-[#00A82D]">{formatCurrency(bestPerformer.currentMarketValue)}</div>
+                <div className="text-sm font-medium mt-1 text-[#00A82D]">
+                  +{bestPerformer.trendPercentage}%
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="vault-card p-8">
-            <p className="text-xs text-[#7A7A75] mb-2 uppercase tracking-widest">Best Performer</p>
-            <p className="font-editorial text-3xl text-[#1A1A1A]">{initialPortfolio[1].brand}</p>
-            <p className="text-sm text-[#2D6A4F] mt-2 font-medium uppercase tracking-wider">+8.4% All Time</p>
+
+          <div>
+            <h3 className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-4">Needs Attention</h3>
+            <div className="p-6 border border-[#E8E8E3] bg-white flex justify-between items-center">
+              <div>
+                <div className="font-editorial text-xl text-[#1A1A1A]">{worstPerformer.brand}</div>
+                <div className="text-sm text-[#7A7A75] mt-1">{worstPerformer.model}</div>
+              </div>
+              <div className="text-right">
+                <div className="font-medium text-[#9B2226]">{formatCurrency(worstPerformer.currentMarketValue)}</div>
+                <div className="text-sm font-medium mt-1 text-[#9B2226]">
+                  {worstPerformer.trendPercentage}%
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
