@@ -28,7 +28,6 @@ export default function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-[#7A7A75] uppercase tracking-widest">
           <a href="#" className="text-[#1A1A1A] border-b border-[#1A1A1A] pb-1">Portfolio</a>
-          <a href="#" className="hover:text-[#1A1A1A] transition-colors pb-1">Markets</a>
         </nav>
 
         <div className="flex items-center gap-3 md:gap-5 md:border-l border-[#E8E8E3] md:pl-8">
