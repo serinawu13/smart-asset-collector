@@ -1,15 +1,16 @@
 "use client";
 
 import React from 'react';
+import Link from 'next/link';
 import { Search, Bell, User, Menu } from 'lucide-react';
 
 export default function Header() {
   return (
     <header className="h-16 md:h-20 px-4 md:px-8 flex items-center justify-between border-b border-[#E8E8E3] bg-[#FAF9F6] sticky top-0 z-50">
       {/* Logo */}
-      <div className="flex items-center gap-2 cursor-pointer">
+      <Link href="/dashboard" className="flex items-center gap-2 cursor-pointer">
         <span className="text-2xl md:text-3xl font-editorial font-bold tracking-widest text-[#1A1A1A]">SAC</span>
-      </div>
+      </Link>
       
       {/* Search - Hidden on mobile, centered on desktop */}
       <div className="hidden lg:flex flex-1 max-w-md mx-8">
