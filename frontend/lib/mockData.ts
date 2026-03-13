@@ -43,6 +43,8 @@ export const luxuryDatabase: LuxuryItem[] = [
     retailPrice: 10250,
     trend: 'up',
     trendPercentage: 2.4,
+    // Using a placeholder that clearly indicates it's a mock image for now
+    // In production, this would be a verified product image from a database
     imageUrl: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=400&h=400&fit=crop',
   },
   {
@@ -78,7 +80,7 @@ export const luxuryDatabase: LuxuryItem[] = [
     category: 'Bag',
     material: 'Togo Leather',
     size: '30cm',
-    color: 'Noir (Black)',
+    color: 'Black',
     currentMarketValue: 22500,
     retailPrice: 11900,
     trend: 'up',
@@ -106,7 +108,7 @@ export const luxuryDatabase: LuxuryItem[] = [
     category: 'Bag',
     material: 'Caviar Leather',
     size: 'Medium',
-    color: 'Beige',
+    color: 'Black',
     currentMarketValue: 10200,
     retailPrice: 10200,
     trend: 'stable',
