@@ -88,7 +88,7 @@ export default function LandingPage() {
               <div className="absolute -bottom-6 -right-6 bg-white/80 backdrop-blur-md border border-[#E8E8E3] p-4 shadow-xl">
                 <div className="text-xs text-[#7A7A75] uppercase tracking-widest mb-1">Rolex Submariner</div>
                 <div className="font-editorial text-xl text-[#1A1A1A]">$14,500</div>
-                <div className="text-xs font-medium text-[#00A82D] mt-1">+41.46% vs retail</div>
+                <div className="text-xs font-medium text-[#00A82D] mt-1">+41.46% since purchase</div>
               </div>
             </div>
 
@@ -105,7 +105,7 @@ export default function LandingPage() {
               <div className="absolute -top-6 -left-6 bg-white/80 backdrop-blur-md border border-[#E8E8E3] p-4 shadow-xl">
                 <div className="text-xs text-[#7A7A75] uppercase tracking-widest mb-1">Hermès Birkin 30</div>
                 <div className="font-editorial text-xl text-[#1A1A1A]">$22,500</div>
-                <div className="text-xs font-medium text-[#00A82D] mt-1">+89.08% vs retail</div>
+                <div className="text-xs font-medium text-[#00A82D] mt-1">+89.08% since purchase</div>
               </div>
             </div>
 
