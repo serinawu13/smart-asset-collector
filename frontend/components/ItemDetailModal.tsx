@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { X, Edit2, Check, XIcon, Plus, Bell, BellOff } from 'lucide-react';
+import { X, Edit2, Check, XIcon, Plus, Bell, BellOff, Trash2 } from 'lucide-react';
 import { PortfolioAsset } from '../lib/mockData';
 import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
 
@@ -10,16 +10,16 @@ interface ItemDetailModalProps {
   onClose: () => void;
   asset: PortfolioAsset | null;
   isWatchlistItem?: boolean;
-  isSearchItem?: boolean; // New prop to distinguish search results from actual watchlist items
+  isSearchResult?: boolean;
 }
 
-export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistItem = false, isSearchItem = false }: ItemDetailModalProps) {
+export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistItem = false, isSearchResult = false }: ItemDetailModalProps) {
   const [activeTimeframe, setActiveTimeframe] = useState('1Y');
   const [isEditingPurchase, setIsEditingPurchase] = useState(false);
   const [isEditingSpecs, setIsEditingSpecs] = useState(false);
   
-  // For search items, track if they've been added to watchlist during this session
-  const [isAddedToWatchlist, setIsAddedToWatchlist] = useState(false);
+  // If it's already a watchlist item, it's added. If it's a search result, it's not added yet.
+  const [isAddedToWatchlist, setIsAddedToWatchlist] = useState(isWatchlistItem && !isSearchResult);
   
   // Editable fields state
   const [editedPurchasePrice, setEditedPurchasePrice] = useState('');
@@ -238,7 +238,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
   };
 
   const handleWatchlistAction = () => {
-    if (isSearchItem) {
+    if (isSearchResult) {
       // If it's a search item, toggle adding/removing
       setIsAddedToWatchlist(!isAddedToWatchlist);
       console.log(isAddedToWatchlist ? 'Removed from watchlist:' : 'Added to watchlist:', asset.brand, asset.model);
@@ -249,9 +249,15 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
     }
   };
 
+  const handleRemoveFromCollection = () => {
+    // In a real app, this would trigger an API call to remove the item from the user's portfolio
+    console.log('Removed from collection:', asset.brand, asset.model);
+    onClose(); // Close modal after removing
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1A1A1A]/60 backdrop-blur-sm">
-      <div className="bg-[#FAF9F6] w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-[#E8E8E3] shadow-2xl">
+      <div className="bg-[#FAF9F6] w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-[#E8E8E3] shadow-2xl flex flex-col">
         {/* Header */}
         <div className="sticky top-0 bg-[#FAF9F6] border-b border-[#E8E8E3] p-6 flex justify-between items-start z-10">
           <div className="flex-1">
@@ -266,12 +272,12 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
               <button 
                 onClick={handleWatchlistAction}
                 className={`px-4 py-2 text-xs font-medium uppercase tracking-widest transition-colors flex items-center gap-2 ${
-                  (!isSearchItem || isAddedToWatchlist)
+                  (!isSearchResult || isAddedToWatchlist)
                     ? 'bg-[#9B2226]/10 text-[#9B2226] border border-[#9B2226]/20 hover:bg-[#9B2226]/20' 
                     : 'bg-[#1A1A1A] text-[#FAF9F6] hover:bg-[#333333]'
                 }`}
               >
-                {(!isSearchItem || isAddedToWatchlist) ? (
+                {(!isSearchResult || isAddedToWatchlist) ? (
                   <>
                     <BellOff className="w-3.5 h-3.5" />
                     Remove from Watchlist
@@ -294,7 +300,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-8">
+        <div className="p-6 space-y-8 flex-1">
           {/* Current Value Section */}
           <div>
             <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">Current Market Value</p>
@@ -553,6 +559,19 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
             </div>
           </div>
         </div>
+
+        {/* Footer - Only show for Collection items */}
+        {!isWatchlistItem && (
+          <div className="p-6 border-t border-[#E8E8E3] bg-white flex justify-end">
+            <button 
+              onClick={handleRemoveFromCollection}
+              className="px-6 py-3 text-xs font-medium uppercase tracking-widest text-[#9B2226] hover:bg-[#9B2226]/10 transition-colors flex items-center gap-2"
+            >
+              <Trash2 className="w-4 h-4" />
+              Remove from Collection
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
