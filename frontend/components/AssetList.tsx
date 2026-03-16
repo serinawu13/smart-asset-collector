@@ -50,7 +50,7 @@ export default function AssetList({ onAddClick }: AssetListProps) {
   }, {} as Record<string, typeof initialPortfolio>);
 
   // Define category order
-  const categoryOrder = ['Jewelry', 'Watch', 'Bag'];
+  const categoryOrder = ['Watch', 'Jewelry', 'Bag'];
 
   return (
     <>
