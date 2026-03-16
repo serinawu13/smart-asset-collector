@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { X, Edit2, Check, XIcon } from 'lucide-react';
+import { X, Edit2, Check, XIcon, Plus, Bell } from 'lucide-react';
 import { PortfolioAsset } from '../lib/mockData';
 import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
 
@@ -16,6 +16,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
   const [activeTimeframe, setActiveTimeframe] = useState('1Y');
   const [isEditingPurchase, setIsEditingPurchase] = useState(false);
   const [isEditingSpecs, setIsEditingSpecs] = useState(false);
+  const [isAddedToWatchlist, setIsAddedToWatchlist] = useState(false);
   
   // Editable fields state
   const [editedPurchasePrice, setEditedPurchasePrice] = useState('');
@@ -136,72 +137,6 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
   const itemHistory = generateItemHistory(activeTimeframe);
   const timeframes = ['1D', '1W', '1M', 'YTD', '1Y', '5Y', '10Y', 'ALL'];
 
-  // Dynamic timeframe data calculation for the header
-  const getTimeframeData = (timeframe: string) => {
-    // In a real app, this would calculate actual historical differences
-    // For mock purposes, we generate realistic-looking changes based on the timeframe
-    let change = 0;
-    let percent = 0;
-    let label = '';
-
-    // Base the mock changes on the actual total gain to keep it somewhat realistic
-    const baseChange = totalGain;
-    const basePercent = totalROI;
-
-    switch (timeframe) {
-      case '1D':
-        change = baseChange * 0.02;
-        percent = basePercent * 0.02;
-        label = 'Today';
-        break;
-      case '1W':
-        change = baseChange * 0.05;
-        percent = basePercent * 0.05;
-        label = 'Past Week';
-        break;
-      case '1M':
-        change = baseChange * 0.15;
-        percent = basePercent * 0.15;
-        label = 'Past Month';
-        break;
-      case 'YTD':
-        change = baseChange * 0.4;
-        percent = basePercent * 0.4;
-        label = 'Year to Date';
-        break;
-      case '1Y':
-        change = baseChange * 0.6;
-        percent = basePercent * 0.6;
-        label = 'Past Year';
-        break;
-      case '5Y':
-        change = baseChange * 0.9;
-        percent = basePercent * 0.9;
-        label = 'Past 5 Years';
-        break;
-      case '10Y':
-        change = baseChange * 0.95;
-        percent = basePercent * 0.95;
-        label = 'Past 10 Years';
-        break;
-      case 'ALL':
-        change = totalGain;
-        percent = totalROI;
-        label = 'All Time';
-        break;
-      default:
-        change = baseChange * 0.02;
-        percent = basePercent * 0.02;
-        label = 'Today';
-    }
-
-    return { change, percent, label };
-  };
-
-  const timeframeData = getTimeframeData(activeTimeframe);
-  const isTimeframePositive = timeframeData.change >= 0;
-  const timeframeTrendColor = isTimeframePositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
-
   // Edit handlers
   const handleEditPurchase = () => {
     setEditedPurchasePrice(asset.purchasePrice.toString());
@@ -236,6 +171,12 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
     setIsEditingSpecs(false);
   };
 
+  const handleAddToWatchlist = () => {
+    setIsAddedToWatchlist(true);
+    console.log('Added to watchlist:', asset.brand, asset.model);
+    // In a real app, this would trigger an API call to add the item to the user's watchlist
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1A1A1A]/60 backdrop-blur-sm">
       <div className="bg-[#FAF9F6] w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-[#E8E8E3] shadow-2xl">
@@ -248,12 +189,37 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
               <span className="text-xs bg-[#F5F5F0] px-3 py-1 text-[#7A7A75] uppercase tracking-widest">{asset.category}</span>
             </div>
           </div>
-          <button 
-            onClick={onClose}
-            className="p-2 hover:bg-[#E8E8E3] transition-colors rounded-full"
-          >
-            <X className="w-5 h-5 text-[#1A1A1A]" />
-          </button>
+          <div className="flex items-center gap-4">
+            {isWatchlistItem && (
+              <button 
+                onClick={handleAddToWatchlist}
+                disabled={isAddedToWatchlist}
+                className={`px-4 py-2 text-xs font-medium uppercase tracking-widest transition-colors flex items-center gap-2 ${
+                  isAddedToWatchlist 
+                    ? 'bg-[#00A82D]/10 text-[#00A82D] border border-[#00A82D]/20' 
+                    : 'bg-[#1A1A1A] text-[#FAF9F6] hover:bg-[#333333]'
+                }`}
+              >
+                {isAddedToWatchlist ? (
+                  <>
+                    <Check className="w-3.5 h-3.5" />
+                    Watching
+                  </>
+                ) : (
+                  <>
+                    <Bell className="w-3.5 h-3.5" />
+                    Add to Watchlist
+                  </>
+                )}
+              </button>
+            )}
+            <button 
+              onClick={onClose}
+              className="p-2 hover:bg-[#E8E8E3] transition-colors rounded-full"
+            >
+              <X className="w-5 h-5 text-[#1A1A1A]" />
+            </button>
+          </div>
         </div>
 
         {/* Content */}
@@ -266,10 +232,10 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
             </h3>
             {!isWatchlistItem && (
               <div className="flex items-center gap-3 text-sm font-medium">
-                <span className={`${timeframeTrendColor}`}>
-                  {isTimeframePositive ? '+' : ''}{formatCurrency(timeframeData.change)} ({isTimeframePositive ? '+' : ''}{formatPercentage(timeframeData.percent)}%)
+                <span className={`${trendColor}`}>
+                  {isPositive ? '+' : ''}{formatCurrency(totalGain)} ({isPositive ? '+' : ''}{formatPercentage(totalROI)}%)
                 </span>
-                <span className="text-[#7A7A75] uppercase tracking-wider text-xs">{timeframeData.label}</span>
+                <span className="text-[#7A7A75] uppercase tracking-wider text-xs">Today</span>
               </div>
             )}
           </div>
