@@ -42,7 +42,7 @@ export default function LandingPage() {
             </p>
 
             {/* Sign In Form */}
-            <form onSubmit={handleSignIn} className="w-full max-w-md">
+            <form onSubmit={handleSignIn} className="w-full max-w-md relative z-20">
               <div className="flex flex-col sm:flex-row gap-4">
                 <input 
                   type="email" 
@@ -68,7 +68,7 @@ export default function LandingPage() {
         </div>
 
         {/* Right Column - Editorial Visuals */}
-        <div className="w-full lg:w-1/2 h-[60vh] lg:h-screen relative hidden md:block">
+        <div className="w-full lg:w-1/2 h-[60vh] lg:h-screen relative hidden lg:block">
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#1A1A1A 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
           
@@ -76,20 +76,19 @@ export default function LandingPage() {
           <div className="absolute inset-0 flex items-center justify-center p-12">
             <div className="grid grid-cols-2 gap-6 w-full max-w-2xl">
               
-              {/* Main Image - Watch (Spans 2 rows) */}
-              <div className="row-span-2 relative bg-white border border-[#E8E8E3] shadow-xl p-3 group animate-in fade-in slide-in-from-right-8 duration-1000 delay-300">
-                <div className="w-full h-full relative overflow-hidden bg-[#F5F5F0] aspect-[3/4]">
+              {/* Main Image - Watch */}
+              <div className="relative bg-white border border-[#E8E8E3] shadow-xl p-3 group animate-in fade-in slide-in-from-right-8 duration-1000 delay-300">
+                <div className="w-full h-full relative overflow-hidden bg-[#F5F5F0] aspect-square">
                   <img 
-                    src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&h=1000&fit=crop" 
+                    src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&h=800&fit=crop" 
                     alt="Luxury Watch" 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 </div>
                 {/* Glassmorphic Price Tag */}
-                <div className="absolute bottom-6 left-6 right-6 bg-white/90 backdrop-blur-md border border-[#E8E8E3] p-4 shadow-lg">
-                  <div className="text-xs text-[#7A7A75] uppercase tracking-widest mb-1">Rolex Submariner</div>
-                  <div className="font-editorial text-xl text-[#1A1A1A]">$14,500</div>
-                  <div className="text-xs font-medium text-[#00A82D] mt-1">+41.46% since purchase</div>
+                <div className="absolute bottom-6 left-6 right-6 bg-white/90 backdrop-blur-md border border-[#E8E8E3] p-3 shadow-lg">
+                  <div className="text-[10px] text-[#7A7A75] uppercase tracking-widest mb-1 truncate">Rolex Submariner</div>
+                  <div className="font-editorial text-lg text-[#1A1A1A]">$14,500</div>
                 </div>
               </div>
 
@@ -110,13 +109,21 @@ export default function LandingPage() {
               </div>
 
               {/* Tertiary Image - Jewelry */}
-              <div className="relative bg-white border border-[#E8E8E3] shadow-lg p-3 group animate-in fade-in slide-in-from-right-8 duration-1000 delay-700">
-                <div className="w-full h-full relative overflow-hidden bg-[#F5F5F0] aspect-square">
+              <div className="relative bg-white border border-[#E8E8E3] shadow-lg p-3 group animate-in fade-in slide-in-from-right-8 duration-1000 delay-700 col-span-2">
+                <div className="w-full h-full relative overflow-hidden bg-[#F5F5F0] aspect-[2/1]">
                   <img 
-                    src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&h=800&fit=crop" 
+                    src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1200&h=600&fit=crop" 
                     alt="Luxury Jewelry" 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
+                </div>
+                {/* Glassmorphic Price Tag */}
+                <div className="absolute bottom-6 left-6 right-6 bg-white/90 backdrop-blur-md border border-[#E8E8E3] p-3 shadow-lg flex justify-between items-center">
+                  <div>
+                    <div className="text-[10px] text-[#7A7A75] uppercase tracking-widest mb-1 truncate">Cartier Love Bracelet</div>
+                    <div className="font-editorial text-lg text-[#1A1A1A]">$7,350</div>
+                  </div>
+                  <div className="text-xs font-medium text-[#00A82D]">+1.50% since purchase</div>
                 </div>
               </div>
 
