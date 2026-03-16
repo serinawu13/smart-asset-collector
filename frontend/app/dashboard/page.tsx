@@ -56,16 +56,16 @@ export default function Dashboard() {
         ) : (
           /* Populated Dashboard View */
           <div className="flex flex-col lg:flex-row gap-8 md:gap-12 lg:gap-16 animate-in fade-in duration-500">
-            {/* Left Column: Main Chart & News */}
+            {/* Left Column: Main Chart */}
             <div className="flex-1 lg:w-[60%]">
               <PortfolioOverview />
-              <MarketNews />
             </div>
 
-            {/* Right Column: Sidebar Lists */}
+            {/* Right Column: Sidebar Lists & News */}
             <div className="w-full lg:w-[40%] space-y-8 md:space-y-12">
               <AssetList onAddClick={() => setIsAddAssetModalOpen(true)} />
               <Watchlist />
+              <MarketNews />
             </div>
           </div>
         )}
