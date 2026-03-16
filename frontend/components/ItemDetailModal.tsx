@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { X, Edit2, Check, XIcon, Plus, Bell, BellOff, Trash2 } from 'lucide-react';
+import { X, Edit2, Check, XIcon, Plus, Bell, BellOff, Trash2, DollarSign } from 'lucide-react';
 import { PortfolioAsset } from '../lib/mockData';
 import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
 
@@ -17,6 +17,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
   const [activeTimeframe, setActiveTimeframe] = useState('1Y');
   const [isEditingPurchase, setIsEditingPurchase] = useState(false);
   const [isEditingSpecs, setIsEditingSpecs] = useState(false);
+  const [isSelling, setIsSelling] = useState(false);
   
   // If it's already a watchlist item, it's added. If it's a search result, it's not added yet.
   const [isAddedToWatchlist, setIsAddedToWatchlist] = useState(isWatchlistItem && !isSearchResult);
@@ -29,6 +30,10 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
   const [editedSize, setEditedSize] = useState('');
   const [editedSerialNumber, setEditedSerialNumber] = useState('');
   const [editedColor, setEditedColor] = useState('');
+
+  // Sell fields state
+  const [salePrice, setSalePrice] = useState('');
+  const [saleDate, setSaleDate] = useState(new Date().toISOString().split('T')[0]);
 
   if (!isOpen || !asset) return null;
 
@@ -255,6 +260,33 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
     onClose(); // Close modal after removing
   };
 
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/[^0-9]/g, '');
+    if (rawValue) {
+      setSalePrice(Number(rawValue).toLocaleString('en-US'));
+    } else {
+      setSalePrice('');
+    }
+  };
+
+  const handleConfirmSale = (e: React.FormEvent) => {
+    e.preventDefault();
+    const numericSalePrice = Number(salePrice.replace(/,/g, ''));
+    const realizedGain = numericSalePrice - asset.purchasePrice;
+    const realizedROI = (realizedGain / asset.purchasePrice) * 100;
+    
+    console.log('Asset Sold:', {
+      item: asset.brand + ' ' + asset.model,
+      salePrice: numericSalePrice,
+      saleDate,
+      realizedGain,
+      realizedROI
+    });
+    
+    setIsSelling(false);
+    onClose();
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1A1A1A]/60 backdrop-blur-sm">
       <div className="bg-[#FAF9F6] w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-[#E8E8E3] shadow-2xl flex flex-col">
@@ -301,8 +333,79 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
 
         {/* Content */}
         <div className="p-6 space-y-8 flex-1">
+          {/* Sell Asset Form (Conditional) */}
+          {isSelling && !isWatchlistItem && (
+            <div className="vault-card p-6 border-[#1A1A1A] bg-white animate-in fade-in slide-in-from-top-4">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="font-editorial text-2xl text-[#1A1A1A]">Liquidate Asset</h3>
+                <button 
+                  onClick={() => setIsSelling(false)}
+                  className="p-2 hover:bg-[#E8E8E3] transition-colors rounded-full"
+                >
+                  <X className="w-4 h-4 text-[#7A7A75]" />
+                </button>
+              </div>
+              
+              <form onSubmit={handleConfirmSale} className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
+                      Sale Price (USD) <span className="text-[#9B2226]">*</span>
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1A1A1A] font-medium">$</span>
+                      <input 
+                        type="text" 
+                        required
+                        value={salePrice}
+                        onChange={handlePriceChange}
+                        placeholder={asset.currentMarketValue.toLocaleString('en-US')}
+                        className="w-full bg-white border border-[#E8E8E3] py-3 pl-8 pr-4 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] transition-colors font-medium"
+                      />
+                    </div>
+                    {salePrice && (
+                      <p className={`text-xs mt-2 font-medium ${Number(salePrice.replace(/,/g, '')) >= asset.purchasePrice ? 'text-[#00A82D]' : 'text-[#9B2226]'}`}>
+                        Realized Gain/Loss: {formatCurrency(Number(salePrice.replace(/,/g, '')) - asset.purchasePrice)}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
+                      Date of Sale <span className="text-[#9B2226]">*</span>
+                    </label>
+                    <input 
+                      type="date" 
+                      required
+                      value={saleDate}
+                      onChange={(e) => setSaleDate(e.target.value)}
+                      className="w-full bg-white border border-[#E8E8E3] py-3 px-4 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] transition-colors"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-4 flex gap-4">
+                  <button 
+                    type="button"
+                    onClick={() => setIsSelling(false)}
+                    className="flex-1 bg-white border border-[#E8E8E3] text-[#1A1A1A] py-4 text-sm font-medium uppercase tracking-widest hover:bg-[#F5F5F0] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit"
+                    disabled={!salePrice}
+                    className="flex-1 bg-[#1A1A1A] text-[#FAF9F6] py-4 text-sm font-medium uppercase tracking-widest hover:bg-[#333333] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Confirm Sale
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
           {/* Current Value Section */}
-          <div>
+          <div className={isSelling ? 'opacity-50 pointer-events-none transition-opacity' : 'transition-opacity'}>
             <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">Current Market Value</p>
             <h3 className="text-4xl md:text-5xl font-editorial text-[#1A1A1A] mb-3">
               {formatCurrency(asset.currentMarketValue)}
@@ -318,7 +421,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
           </div>
 
           {/* Performance Chart */}
-          <div>
+          <div className={isSelling ? 'opacity-50 pointer-events-none transition-opacity' : 'transition-opacity'}>
             <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-4">Performance History</p>
             <div className="h-[250px] md:h-[300px] w-full -ml-2">
               <ResponsiveContainer width="100%" height="100%">
@@ -358,7 +461,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
           </div>
 
           {/* Stats Grid */}
-          <div className={`grid grid-cols-1 ${!isWatchlistItem ? 'sm:grid-cols-2' : ''} gap-6`}>
+          <div className={`grid grid-cols-1 ${!isWatchlistItem ? 'sm:grid-cols-2' : ''} gap-6 ${isSelling ? 'opacity-50 pointer-events-none transition-opacity' : 'transition-opacity'}`}>
             {/* Purchase Details - Only show for Collection items */}
             {!isWatchlistItem && (
               <div className="vault-card p-6">
@@ -446,7 +549,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
           </div>
 
           {/* Specifications */}
-          <div className="vault-card p-6">
+          <div className={`vault-card p-6 ${isSelling ? 'opacity-50 pointer-events-none transition-opacity' : 'transition-opacity'}`}>
             <div className="flex justify-between items-center mb-3">
               <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest">Specifications</p>
               {!isEditingSpecs ? (
@@ -562,13 +665,21 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
 
         {/* Footer - Only show for Collection items */}
         {!isWatchlistItem && (
-          <div className="p-6 border-t border-[#E8E8E3] bg-white flex justify-end">
+          <div className="p-6 border-t border-[#E8E8E3] bg-white flex flex-col sm:flex-row justify-end gap-4">
             <button 
               onClick={handleRemoveFromCollection}
-              className="px-6 py-3 text-xs font-medium uppercase tracking-widest text-[#9B2226] hover:bg-[#9B2226]/10 transition-colors flex items-center gap-2"
+              className="px-6 py-3 text-xs font-medium uppercase tracking-widest text-[#7A7A75] hover:text-[#9B2226] hover:bg-[#9B2226]/5 transition-colors flex items-center justify-center gap-2 border border-transparent hover:border-[#9B2226]/20"
             >
               <Trash2 className="w-4 h-4" />
-              Remove from Collection
+              Remove
+            </button>
+            <button 
+              onClick={() => setIsSelling(true)}
+              disabled={isSelling}
+              className="px-8 py-3 text-xs font-medium uppercase tracking-widest bg-[#1A1A1A] text-[#FAF9F6] hover:bg-[#333333] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <DollarSign className="w-4 h-4" />
+              Liquidate Asset
             </button>
           </div>
         )}
