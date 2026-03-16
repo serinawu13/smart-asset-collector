@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { X, Edit2, Check, XIcon, Plus, Bell, BellOff, Trash2, DollarSign } from 'lucide-react';
 import { PortfolioAsset } from '../lib/mockData';
 import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
@@ -18,6 +18,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
   const [isEditingPurchase, setIsEditingPurchase] = useState(false);
   const [isEditingSpecs, setIsEditingSpecs] = useState(false);
   const [isSelling, setIsSelling] = useState(false);
+  const sellFormRef = useRef<HTMLDivElement>(null);
   
   // If it's already a watchlist item, it's added. If it's a search result, it's not added yet.
   const [isAddedToWatchlist, setIsAddedToWatchlist] = useState(isWatchlistItem && !isSearchResult);
@@ -34,6 +35,13 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
   // Sell fields state
   const [salePrice, setSalePrice] = useState('');
   const [saleDate, setSaleDate] = useState(new Date().toISOString().split('T')[0]);
+
+  // Scroll to sell form when opened
+  useEffect(() => {
+    if (isSelling && sellFormRef.current) {
+      sellFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [isSelling]);
 
   if (!isOpen || !asset) return null;
 
@@ -335,7 +343,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
         <div className="p-6 space-y-8 flex-1">
           {/* Sell Asset Form (Conditional) */}
           {isSelling && !isWatchlistItem && (
-            <div className="vault-card p-6 border-[#1A1A1A] bg-white animate-in fade-in slide-in-from-top-4">
+            <div ref={sellFormRef} className="vault-card p-6 border-[#1A1A1A] bg-white animate-in fade-in slide-in-from-top-4">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="font-editorial text-2xl text-[#1A1A1A]">Liquidate Asset</h3>
                 <button 
@@ -361,6 +369,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
                         onChange={handlePriceChange}
                         placeholder={asset.currentMarketValue.toLocaleString('en-US')}
                         className="w-full bg-white border border-[#E8E8E3] py-3 pl-8 pr-4 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] transition-colors font-medium"
+                        autoFocus
                       />
                     </div>
                     {salePrice && (
