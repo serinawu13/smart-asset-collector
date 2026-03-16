@@ -25,13 +25,22 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Filter database based on search query
+  // Helper function to remove accents/diacritics from strings
+  const removeAccents = (str: string) => {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  };
+
+  // Filter database based on search query (ignoring accents)
   const searchResults = searchQuery.trim() === '' 
     ? [] 
-    : luxuryDatabase.filter(item => 
-        item.brand.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        item.model.toLowerCase().includes(searchQuery.toLowerCase())
-      ).slice(0, 5); // Limit to 5 results
+    : luxuryDatabase.filter(item => {
+        const normalizedQuery = removeAccents(searchQuery.toLowerCase());
+        const normalizedBrand = removeAccents(item.brand.toLowerCase());
+        const normalizedModel = removeAccents(item.model.toLowerCase());
+        
+        return normalizedBrand.includes(normalizedQuery) || 
+               normalizedModel.includes(normalizedQuery);
+      }).slice(0, 5); // Limit to 5 results
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {

@@ -99,11 +99,22 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
     handleClose();
   };
 
-  // Filter database based on selected category and search query
+  // Helper function to remove accents/diacritics from strings
+  const removeAccents = (str: string) => {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  };
+
+  // Filter database based on selected category and search query (ignoring accents)
   const filteredItems = luxuryDatabase.filter(item => {
     const matchesCategory = selectedCategory ? item.category === selectedCategory : true;
-    const matchesSearch = item.brand.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         item.model.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const normalizedQuery = removeAccents(searchQuery.toLowerCase());
+    const normalizedBrand = removeAccents(item.brand.toLowerCase());
+    const normalizedModel = removeAccents(item.model.toLowerCase());
+    
+    const matchesSearch = normalizedBrand.includes(normalizedQuery) || 
+                         normalizedModel.includes(normalizedQuery);
+                         
     return matchesCategory && matchesSearch;
   });
 
