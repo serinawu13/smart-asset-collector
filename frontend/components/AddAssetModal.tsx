@@ -23,6 +23,7 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
   const [condition, setCondition] = useState('Excellent');
   const [color, setColor] = useState('');
   const [material, setMaterial] = useState('');
+  const [serialNumber, setSerialNumber] = useState('');
 
   if (!isOpen) return null;
 
@@ -35,6 +36,7 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
     setCondition('Excellent');
     setColor('');
     setMaterial('');
+    setSerialNumber('');
     onClose();
   };
 
@@ -70,7 +72,8 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
       purchaseDate,
       condition,
       color: color || undefined,
-      material: material || undefined
+      material: material || undefined,
+      serialNumber: serialNumber || undefined
     });
     handleClose();
   };
@@ -289,6 +292,19 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
                         />
                       </div>
                     )}
+
+                    <div>
+                      <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
+                        Serial Number
+                      </label>
+                      <input 
+                        type="text" 
+                        value={serialNumber}
+                        onChange={(e) => setSerialNumber(e.target.value)}
+                        placeholder="e.g. M8K12345"
+                        className="w-full bg-white border border-[#E8E8E3] py-3 px-4 text-[#1A1A1A] placeholder:text-[#7A7A75]/50 focus:outline-none focus:border-[#1A1A1A] transition-colors"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
