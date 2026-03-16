@@ -19,10 +19,6 @@ export default function Watchlist() {
     }).format(value);
   };
 
-  const formatPercentage = (value: number) => {
-    return value.toFixed(2);
-  };
-
   const toggleCategory = (category: string) => {
     setExpandedCategories(prev => 
       prev.includes(category) 
@@ -97,9 +93,6 @@ export default function Watchlist() {
 
                 {/* Category Items */}
                 {isExpanded && items.map((item) => {
-                  const isPositive = item.trendPercentage >= 0;
-                  const trendColor = isPositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
-
                   return (
                     <div
                       key={item.watchlistId}
@@ -120,10 +113,7 @@ export default function Watchlist() {
                           onClick={() => handleItemClick(item)}
                           className="text-left sm:text-right"
                         >
-                          <div className={`font-medium text-sm md:text-base ${trendColor}`}>{formatCurrency(item.currentMarketValue)}</div>
-                          <div className="text-xs text-[#7A7A75] mt-1 uppercase tracking-wider">
-                            Target: {formatCurrency(item.targetPrice || 0)}
-                          </div>
+                          <div className="font-medium text-sm md:text-base text-[#1A1A1A]">{formatCurrency(item.currentMarketValue)}</div>
                         </button>
                         <button 
                           onClick={(e) => {
