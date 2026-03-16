@@ -116,7 +116,7 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
           {/* Step 1: Category Selection */}
           {step === 'category' && (
             <div className="flex flex-col gap-4">
-              {(['Watch', 'Bag', 'Jewelry'] as AssetCategory[]).map((category) => (
+              {(['Watch', 'Jewelry', 'Bag'] as AssetCategory[]).map((category) => (
                 <button
                   key={category}
                   onClick={() => handleCategorySelect(category)}
