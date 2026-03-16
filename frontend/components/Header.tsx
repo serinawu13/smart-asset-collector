@@ -2,24 +2,36 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, Bell, User, Menu, X, TrendingUp, MessageCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Search, Bell, User, Menu, X, TrendingUp, MessageCircle, Settings, LogOut, ChevronRight } from 'lucide-react';
 import { luxuryDatabase, initialWatchlist } from '../lib/mockData';
 import ItemDetailModal from './ItemDetailModal';
 import type { PortfolioAsset } from '../lib/mockData';
 
 export default function Header() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<PortfolioAsset | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isSearchItem, setIsSearchItem] = useState(false);
+  
+  // Settings state
+  const [currency, setCurrency] = useState('USD');
+  const [alertThreshold, setAlertThreshold] = useState('5');
+  
   const searchRef = useRef<HTMLDivElement>(null);
+  const settingsRef = useRef<HTMLDivElement>(null);
 
-  // Close search dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setIsSearchOpen(false);
+      }
+      if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
+        setIsSettingsOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -51,7 +63,7 @@ export default function Header() {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: currency,
       maximumFractionDigits: 0,
     }).format(value);
   };
@@ -82,6 +94,11 @@ export default function Header() {
     setIsDetailModalOpen(true);
     setIsSearchOpen(false);
     setSearchQuery('');
+  };
+
+  const handleSignOut = () => {
+    setIsSettingsOpen(false);
+    router.push('/');
   };
 
   return (
@@ -212,10 +229,76 @@ export default function Header() {
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#9B2226] rounded-full"></span>
           </button>
 
-          {/* Profile */}
-          <button className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#1A1A1A] flex items-center justify-center hover:bg-[#333333] transition-colors">
-            <User className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#FAF9F6]" />
-          </button>
+          {/* Profile / Settings */}
+          <div className="relative" ref={settingsRef}>
+            <button 
+              onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+              className={`w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center transition-colors ${
+                isSettingsOpen ? 'bg-[#333333]' : 'bg-[#1A1A1A] hover:bg-[#333333]'
+              }`}
+            >
+              <User className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#FAF9F6]" />
+            </button>
+
+            {/* Settings Dropdown */}
+            {isSettingsOpen && (
+              <div className="absolute right-0 mt-3 w-72 bg-white border border-[#E8E8E3] shadow-2xl z-50 animate-in fade-in slide-in-from-top-2">
+                <div className="p-4 border-b border-[#E8E8E3] bg-[#FAF9F6]">
+                  <div className="font-editorial text-lg text-[#1A1A1A]">Account Settings</div>
+                  <div className="text-xs text-[#7A7A75] mt-1">Manage your vault preferences</div>
+                </div>
+
+                <div className="p-4 space-y-6">
+                  {/* Currency Preference */}
+                  <div>
+                    <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
+                      Preferred Currency
+                    </label>
+                    <select 
+                      value={currency}
+                      onChange={(e) => setCurrency(e.target.value)}
+                      className="w-full bg-white border border-[#E8E8E3] py-2 px-3 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] transition-colors appearance-none"
+                    >
+                      <option value="USD">USD ($) - US Dollar</option>
+                      <option value="EUR">EUR (€) - Euro</option>
+                      <option value="GBP">GBP (£) - British Pound</option>
+                      <option value="CHF">CHF (Fr) - Swiss Franc</option>
+                    </select>
+                  </div>
+
+                  {/* Alert Preferences */}
+                  <div>
+                    <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
+                      Watchlist Alerts
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm text-[#1A1A1A]">Notify me when price drops by</span>
+                      <select 
+                        value={alertThreshold}
+                        onChange={(e) => setAlertThreshold(e.target.value)}
+                        className="bg-white border border-[#E8E8E3] py-1 px-2 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] transition-colors appearance-none"
+                      >
+                        <option value="2">2%</option>
+                        <option value="5">5%</option>
+                        <option value="10">10%</option>
+                        <option value="15">15%</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-2 border-t border-[#E8E8E3] bg-[#FAF9F6]">
+                  <button 
+                    onClick={handleSignOut}
+                    className="w-full px-4 py-2 text-left text-sm font-medium text-[#9B2226] hover:bg-[#9B2226]/10 transition-colors flex items-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
