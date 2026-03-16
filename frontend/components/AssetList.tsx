@@ -95,8 +95,6 @@ export default function AssetList({ onAddClick }: AssetListProps) {
 
                 {/* Category Items */}
                 {isExpanded && assets.map((asset) => {
-                  // Use the trend percentage to determine the color of the current market value
-                  // In a real app, this would be based on the 1D change specifically
                   const isPositive = asset.trendPercentage >= 0;
                   const trendColor = isPositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
 
@@ -104,16 +102,33 @@ export default function AssetList({ onAddClick }: AssetListProps) {
                     <button
                       key={asset.portfolioId}
                       onClick={() => handleAssetClick(asset)}
-                      className="w-full p-4 md:p-6 pl-8 md:pl-12 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 vault-hover border-b border-[#E8E8E3] last:border-0 text-left"
+                      className="w-full p-4 md:p-6 pl-8 md:pl-12 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 vault-hover border-b border-[#E8E8E3] last:border-0 text-left"
                     >
-                      {/* Left: Name & Model */}
-                      <div className="flex-1 min-w-0">
-                        <div className="font-editorial text-base md:text-lg text-[#1A1A1A] truncate">{asset.brand}</div>
-                        <div className="text-xs text-[#7A7A75] mt-1 uppercase tracking-wider truncate">{asset.model}</div>
+                      <div className="flex items-center gap-4 flex-1 min-w-0">
+                        {/* Product Image */}
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 bg-[#F5F5F0] border border-[#E8E8E3] overflow-hidden">
+                          {asset.imageUrl ? (
+                            <img 
+                              src={asset.imageUrl} 
+                              alt={`${asset.brand} ${asset.model}`}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-[#7A7A75] text-[10px]">
+                              No Image
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Left: Name & Model */}
+                        <div className="flex-1 min-w-0">
+                          <div className="font-editorial text-base md:text-lg text-[#1A1A1A] truncate">{asset.brand}</div>
+                          <div className="text-xs text-[#7A7A75] mt-1 uppercase tracking-wider truncate">{asset.model}</div>
+                        </div>
                       </div>
 
                       {/* Right: Price Only (Color-coded) */}
-                      <div className="text-left sm:text-right flex-shrink-0">
+                      <div className="text-left sm:text-right flex-shrink-0 mt-2 sm:mt-0 ml-16 sm:ml-0">
                         <div className={`font-medium text-sm md:text-base ${trendColor}`}>{formatCurrency(asset.currentMarketValue)}</div>
                       </div>
                     </button>

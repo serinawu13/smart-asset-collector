@@ -93,35 +93,47 @@ export default function Watchlist() {
 
                 {/* Category Items */}
                 {isExpanded && items.map((item) => {
-                  // Use the trend percentage to determine the color of the current market value
-                  // In a real app, this would be based on the 1D change specifically
                   const isPositive = item.trendPercentage >= 0;
                   const trendColor = isPositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
 
                   return (
                     <div
                       key={item.watchlistId}
-                      className="p-4 md:p-6 pl-8 md:pl-12 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 vault-hover border-b border-[#E8E8E3] last:border-0"
+                      className="p-4 md:p-6 pl-8 md:pl-12 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 vault-hover border-b border-[#E8E8E3] last:border-0"
                     >
-                      {/* Left: Name & Model - Clickable */}
+                      {/* Left: Image, Name & Model - Clickable */}
                       <button
                         onClick={() => handleItemClick(item)}
-                        className="flex-1 min-w-0 text-left"
+                        className="flex items-center gap-4 flex-1 min-w-0 text-left"
                       >
-                        <div className="font-editorial text-base md:text-lg text-[#1A1A1A] truncate">{item.brand}</div>
-                        <div className="text-xs text-[#7A7A75] mt-1 uppercase tracking-wider truncate">{item.model}</div>
+                        {/* Product Image */}
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 bg-[#F5F5F0] border border-[#E8E8E3] overflow-hidden">
+                          {item.imageUrl ? (
+                            <img 
+                              src={item.imageUrl} 
+                              alt={`${item.brand} ${item.model}`}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-[#7A7A75] text-[10px]">
+                              No Image
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="font-editorial text-base md:text-lg text-[#1A1A1A] truncate">{item.brand}</div>
+                          <div className="text-xs text-[#7A7A75] mt-1 uppercase tracking-wider truncate">{item.model}</div>
+                        </div>
                       </button>
 
                       {/* Right: Price & Alert */}
-                      <div className="flex items-center gap-3 md:gap-4 flex-shrink-0">
+                      <div className="flex items-center gap-3 md:gap-4 flex-shrink-0 mt-2 sm:mt-0 ml-16 sm:ml-0">
                         <button
                           onClick={() => handleItemClick(item)}
                           className="text-left sm:text-right"
                         >
                           <div className={`font-medium text-sm md:text-base ${trendColor}`}>{formatCurrency(item.currentMarketValue)}</div>
-                          <div className="text-xs text-[#7A7A75] mt-1 uppercase tracking-wider">
-                            Target: {formatCurrency(item.targetPrice || 0)}
-                          </div>
                         </button>
                         <button 
                           onClick={(e) => {
