@@ -58,7 +58,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
     return value.toFixed(2);
   };
 
-  // Calculate ROI
+  // Calculate ROI (Total Return based on Purchase Price)
   const totalGain = asset.currentMarketValue - asset.purchasePrice;
   const totalROI = (totalGain / asset.purchasePrice) * 100;
   const isPositive = totalGain >= 0;
@@ -73,18 +73,53 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
   const retailTrendColor = isAboveRetail ? 'text-[#00A82D]' : 'text-[#9B2226]';
 
   // Generate mock historical data for this specific item based on timeframe
+  // IMPORTANT: This now uses historical market value as the starting point, NOT purchase price
   const generateItemHistory = (timeframe: string) => {
-    const startValue = asset.purchasePrice;
     const endValue = asset.currentMarketValue;
-    const difference = endValue - startValue;
     
+    // Calculate the starting market value based on the item's overall trend percentage
+    // If trend is +10%, then startValue was 10% lower than endValue
+    const historicalMarketValue = endValue / (1 + (asset.trendPercentage / 100));
+    
+    // For the chart, we need to determine how much of that total historical change 
+    // applies to the specific timeframe selected
+    let timeframeStartValue = endValue;
+    
+    switch (timeframe) {
+      case '1D':
+        timeframeStartValue = endValue / (1 + (asset.trendPercentage * 0.02 / 100));
+        break;
+      case '1W':
+        timeframeStartValue = endValue / (1 + (asset.trendPercentage * 0.05 / 100));
+        break;
+      case '1M':
+        timeframeStartValue = endValue / (1 + (asset.trendPercentage * 0.15 / 100));
+        break;
+      case 'YTD':
+        timeframeStartValue = endValue / (1 + (asset.trendPercentage * 0.4 / 100));
+        break;
+      case '1Y':
+        timeframeStartValue = endValue / (1 + (asset.trendPercentage * 0.6 / 100));
+        break;
+      case '5Y':
+        timeframeStartValue = endValue / (1 + (asset.trendPercentage * 0.9 / 100));
+        break;
+      case '10Y':
+        timeframeStartValue = endValue / (1 + (asset.trendPercentage * 0.95 / 100));
+        break;
+      case 'ALL':
+        timeframeStartValue = historicalMarketValue;
+        break;
+    }
+
+    const difference = endValue - timeframeStartValue;
     let dataPoints: { label: string; value: number }[] = [];
     
     switch (timeframe) {
       case '1D':
         for (let i = 0; i < 24; i++) {
           const progress = i / 23;
-          const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.02);
+          const value = timeframeStartValue + (difference * progress) + (Math.random() - 0.5) * (timeframeStartValue * 0.005);
           dataPoints.push({ label: `${i}:00`, value: Math.round(value) });
         }
         break;
@@ -92,14 +127,14 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
         const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
         days.forEach((day, i) => {
           const progress = i / 6;
-          const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.03);
+          const value = timeframeStartValue + (difference * progress) + (Math.random() - 0.5) * (timeframeStartValue * 0.01);
           dataPoints.push({ label: day, value: Math.round(value) });
         });
         break;
       case '1M':
         for (let i = 0; i < 5; i++) {
           const progress = i / 4;
-          const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.04);
+          const value = timeframeStartValue + (difference * progress) + (Math.random() - 0.5) * (timeframeStartValue * 0.02);
           dataPoints.push({ label: `Week ${i + 1}`, value: Math.round(value) });
         }
         break;
@@ -109,7 +144,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
         
         monthsYTD.forEach((month, i) => {
           const progress = i / Math.max(1, monthsYTD.length - 1);
-          const value = startValue + (difference * progress * 0.5) + (Math.random() - 0.5) * (startValue * 0.04);
+          const value = timeframeStartValue + (difference * progress) + (Math.random() - 0.5) * (timeframeStartValue * 0.03);
           dataPoints.push({ label: month, value: Math.round(value) });
         });
         break;
@@ -117,7 +152,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         months.forEach((month, i) => {
           const progress = i / 11;
-          const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.05);
+          const value = timeframeStartValue + (difference * progress) + (Math.random() - 0.5) * (timeframeStartValue * 0.04);
           dataPoints.push({ label: month, value: Math.round(value) });
         });
         break;
@@ -125,7 +160,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
         for (let i = 0; i < 5; i++) {
           const year = new Date().getFullYear() - 4 + i;
           const progress = i / 4;
-          const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.1);
+          const value = timeframeStartValue + (difference * progress) + (Math.random() - 0.5) * (timeframeStartValue * 0.05);
           dataPoints.push({ label: year.toString(), value: Math.round(value) });
         }
         break;
@@ -133,20 +168,15 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
         for (let i = 0; i < 10; i++) {
           const year = new Date().getFullYear() - 9 + i;
           const progress = i / 9;
-          const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.15);
+          const value = timeframeStartValue + (difference * progress) + (Math.random() - 0.5) * (timeframeStartValue * 0.08);
           dataPoints.push({ label: year.toString(), value: Math.round(value) });
         }
         break;
       case 'ALL':
-        const purchaseDate = new Date(asset.purchaseDate);
-        const now = new Date();
-        const monthsDiff = Math.max(1, Math.floor((now.getTime() - purchaseDate.getTime()) / (1000 * 60 * 60 * 24 * 30)));
-        const allMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        
-        for (let i = 0; i < Math.min(monthsDiff, 24); i++) {
-          const progress = i / (Math.min(monthsDiff, 24) - 1);
-          const value = startValue + (difference * progress) + (Math.random() - 0.5) * (startValue * 0.05);
-          dataPoints.push({ label: allMonths[i % 12], value: Math.round(value) });
+        for (let i = 0; i < 24; i++) {
+          const progress = i / 23;
+          const value = timeframeStartValue + (difference * progress) + (Math.random() - 0.5) * (timeframeStartValue * 0.1);
+          dataPoints.push({ label: `M${i+1}`, value: Math.round(value) });
         }
         break;
     }
@@ -163,8 +193,10 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
     let percent = 0;
     let label = '';
 
-    const baseChange = isWatchlistItem ? (asset.currentMarketValue * (asset.trendPercentage / 100)) : totalGain;
-    const basePercent = isWatchlistItem ? asset.trendPercentage : totalROI;
+    // Base the mock changes on the item's market trend percentage, NOT purchase price
+    const basePercent = asset.trendPercentage;
+    const historicalMarketValue = asset.currentMarketValue / (1 + (basePercent / 100));
+    const baseChange = asset.currentMarketValue - historicalMarketValue;
 
     switch (timeframe) {
       case '1D':
@@ -219,6 +251,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
   const timeframeData = getTimeframeData(activeTimeframe);
   const isTimeframePositive = timeframeData.change >= 0;
   const timeframeTrendColor = isTimeframePositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
+  const timeframeTrendHex = isTimeframePositive ? '#00A82D' : '#9B2226';
 
   // Edit handlers
   const handleEditPurchase = () => {
@@ -443,10 +476,10 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
                   <Line 
                     type="monotone" 
                     dataKey="value" 
-                    stroke={trendHex} 
+                    stroke={timeframeTrendHex} 
                     strokeWidth={2}
                     dot={false}
-                    activeDot={{ r: 5, fill: trendHex, stroke: "#FAF9F6", strokeWidth: 2 }}
+                    activeDot={{ r: 5, fill: timeframeTrendHex, stroke: "#FAF9F6", strokeWidth: 2 }}
                     isAnimationActive={true}
                   />
                 </LineChart>
