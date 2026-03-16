@@ -65,8 +65,12 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
   const trendColor = isPositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
   const trendHex = isPositive ? '#00A82D' : '#9B2226';
 
-  // Get retail price
+  // Get retail price and calculate premium/discount
   const retailPrice = asset.retailPrice || asset.purchasePrice;
+  const retailDifference = asset.currentMarketValue - retailPrice;
+  const retailPremium = (retailDifference / retailPrice) * 100;
+  const isAboveRetail = retailDifference >= 0;
+  const retailTrendColor = isAboveRetail ? 'text-[#00A82D]' : 'text-[#9B2226]';
 
   // Generate mock historical data for this specific item based on timeframe
   const generateItemHistory = (timeframe: string) => {
@@ -549,9 +553,15 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
                     {isPositive ? '+' : ''}{formatPercentage(asset.trendPercentage)}%
                   </span>
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
                   <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Retail Price</span>
                   <span className="font-medium text-[#1A1A1A]">{formatCurrency(retailPrice)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Market vs Retail</span>
+                  <span className={`font-medium ${retailTrendColor}`}>
+                    {isAboveRetail ? '+' : ''}{formatPercentage(retailPremium)}%
+                  </span>
                 </div>
               </div>
             </div>
