@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Header from '../../components/Header';
 import AssetList from '../../components/AssetList';
@@ -11,9 +12,23 @@ import { Plus } from 'lucide-react';
 
 const PortfolioOverview = dynamic(() => import('../../components/PortfolioOverview'), { ssr: false });
 
-export default function Dashboard() {
+// Create a separate component that uses useSearchParams
+function DashboardContent() {
+  const searchParams = useSearchParams();
+  const userName = searchParams.get('name') || '';
+  
   const [isAddAssetModalOpen, setIsAddAssetModalOpen] = useState(false);
   const [isNewUser, setIsNewUser] = useState(true); // Simulate new user state
+
+  // Get initials from name
+  const getInitials = (name: string) => {
+    if (!name) return 'S'; // Default fallback
+    const parts = name.trim().split(' ');
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+  };
+
+  const initials = getInitials(userName);
 
   // In a real app, this would check if the user has any assets in their portfolio
   // For this mock, we'll just use a toggle to show the empty state
@@ -29,10 +44,10 @@ export default function Dashboard() {
           /* Empty State / Onboarding View */
           <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 animate-in fade-in duration-1000">
             <div className="w-24 h-24 bg-white border border-[#E8E8E3] rounded-full flex items-center justify-center mb-8 shadow-sm">
-              <span className="font-editorial text-4xl text-[#1A1A1A]">S</span>
+              <span className="font-editorial text-4xl text-[#1A1A1A]">{initials}</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-editorial text-[#1A1A1A] mb-4">
-              Welcome to your private vault.
+              Welcome to your private vault{userName ? `, ${userName.split(' ')[0]}` : ''}.
             </h1>
             <p className="text-lg text-[#7A7A75] max-w-md mb-10 font-light">
               Your collection is currently empty. Begin tracking your net worth by adding your first luxury asset.
@@ -85,6 +100,15 @@ export default function Dashboard() {
         }} 
       />
     </div>
+  );
+}
+
+// Wrap the content in Suspense boundary as required by Next.js when using useSearchParams
+export default function Dashboard() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#FAF9F6] flex items-center justify-center"><div className="w-8 h-8 border-2 border-[#1A1A1A] border-t-transparent rounded-full animate-spin"></div></div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }
 

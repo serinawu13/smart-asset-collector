@@ -6,12 +6,15 @@ import { ArrowRight } from 'lucide-react';
 
 export default function LandingPage() {
   const router = useRouter();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
 
   const handleSignIn = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
-      router.push('/dashboard');
+    if (name && email) {
+      // In a real app, you would save this to state/context/localStorage
+      // For this MVP, we'll just pass it via URL parameters to simulate state
+      router.push(`/dashboard?name=${encodeURIComponent(name)}`);
     }
   };
 
@@ -42,25 +45,33 @@ export default function LandingPage() {
             </p>
 
             {/* Sign In Form */}
-            <form onSubmit={handleSignIn} className="w-full max-w-md relative z-20">
-              <div className="flex flex-col sm:flex-row gap-4">
+            <form onSubmit={handleSignIn} className="w-full max-w-md relative z-20 space-y-4">
+              <div className="flex flex-col gap-4">
+                <input 
+                  type="text" 
+                  required
+                  placeholder="Enter your full name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full bg-white border border-[#E8E8E3] px-6 py-4 text-[#1A1A1A] placeholder:text-[#7A7A75] focus:outline-none focus:border-[#1A1A1A] transition-colors text-sm"
+                />
                 <input 
                   type="email" 
                   required
                   placeholder="Enter your email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1 bg-white border border-[#E8E8E3] px-6 py-4 text-[#1A1A1A] placeholder:text-[#7A7A75] focus:outline-none focus:border-[#1A1A1A] transition-colors text-sm"
+                  className="w-full bg-white border border-[#E8E8E3] px-6 py-4 text-[#1A1A1A] placeholder:text-[#7A7A75] focus:outline-none focus:border-[#1A1A1A] transition-colors text-sm"
                 />
                 <button 
                   type="submit"
-                  className="bg-[#1A1A1A] text-[#FAF9F6] px-8 py-4 text-sm font-medium uppercase tracking-widest hover:bg-[#333333] transition-colors flex items-center justify-center gap-2 whitespace-nowrap group"
+                  className="w-full bg-[#1A1A1A] text-[#FAF9F6] px-8 py-4 text-sm font-medium uppercase tracking-widest hover:bg-[#333333] transition-colors flex items-center justify-center gap-2 group"
                 >
                   Enter Vault
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
-              <p className="text-xs text-[#7A7A75] mt-4 uppercase tracking-wider">
+              <p className="text-xs text-[#7A7A75] mt-4 uppercase tracking-wider text-center">
                 By entering, you agree to our Terms of Service.
               </p>
             </form>
