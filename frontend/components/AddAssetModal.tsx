@@ -21,6 +21,7 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
   const [purchasePrice, setPurchasePrice] = useState('');
   const [purchaseDate, setPurchaseDate] = useState(new Date().toISOString().split('T')[0]);
   const [condition, setCondition] = useState('Excellent');
+  const [size, setSize] = useState('');
   const [color, setColor] = useState('');
   const [material, setMaterial] = useState('');
   const [serialNumber, setSerialNumber] = useState('');
@@ -34,6 +35,7 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
     setSelectedItem(null);
     setPurchasePrice('');
     setCondition('Excellent');
+    setSize('');
     setColor('');
     setMaterial('');
     setSerialNumber('');
@@ -51,7 +53,8 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
     const initialPrice = item.retailPrice?.toString() || item.currentMarketValue.toString();
     setPurchasePrice(Number(initialPrice).toLocaleString('en-US'));
     
-    // Pre-fill color and material if they exist in the database for this item
+    // Pre-fill size, color and material if they exist in the database for this item
+    setSize(item.size || '');
     setColor(item.color || '');
     setMaterial(item.material || '');
     setStep('details');
@@ -88,6 +91,7 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
       purchasePrice: numericPrice,
       purchaseDate,
       condition,
+      size,
       color: color || undefined,
       material: material || undefined,
       serialNumber: serialNumber || undefined
@@ -234,7 +238,7 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
-                      Purchase Price (USD)
+                      Purchase Price (USD) <span className="text-[#9B2226]">*</span>
                     </label>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1A1A1A] font-medium">$</span>
@@ -253,7 +257,7 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
 
                   <div>
                     <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
-                      Purchase Date
+                      Purchase Date <span className="text-[#9B2226]">*</span>
                     </label>
                     <input 
                       type="date" 
@@ -265,20 +269,37 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
-                    Condition
-                  </label>
-                  <select 
-                    value={condition}
-                    onChange={(e) => setCondition(e.target.value)}
-                    className="w-full bg-white border border-[#E8E8E3] py-3 px-4 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] transition-colors appearance-none"
-                  >
-                    <option value="Pristine">Pristine (Unworn/New)</option>
-                    <option value="Excellent">Excellent (Barely worn, no scratches)</option>
-                    <option value="Good">Good (Light wear, minor scratches)</option>
-                    <option value="Fair">Fair (Visible wear and tear)</option>
-                  </select>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
+                      Condition <span className="text-[#9B2226]">*</span>
+                    </label>
+                    <select 
+                      required
+                      value={condition}
+                      onChange={(e) => setCondition(e.target.value)}
+                      className="w-full bg-white border border-[#E8E8E3] py-3 px-4 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] transition-colors appearance-none"
+                    >
+                      <option value="Pristine">Pristine (Unworn/New)</option>
+                      <option value="Excellent">Excellent (Barely worn, no scratches)</option>
+                      <option value="Good">Good (Light wear, minor scratches)</option>
+                      <option value="Fair">Fair (Visible wear and tear)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
+                      Size <span className="text-[#9B2226]">*</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      required
+                      value={size}
+                      onChange={(e) => setSize(e.target.value)}
+                      placeholder={selectedCategory === 'Watch' ? 'e.g. 41mm' : selectedCategory === 'Bag' ? 'e.g. 30cm' : 'e.g. 17'}
+                      className="w-full bg-white border border-[#E8E8E3] py-3 px-4 text-[#1A1A1A] placeholder:text-[#7A7A75]/50 focus:outline-none focus:border-[#1A1A1A] transition-colors"
+                    />
+                  </div>
                 </div>
 
                 <div className="pt-4 border-t border-[#E8E8E3]">
