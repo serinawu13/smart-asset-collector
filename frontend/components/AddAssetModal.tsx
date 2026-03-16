@@ -115,16 +115,17 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
           
           {/* Step 1: Category Selection */}
           {step === 'category' && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="flex flex-col gap-4">
               {(['Watch', 'Bag', 'Jewelry'] as AssetCategory[]).map((category) => (
                 <button
                   key={category}
                   onClick={() => handleCategorySelect(category)}
-                  className="vault-card p-8 flex flex-col items-center justify-center gap-4 hover:border-[#1A1A1A] transition-colors group"
+                  className="vault-card p-6 flex items-center justify-between hover:border-[#1A1A1A] transition-colors group w-full text-left"
                 >
-                  <span className="font-editorial text-2xl text-[#1A1A1A] group-hover:scale-105 transition-transform">
+                  <span className="font-editorial text-2xl text-[#1A1A1A] group-hover:translate-x-2 transition-transform">
                     {category === 'Watch' ? 'Watches' : category === 'Bag' ? 'Bags' : 'Jewelry'}
                   </span>
+                  <ChevronRight className="w-5 h-5 text-[#7A7A75] group-hover:text-[#1A1A1A] transition-colors" />
                 </button>
               ))}
             </div>
