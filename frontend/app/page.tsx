@@ -38,7 +38,7 @@ export default function LandingPage() {
             </h1>
             
             <p className="text-lg md:text-xl text-[#7A7A75] font-light leading-relaxed mb-12 max-w-md">
-              Track the value of your collection of fine watches, jewelry, and bags in real-time.
+              Track the value of your collection of fine watches, jewelry, and bags with real-time market data, news, and analytics.
             </p>
 
             {/* Sign In Form */}
