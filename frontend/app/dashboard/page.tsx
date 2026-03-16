@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import Header from '../../components/Header';
 import AssetList from '../../components/AssetList';
 import Watchlist from '../../components/Watchlist';
+import MarketNews from '../../components/MarketNews';
 import AddAssetModal from '../../components/AddAssetModal';
 import { Plus } from 'lucide-react';
 
@@ -55,9 +56,10 @@ export default function Dashboard() {
         ) : (
           /* Populated Dashboard View */
           <div className="flex flex-col lg:flex-row gap-8 md:gap-12 lg:gap-16 animate-in fade-in duration-500">
-            {/* Left Column: Main Chart */}
+            {/* Left Column: Main Chart & News */}
             <div className="flex-1 lg:w-[60%]">
               <PortfolioOverview />
+              <MarketNews />
             </div>
 
             {/* Right Column: Sidebar Lists */}
