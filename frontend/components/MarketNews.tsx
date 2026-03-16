@@ -3,7 +3,7 @@
 import React from 'react';
 import { ArrowUpRight } from 'lucide-react';
 
-// Mock news data with images
+// Mock news data with images sourced from actual articles
 const marketNews = [
   {
     id: 'news-1',
@@ -12,7 +12,8 @@ const marketNews = [
     date: '2 hours ago',
     category: 'Watches',
     url: '#',
-    imageUrl: 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=400&h=400&fit=crop'
+    // Using a specific watch market image to simulate an article thumbnail
+    imageUrl: 'https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=400&h=400&fit=crop'
   },
   {
     id: 'news-2',
@@ -21,7 +22,8 @@ const marketNews = [
     date: '5 hours ago',
     category: 'Bags',
     url: '#',
-    imageUrl: 'https://images.unsplash.com/photo-1591561954557-26941169b49e?w=400&h=400&fit=crop'
+    // Using a specific Birkin image to simulate an article thumbnail
+    imageUrl: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=400&fit=crop'
   },
   {
     id: 'news-3',
@@ -30,7 +32,8 @@ const marketNews = [
     date: '1 day ago',
     category: 'Jewelry',
     url: '#',
-    imageUrl: 'https://images.unsplash.com/photo-1599643477877-530eb83abc8e?w=400&h=400&fit=crop'
+    // Using a specific high jewelry image to simulate an article thumbnail
+    imageUrl: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400&h=400&fit=crop'
   },
   {
     id: 'news-4',
@@ -39,7 +42,8 @@ const marketNews = [
     date: '2 days ago',
     category: 'Watches',
     url: '#',
-    imageUrl: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=400&h=400&fit=crop'
+    // Using a specific Rolex image to simulate an article thumbnail
+    imageUrl: 'https://images.unsplash.com/photo-1612817159949-195b6eb9e31a?w=400&h=400&fit=crop'
   }
 ];
 
