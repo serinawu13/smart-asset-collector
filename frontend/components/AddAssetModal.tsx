@@ -47,7 +47,10 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
 
   const handleItemSelect = (item: typeof luxuryDatabase[0]) => {
     setSelectedItem(item);
-    setPurchasePrice(item.retailPrice?.toString() || item.currentMarketValue.toString());
+    // Format the initial price with commas
+    const initialPrice = item.retailPrice?.toString() || item.currentMarketValue.toString();
+    setPurchasePrice(Number(initialPrice).toLocaleString('en-US'));
+    
     // Pre-fill color and material if they exist in the database for this item
     setColor(item.color || '');
     setMaterial(item.material || '');
@@ -63,12 +66,26 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
     }
   };
 
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Remove any non-digit characters (except decimal point if needed)
+    const rawValue = e.target.value.replace(/[^0-9]/g, '');
+    if (rawValue) {
+      // Format with commas
+      setPurchasePrice(Number(rawValue).toLocaleString('en-US'));
+    } else {
+      setPurchasePrice('');
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Remove commas before saving to backend
+    const numericPrice = Number(purchasePrice.replace(/,/g, ''));
+    
     // In a real app, this would save to backend/state
     console.log('Adding asset:', {
       item: selectedItem,
-      purchasePrice: Number(purchasePrice),
+      purchasePrice: numericPrice,
       purchaseDate,
       condition,
       color: color || undefined,
@@ -219,13 +236,16 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
                     <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
                       Purchase Price (USD)
                     </label>
-                    <input 
-                      type="number" 
-                      required
-                      value={purchasePrice}
-                      onChange={(e) => setPurchasePrice(e.target.value)}
-                      className="w-full bg-white border border-[#E8E8E3] py-3 px-4 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] transition-colors"
-                    />
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1A1A1A] font-medium">$</span>
+                      <input 
+                        type="text" 
+                        required
+                        value={purchasePrice}
+                        onChange={handlePriceChange}
+                        className="w-full bg-white border border-[#E8E8E3] py-3 pl-8 pr-4 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] transition-colors font-medium"
+                      />
+                    </div>
                     <p className="text-xs text-[#7A7A75] mt-2">
                       Current Market Value: {formatCurrency(selectedItem.currentMarketValue)}
                     </p>
