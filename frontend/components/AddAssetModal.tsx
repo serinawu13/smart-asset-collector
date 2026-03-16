@@ -21,6 +21,8 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
   const [purchasePrice, setPurchasePrice] = useState('');
   const [purchaseDate, setPurchaseDate] = useState(new Date().toISOString().split('T')[0]);
   const [condition, setCondition] = useState('Excellent');
+  const [color, setColor] = useState('');
+  const [material, setMaterial] = useState('');
 
   if (!isOpen) return null;
 
@@ -31,6 +33,8 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
     setSelectedItem(null);
     setPurchasePrice('');
     setCondition('Excellent');
+    setColor('');
+    setMaterial('');
     onClose();
   };
 
@@ -42,6 +46,9 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
   const handleItemSelect = (item: typeof luxuryDatabase[0]) => {
     setSelectedItem(item);
     setPurchasePrice(item.retailPrice?.toString() || item.currentMarketValue.toString());
+    // Pre-fill color and material if they exist in the database for this item
+    setColor(item.color || '');
+    setMaterial(item.material || '');
     setStep('details');
   };
 
@@ -61,7 +68,9 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
       item: selectedItem,
       purchasePrice: Number(purchasePrice),
       purchaseDate,
-      condition
+      condition,
+      color: color || undefined,
+      material: material || undefined
     });
     handleClose();
   };
@@ -202,33 +211,35 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
               </div>
 
               <div className="space-y-6">
-                <div>
-                  <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
-                    Purchase Price (USD)
-                  </label>
-                  <input 
-                    type="number" 
-                    required
-                    value={purchasePrice}
-                    onChange={(e) => setPurchasePrice(e.target.value)}
-                    className="w-full bg-white border border-[#E8E8E3] py-3 px-4 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] transition-colors"
-                  />
-                  <p className="text-xs text-[#7A7A75] mt-2">
-                    Current Market Value: {formatCurrency(selectedItem.currentMarketValue)}
-                  </p>
-                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
+                      Purchase Price (USD)
+                    </label>
+                    <input 
+                      type="number" 
+                      required
+                      value={purchasePrice}
+                      onChange={(e) => setPurchasePrice(e.target.value)}
+                      className="w-full bg-white border border-[#E8E8E3] py-3 px-4 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] transition-colors"
+                    />
+                    <p className="text-xs text-[#7A7A75] mt-2">
+                      Current Market Value: {formatCurrency(selectedItem.currentMarketValue)}
+                    </p>
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
-                    Purchase Date
-                  </label>
-                  <input 
-                    type="date" 
-                    required
-                    value={purchaseDate}
-                    onChange={(e) => setPurchaseDate(e.target.value)}
-                    className="w-full bg-white border border-[#E8E8E3] py-3 px-4 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] transition-colors"
-                  />
+                  <div>
+                    <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
+                      Purchase Date
+                    </label>
+                    <input 
+                      type="date" 
+                      required
+                      value={purchaseDate}
+                      onChange={(e) => setPurchaseDate(e.target.value)}
+                      className="w-full bg-white border border-[#E8E8E3] py-3 px-4 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] transition-colors"
+                    />
+                  </div>
                 </div>
 
                 <div>
@@ -245,6 +256,40 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
                     <option value="Good">Good (Light wear, minor scratches)</option>
                     <option value="Fair">Fair (Visible wear and tear)</option>
                   </select>
+                </div>
+
+                <div className="pt-4 border-t border-[#E8E8E3]">
+                  <h3 className="text-sm font-medium text-[#1A1A1A] mb-4">Optional Specifications</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
+                        Material
+                      </label>
+                      <input 
+                        type="text" 
+                        value={material}
+                        onChange={(e) => setMaterial(e.target.value)}
+                        placeholder="e.g. 18K Gold, Epsom Leather"
+                        className="w-full bg-white border border-[#E8E8E3] py-3 px-4 text-[#1A1A1A] placeholder:text-[#7A7A75]/50 focus:outline-none focus:border-[#1A1A1A] transition-colors"
+                      />
+                    </div>
+
+                    {/* Only show Color field for Bags */}
+                    {selectedCategory === 'Bag' && (
+                      <div>
+                        <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
+                          Color
+                        </label>
+                        <input 
+                          type="text" 
+                          value={color}
+                          onChange={(e) => setColor(e.target.value)}
+                          placeholder="e.g. Noir, Gold, Etoupe"
+                          className="w-full bg-white border border-[#E8E8E3] py-3 px-4 text-[#1A1A1A] placeholder:text-[#7A7A75]/50 focus:outline-none focus:border-[#1A1A1A] transition-colors"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
