@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, Bell, User, Menu, X, TrendingUp } from 'lucide-react';
+import { Search, Bell, User, Menu, X, TrendingUp, MessageCircle } from 'lucide-react';
 import { luxuryDatabase, initialWatchlist } from '../lib/mockData';
 import ItemDetailModal from './ItemDetailModal';
 import type { PortfolioAsset } from '../lib/mockData';
@@ -43,9 +43,9 @@ export default function Header() {
                normalizedModel.includes(normalizedQuery);
       }).slice(0, 5); // Limit to 5 results
 
-  // Mock trending items (items with highest trend percentage)
+  // Trending items based on online mentions in the last 30 days
   const trendingItems = [...luxuryDatabase]
-    .sort((a, b) => b.trendPercentage - a.trendPercentage)
+    .sort((a, b) => (b.mentions30Days || 0) - (a.mentions30Days || 0))
     .slice(0, 3);
 
   const formatCurrency = (value: number) => {
@@ -54,6 +54,13 @@ export default function Header() {
       currency: 'USD',
       maximumFractionDigits: 0,
     }).format(value);
+  };
+
+  const formatMentions = (value: number) => {
+    if (value >= 1000) {
+      return `${(value / 1000).toFixed(1)}k`;
+    }
+    return value.toString();
   };
 
   const handleResultClick = (item: typeof luxuryDatabase[0]) => {
@@ -141,7 +148,10 @@ export default function Header() {
                       </div>
                       <div className="text-right flex-shrink-0">
                         <div className="text-sm font-medium text-[#1A1A1A]">{formatCurrency(item.currentMarketValue)}</div>
-                        <div className="text-[10px] font-medium text-[#00A82D] mt-0.5">+{item.trendPercentage.toFixed(2)}%</div>
+                        <div className="flex items-center justify-end gap-1 text-[10px] font-medium text-[#7A7A75] mt-0.5">
+                          <MessageCircle className="w-3 h-3" />
+                          {formatMentions(item.mentions30Days || 0)} mentions
+                        </div>
                       </div>
                     </button>
                   ))}
