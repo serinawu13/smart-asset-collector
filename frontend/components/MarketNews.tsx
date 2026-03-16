@@ -63,23 +63,14 @@ export default function MarketNews() {
             className="p-4 md:p-6 border-b border-[#E8E8E3] last:border-0 vault-hover group block"
           >
             <div className="flex justify-between items-start gap-4 md:gap-6">
-              {/* Article Image */}
-              <div className="w-20 h-20 md:w-24 md:h-24 flex-shrink-0 bg-[#F5F5F0] border border-[#E8E8E3] overflow-hidden">
-                <img 
-                  src={news.imageUrl} 
-                  alt={news.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              </div>
-
-              {/* Article Content */}
+              {/* Article Content (Left Side) */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-[10px] md:text-xs font-medium text-[#1A1A1A] uppercase tracking-widest truncate">{news.source}</span>
                   <span className="text-[#E8E8E3] flex-shrink-0">•</span>
                   <span className="text-[10px] md:text-xs text-[#7A7A75] flex-shrink-0">{news.date}</span>
                 </div>
-                <h3 className="font-editorial text-base md:text-lg text-[#1A1A1A] leading-snug group-hover:text-[#7A7A75] transition-colors line-clamp-2">
+                <h3 className="font-editorial text-base md:text-lg text-[#1A1A1A] leading-snug group-hover:text-[#7A7A75] transition-colors line-clamp-3 pr-2">
                   {news.title}
                 </h3>
                 <div className="mt-3">
@@ -87,6 +78,15 @@ export default function MarketNews() {
                     {news.category}
                   </span>
                 </div>
+              </div>
+
+              {/* Article Image Thumbnail (Right Side - Google News Style) */}
+              <div className="w-24 h-24 md:w-28 md:h-28 flex-shrink-0 bg-[#F5F5F0] border border-[#E8E8E3] overflow-hidden rounded-sm">
+                <img 
+                  src={news.imageUrl} 
+                  alt={news.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
               </div>
             </div>
           </a>
