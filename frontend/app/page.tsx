@@ -72,54 +72,55 @@ export default function LandingPage() {
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#1A1A1A 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
           
-          {/* Floating Elements Container */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            
-            {/* Main Image - Watch */}
-            <div className="absolute z-20 w-64 h-80 lg:w-80 lg:h-96 bg-white border border-[#E8E8E3] shadow-2xl p-4 transform -rotate-6 hover:rotate-0 transition-all duration-700 animate-in fade-in zoom-in duration-1000 delay-300">
-              <div className="w-full h-full relative overflow-hidden bg-[#F5F5F0]">
-                <img 
-                  src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&h=1000&fit=crop" 
-                  alt="Luxury Watch" 
-                  className="w-full h-full object-cover"
-                />
+          {/* Grid Elements Container */}
+          <div className="absolute inset-0 flex items-center justify-center p-12">
+            <div className="grid grid-cols-2 gap-6 w-full max-w-2xl">
+              
+              {/* Main Image - Watch (Spans 2 rows) */}
+              <div className="row-span-2 relative bg-white border border-[#E8E8E3] shadow-xl p-3 group animate-in fade-in slide-in-from-right-8 duration-1000 delay-300">
+                <div className="w-full h-full relative overflow-hidden bg-[#F5F5F0] aspect-[3/4]">
+                  <img 
+                    src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&h=1000&fit=crop" 
+                    alt="Luxury Watch" 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                </div>
+                {/* Glassmorphic Price Tag */}
+                <div className="absolute bottom-6 left-6 right-6 bg-white/90 backdrop-blur-md border border-[#E8E8E3] p-4 shadow-lg">
+                  <div className="text-xs text-[#7A7A75] uppercase tracking-widest mb-1">Rolex Submariner</div>
+                  <div className="font-editorial text-xl text-[#1A1A1A]">$14,500</div>
+                  <div className="text-xs font-medium text-[#00A82D] mt-1">+41.46% since purchase</div>
+                </div>
               </div>
-              {/* Glassmorphic Price Tag */}
-              <div className="absolute -bottom-6 -right-6 bg-white/80 backdrop-blur-md border border-[#E8E8E3] p-4 shadow-xl">
-                <div className="text-xs text-[#7A7A75] uppercase tracking-widest mb-1">Rolex Submariner</div>
-                <div className="font-editorial text-xl text-[#1A1A1A]">$14,500</div>
-                <div className="text-xs font-medium text-[#00A82D] mt-1">+41.46% since purchase</div>
-              </div>
-            </div>
 
-            {/* Secondary Image - Bag */}
-            <div className="absolute z-10 w-56 h-72 lg:w-72 lg:h-80 bg-white border border-[#E8E8E3] shadow-xl p-3 transform translate-x-32 -translate-y-24 rotate-12 hover:rotate-6 transition-all duration-700 animate-in fade-in zoom-in duration-1000 delay-500">
-              <div className="w-full h-full relative overflow-hidden bg-[#F5F5F0]">
-                <img 
-                  src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&h=1000&fit=crop" 
-                  alt="Luxury Bag" 
-                  className="w-full h-full object-cover"
-                />
+              {/* Secondary Image - Bag */}
+              <div className="relative bg-white border border-[#E8E8E3] shadow-lg p-3 group animate-in fade-in slide-in-from-right-8 duration-1000 delay-500">
+                <div className="w-full h-full relative overflow-hidden bg-[#F5F5F0] aspect-square">
+                  <img 
+                    src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&h=800&fit=crop" 
+                    alt="Luxury Bag" 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                </div>
+                {/* Glassmorphic Price Tag */}
+                <div className="absolute bottom-6 left-6 right-6 bg-white/90 backdrop-blur-md border border-[#E8E8E3] p-3 shadow-lg">
+                  <div className="text-[10px] text-[#7A7A75] uppercase tracking-widest mb-1 truncate">Hermès Birkin 30</div>
+                  <div className="font-editorial text-lg text-[#1A1A1A]">$22,500</div>
+                </div>
               </div>
-              {/* Glassmorphic Price Tag */}
-              <div className="absolute -top-6 -left-6 bg-white/80 backdrop-blur-md border border-[#E8E8E3] p-4 shadow-xl">
-                <div className="text-xs text-[#7A7A75] uppercase tracking-widest mb-1">Hermès Birkin 30</div>
-                <div className="font-editorial text-xl text-[#1A1A1A]">$22,500</div>
-                <div className="text-xs font-medium text-[#00A82D] mt-1">+89.08% since purchase</div>
-              </div>
-            </div>
 
-            {/* Tertiary Image - Jewelry */}
-            <div className="absolute z-0 w-48 h-64 lg:w-64 lg:h-72 bg-white border border-[#E8E8E3] shadow-lg p-3 transform -translate-x-32 translate-y-32 -rotate-12 hover:-rotate-6 transition-all duration-700 animate-in fade-in zoom-in duration-1000 delay-700">
-              <div className="w-full h-full relative overflow-hidden bg-[#F5F5F0]">
-                <img 
-                  src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&h=1000&fit=crop" 
-                  alt="Luxury Jewelry" 
-                  className="w-full h-full object-cover"
-                />
+              {/* Tertiary Image - Jewelry */}
+              <div className="relative bg-white border border-[#E8E8E3] shadow-lg p-3 group animate-in fade-in slide-in-from-right-8 duration-1000 delay-700">
+                <div className="w-full h-full relative overflow-hidden bg-[#F5F5F0] aspect-square">
+                  <img 
+                    src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&h=800&fit=crop" 
+                    alt="Luxury Jewelry" 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                </div>
               </div>
-            </div>
 
+            </div>
           </div>
         </div>
       </main>
