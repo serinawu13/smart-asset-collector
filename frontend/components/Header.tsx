@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, Bell, User, Menu, X } from 'lucide-react';
-import { luxuryDatabase } from '../lib/mockData';
+import { luxuryDatabase, initialWatchlist } from '../lib/mockData';
 import ItemDetailModal from './ItemDetailModal';
 import type { PortfolioAsset } from '../lib/mockData';
 
@@ -12,6 +12,7 @@ export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<PortfolioAsset | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isSearchItem, setIsSearchItem] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
   // Close search dropdown when clicking outside
@@ -51,8 +52,10 @@ export default function Header() {
   };
 
   const handleResultClick = (item: typeof luxuryDatabase[0]) => {
+    // Check if this item is already in the user's watchlist
+    const isInWatchlist = initialWatchlist.some(w => w.id === item.id);
+    
     // Convert LuxuryItem to PortfolioAsset format for the modal
-    // We treat search results similarly to watchlist items (not owned yet)
     const assetForModal: PortfolioAsset = {
       ...item,
       portfolioId: `search-${item.id}`,
@@ -63,6 +66,7 @@ export default function Header() {
     };
     
     setSelectedItem(assetForModal);
+    setIsSearchItem(!isInWatchlist); // If it's in the watchlist, it's not a "new" search item
     setIsDetailModalOpen(true);
     setIsSearchOpen(false);
     setSearchQuery('');
@@ -174,6 +178,7 @@ export default function Header() {
           onClose={() => setIsDetailModalOpen(false)}
           asset={selectedItem}
           isWatchlistItem={true} // Treat search results like watchlist items (hide purchase details)
+          isSearchItem={isSearchItem} // Pass whether it's a new search item or already in watchlist
         />
       )}
     </>

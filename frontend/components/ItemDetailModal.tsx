@@ -10,16 +10,16 @@ interface ItemDetailModalProps {
   onClose: () => void;
   asset: PortfolioAsset | null;
   isWatchlistItem?: boolean;
-  isSearchResult?: boolean;
+  isSearchItem?: boolean; // New prop to distinguish search results from actual watchlist items
 }
 
-export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistItem = false, isSearchResult = false }: ItemDetailModalProps) {
+export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistItem = false, isSearchItem = false }: ItemDetailModalProps) {
   const [activeTimeframe, setActiveTimeframe] = useState('1Y');
   const [isEditingPurchase, setIsEditingPurchase] = useState(false);
   const [isEditingSpecs, setIsEditingSpecs] = useState(false);
   
-  // If it's already a watchlist item, it's added. If it's a search result, it's not added yet.
-  const [isAddedToWatchlist, setIsAddedToWatchlist] = useState(isWatchlistItem && !isSearchResult);
+  // For search items, track if they've been added to watchlist during this session
+  const [isAddedToWatchlist, setIsAddedToWatchlist] = useState(false);
   
   // Editable fields state
   const [editedPurchasePrice, setEditedPurchasePrice] = useState('');
@@ -142,14 +142,10 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
 
   // Dynamic timeframe data calculation for the header
   const getTimeframeData = (timeframe: string) => {
-    // In a real app, this would calculate actual historical differences
-    // For mock purposes, we generate realistic-looking changes based on the timeframe
     let change = 0;
     let percent = 0;
     let label = '';
 
-    // Base the mock changes on the actual total gain to keep it somewhat realistic
-    // For watchlist items, we use the market trend percentage to generate realistic mock data
     const baseChange = isWatchlistItem ? (asset.currentMarketValue * (asset.trendPercentage / 100)) : totalGain;
     const basePercent = isWatchlistItem ? asset.trendPercentage : totalROI;
 
@@ -241,14 +237,16 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
     setIsEditingSpecs(false);
   };
 
-  const handleToggleWatchlist = () => {
-    setIsAddedToWatchlist(!isAddedToWatchlist);
-    if (!isAddedToWatchlist) {
-      console.log('Added to watchlist:', asset.brand, asset.model);
+  const handleWatchlistAction = () => {
+    if (isSearchItem) {
+      // If it's a search item, toggle adding/removing
+      setIsAddedToWatchlist(!isAddedToWatchlist);
+      console.log(isAddedToWatchlist ? 'Removed from watchlist:' : 'Added to watchlist:', asset.brand, asset.model);
     } else {
+      // If it's already in the watchlist, this removes it
       console.log('Removed from watchlist:', asset.brand, asset.model);
+      onClose(); // Close modal after removing
     }
-    // In a real app, this would trigger an API call to add/remove the item
   };
 
   return (
@@ -266,14 +264,14 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
           <div className="flex items-center gap-4">
             {isWatchlistItem && (
               <button 
-                onClick={handleToggleWatchlist}
+                onClick={handleWatchlistAction}
                 className={`px-4 py-2 text-xs font-medium uppercase tracking-widest transition-colors flex items-center gap-2 ${
-                  isAddedToWatchlist 
-                    ? 'bg-[#F5F5F0] text-[#9B2226] hover:bg-[#E8E8E3]' 
+                  (!isSearchItem || isAddedToWatchlist)
+                    ? 'bg-[#9B2226]/10 text-[#9B2226] border border-[#9B2226]/20 hover:bg-[#9B2226]/20' 
                     : 'bg-[#1A1A1A] text-[#FAF9F6] hover:bg-[#333333]'
                 }`}
               >
-                {isAddedToWatchlist ? (
+                {(!isSearchItem || isAddedToWatchlist) ? (
                   <>
                     <BellOff className="w-3.5 h-3.5" />
                     Remove from Watchlist
