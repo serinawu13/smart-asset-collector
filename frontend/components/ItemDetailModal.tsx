@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { X, Edit2, Check, XIcon, Plus, Bell } from 'lucide-react';
+import { X, Edit2, Check, XIcon, Plus, Bell, BellOff } from 'lucide-react';
 import { PortfolioAsset } from '../lib/mockData';
 import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
 
@@ -10,13 +10,16 @@ interface ItemDetailModalProps {
   onClose: () => void;
   asset: PortfolioAsset | null;
   isWatchlistItem?: boolean;
+  isSearchResult?: boolean;
 }
 
-export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistItem = false }: ItemDetailModalProps) {
+export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistItem = false, isSearchResult = false }: ItemDetailModalProps) {
   const [activeTimeframe, setActiveTimeframe] = useState('1Y');
   const [isEditingPurchase, setIsEditingPurchase] = useState(false);
   const [isEditingSpecs, setIsEditingSpecs] = useState(false);
-  const [isAddedToWatchlist, setIsAddedToWatchlist] = useState(false);
+  
+  // If it's already a watchlist item, it's added. If it's a search result, it's not added yet.
+  const [isAddedToWatchlist, setIsAddedToWatchlist] = useState(isWatchlistItem && !isSearchResult);
   
   // Editable fields state
   const [editedPurchasePrice, setEditedPurchasePrice] = useState('');
@@ -42,7 +45,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
     return value.toFixed(2);
   };
 
-  // Calculate ROI (for owned items)
+  // Calculate ROI
   const totalGain = asset.currentMarketValue - asset.purchasePrice;
   const totalROI = (totalGain / asset.purchasePrice) * 100;
   const isPositive = totalGain >= 0;
@@ -238,10 +241,14 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
     setIsEditingSpecs(false);
   };
 
-  const handleAddToWatchlist = () => {
-    setIsAddedToWatchlist(true);
-    console.log('Added to watchlist:', asset.brand, asset.model);
-    // In a real app, this would trigger an API call to add the item to the user's watchlist
+  const handleToggleWatchlist = () => {
+    setIsAddedToWatchlist(!isAddedToWatchlist);
+    if (!isAddedToWatchlist) {
+      console.log('Added to watchlist:', asset.brand, asset.model);
+    } else {
+      console.log('Removed from watchlist:', asset.brand, asset.model);
+    }
+    // In a real app, this would trigger an API call to add/remove the item
   };
 
   return (
@@ -259,18 +266,17 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
           <div className="flex items-center gap-4">
             {isWatchlistItem && (
               <button 
-                onClick={handleAddToWatchlist}
-                disabled={isAddedToWatchlist}
+                onClick={handleToggleWatchlist}
                 className={`px-4 py-2 text-xs font-medium uppercase tracking-widest transition-colors flex items-center gap-2 ${
                   isAddedToWatchlist 
-                    ? 'bg-[#00A82D]/10 text-[#00A82D] border border-[#00A82D]/20' 
+                    ? 'bg-[#F5F5F0] text-[#9B2226] hover:bg-[#E8E8E3]' 
                     : 'bg-[#1A1A1A] text-[#FAF9F6] hover:bg-[#333333]'
                 }`}
               >
                 {isAddedToWatchlist ? (
                   <>
-                    <Check className="w-3.5 h-3.5" />
-                    Watching
+                    <BellOff className="w-3.5 h-3.5" />
+                    Remove from Watchlist
                   </>
                 ) : (
                   <>
@@ -297,12 +303,14 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
             <h3 className="text-4xl md:text-5xl font-editorial text-[#1A1A1A] mb-3">
               {formatCurrency(asset.currentMarketValue)}
             </h3>
-            <div className="flex items-center gap-3 text-sm font-medium">
-              <span className={`${timeframeTrendColor}`}>
-                {isTimeframePositive ? '+' : ''}{formatCurrency(timeframeData.change)} ({isTimeframePositive ? '+' : ''}{formatPercentage(timeframeData.percent)}%)
-              </span>
-              <span className="text-[#7A7A75] uppercase tracking-wider text-xs">{timeframeData.label}</span>
-            </div>
+            {!isWatchlistItem && (
+              <div className="flex items-center gap-3 text-sm font-medium">
+                <span className={`${timeframeTrendColor}`}>
+                  {isTimeframePositive ? '+' : ''}{formatCurrency(timeframeData.change)} ({isTimeframePositive ? '+' : ''}{formatPercentage(timeframeData.percent)}%)
+                </span>
+                <span className="text-[#7A7A75] uppercase tracking-wider text-xs">{timeframeData.label}</span>
+              </div>
+            )}
           </div>
 
           {/* Performance Chart */}
