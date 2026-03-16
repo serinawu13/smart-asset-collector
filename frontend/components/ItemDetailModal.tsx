@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Edit2, Check, XIcon, Plus, Bell, BellOff, Trash2, DollarSign } from 'lucide-react';
+import { X, Edit2, Check, XIcon, Plus, Bell, BellOff, Trash2, DollarSign, ChevronDown } from 'lucide-react';
 import { PortfolioAsset } from '../lib/mockData';
 import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
 
@@ -18,10 +18,16 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
   const [isEditingPurchase, setIsEditingPurchase] = useState(false);
   const [isEditingSpecs, setIsEditingSpecs] = useState(false);
   const [isSelling, setIsSelling] = useState(false);
+  const [isAlertMenuOpen, setIsAlertMenuOpen] = useState(false);
   const sellFormRef = useRef<HTMLDivElement>(null);
+  const alertMenuRef = useRef<HTMLDivElement>(null);
   
   // If it's already a watchlist item, it's added. If it's a search result, it's not added yet.
   const [isAddedToWatchlist, setIsAddedToWatchlist] = useState(isWatchlistItem && !isSearchResult);
+  
+  // Alert state
+  const [alertType, setAlertType] = useState<'up' | 'down' | 'both' | 'none'>('none');
+  const [alertThreshold, setAlertThreshold] = useState('5');
   
   // Editable fields state
   const [editedPurchasePrice, setEditedPurchasePrice] = useState('');
@@ -42,6 +48,17 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
       sellFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [isSelling]);
+
+  // Close alert menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (alertMenuRef.current && !alertMenuRef.current.contains(event.target as Node)) {
+        setIsAlertMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   if (!isOpen || !asset) return null;
 
@@ -332,6 +349,11 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
     onClose();
   };
 
+  const handleSaveAlert = () => {
+    console.log('Saving alert preferences:', { alertType, alertThreshold });
+    setIsAlertMenuOpen(false);
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1A1A1A]/60 backdrop-blur-sm">
       <div className="bg-[#FAF9F6] w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-[#E8E8E3] shadow-2xl flex flex-col">
@@ -345,6 +367,122 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
             </div>
           </div>
           <div className="flex items-center gap-4">
+            
+            {/* Notification Alert Menu */}
+            <div className="relative" ref={alertMenuRef}>
+              <button 
+                onClick={() => setIsAlertMenuOpen(!isAlertMenuOpen)}
+                className={`p-2 transition-colors rounded-full ${
+                  alertType !== 'none' || isAlertMenuOpen
+                    ? 'bg-[#1A1A1A] text-[#FAF9F6]' 
+                    : 'hover:bg-[#E8E8E3] text-[#1A1A1A]'
+                }`}
+              >
+                <Bell className="w-5 h-5" />
+              </button>
+
+              {/* Alert Dropdown */}
+              {isAlertMenuOpen && (
+                <div className="absolute right-0 mt-3 w-80 bg-white border border-[#E8E8E3] shadow-2xl z-50 animate-in fade-in slide-in-from-top-2">
+                  <div className="p-4 border-b border-[#E8E8E3] bg-[#FAF9F6]">
+                    <div className="font-editorial text-lg text-[#1A1A1A]">Price Alerts</div>
+                    <div className="text-xs text-[#7A7A75] mt-1">Notify me when market value changes</div>
+                  </div>
+
+                  <div className="p-4 space-y-6">
+                    <div>
+                      <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-3">
+                        Alert Condition
+                      </label>
+                      <div className="space-y-2">
+                        <label className="flex items-center gap-3 cursor-pointer">
+                          <input 
+                            type="radio" 
+                            name="alertType" 
+                            value="up" 
+                            checked={alertType === 'up'}
+                            onChange={() => setAlertType('up')}
+                            className="accent-[#1A1A1A]"
+                          />
+                          <span className="text-sm text-[#1A1A1A]">When price goes <span className="text-[#00A82D] font-medium">UP</span></span>
+                        </label>
+                        <label className="flex items-center gap-3 cursor-pointer">
+                          <input 
+                            type="radio" 
+                            name="alertType" 
+                            value="down" 
+                            checked={alertType === 'down'}
+                            onChange={() => setAlertType('down')}
+                            className="accent-[#1A1A1A]"
+                          />
+                          <span className="text-sm text-[#1A1A1A]">When price goes <span className="text-[#9B2226] font-medium">DOWN</span></span>
+                        </label>
+                        <label className="flex items-center gap-3 cursor-pointer">
+                          <input 
+                            type="radio" 
+                            name="alertType" 
+                            value="both" 
+                            checked={alertType === 'both'}
+                            onChange={() => setAlertType('both')}
+                            className="accent-[#1A1A1A]"
+                          />
+                          <span className="text-sm text-[#1A1A1A]">Both (Up or Down)</span>
+                        </label>
+                        <label className="flex items-center gap-3 cursor-pointer pt-2 border-t border-[#E8E8E3] mt-2">
+                          <input 
+                            type="radio" 
+                            name="alertType" 
+                            value="none" 
+                            checked={alertType === 'none'}
+                            onChange={() => setAlertType('none')}
+                            className="accent-[#1A1A1A]"
+                          />
+                          <span className="text-sm text-[#7A7A75]">No alerts</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    {alertType !== 'none' && (
+                      <div className="animate-in fade-in slide-in-from-top-2">
+                        <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
+                          Threshold Percentage
+                        </label>
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm text-[#1A1A1A]">By at least</span>
+                          <select 
+                            value={alertThreshold}
+                            onChange={(e) => setAlertThreshold(e.target.value)}
+                            className="bg-white border border-[#E8E8E3] py-1.5 px-3 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] transition-colors appearance-none"
+                          >
+                            <option value="2">2%</option>
+                            <option value="5">5%</option>
+                            <option value="10">10%</option>
+                            <option value="15">15%</option>
+                            <option value="20">20%</option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="p-4 border-t border-[#E8E8E3] bg-[#FAF9F6] flex justify-end gap-3">
+                    <button 
+                      onClick={() => setIsAlertMenuOpen(false)}
+                      className="px-4 py-2 text-xs font-medium uppercase tracking-widest text-[#7A7A75] hover:text-[#1A1A1A] transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      onClick={handleSaveAlert}
+                      className="px-4 py-2 text-xs font-medium uppercase tracking-widest bg-[#1A1A1A] text-[#FAF9F6] hover:bg-[#333333] transition-colors"
+                    >
+                      Save Alert
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {isWatchlistItem && (
               <button 
                 onClick={handleWatchlistAction}
@@ -361,7 +499,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
                   </>
                 ) : (
                   <>
-                    <Bell className="w-3.5 h-3.5" />
+                    <Plus className="w-3.5 h-3.5" />
                     Add to Watchlist
                   </>
                 )}
@@ -476,10 +614,10 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
                   <Line 
                     type="monotone" 
                     dataKey="value" 
-                    stroke={timeframeTrendHex} 
+                    stroke={trendHex} 
                     strokeWidth={2}
                     dot={false}
-                    activeDot={{ r: 5, fill: timeframeTrendHex, stroke: "#FAF9F6", strokeWidth: 2 }}
+                    activeDot={{ r: 5, fill: trendHex, stroke: "#FAF9F6", strokeWidth: 2 }}
                     isAnimationActive={true}
                   />
                 </LineChart>
