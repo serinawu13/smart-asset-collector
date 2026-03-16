@@ -92,8 +92,8 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
       purchaseDate,
       condition,
       size,
+      material,
       color: color || undefined,
-      material: material || undefined,
       serialNumber: serialNumber || undefined
     });
     handleClose();
@@ -313,38 +313,41 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-[#E8E8E3]">
-                  <h3 className="text-sm font-medium text-[#1A1A1A] mb-4">Optional Specifications</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
+                      Material <span className="text-[#9B2226]">*</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      required
+                      value={material}
+                      onChange={(e) => setMaterial(e.target.value)}
+                      placeholder="e.g. 18K Gold, Epsom Leather"
+                      className="w-full bg-white border border-[#E8E8E3] py-3 px-4 text-[#1A1A1A] placeholder:text-[#7A7A75]/50 focus:outline-none focus:border-[#1A1A1A] transition-colors"
+                    />
+                  </div>
+
+                  {/* Only show Color field for Bags */}
+                  {selectedCategory === 'Bag' && (
                     <div>
                       <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
-                        Material
+                        Color
                       </label>
                       <input 
                         type="text" 
-                        value={material}
-                        onChange={(e) => setMaterial(e.target.value)}
-                        placeholder="e.g. 18K Gold, Epsom Leather"
+                        value={color}
+                        onChange={(e) => setColor(e.target.value)}
+                        placeholder="e.g. Noir, Gold, Etoupe"
                         className="w-full bg-white border border-[#E8E8E3] py-3 px-4 text-[#1A1A1A] placeholder:text-[#7A7A75]/50 focus:outline-none focus:border-[#1A1A1A] transition-colors"
                       />
                     </div>
+                  )}
+                </div>
 
-                    {/* Only show Color field for Bags */}
-                    {selectedCategory === 'Bag' && (
-                      <div>
-                        <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
-                          Color
-                        </label>
-                        <input 
-                          type="text" 
-                          value={color}
-                          onChange={(e) => setColor(e.target.value)}
-                          placeholder="e.g. Noir, Gold, Etoupe"
-                          className="w-full bg-white border border-[#E8E8E3] py-3 px-4 text-[#1A1A1A] placeholder:text-[#7A7A75]/50 focus:outline-none focus:border-[#1A1A1A] transition-colors"
-                        />
-                      </div>
-                    )}
-
+                <div className="pt-4 border-t border-[#E8E8E3]">
+                  <h3 className="text-sm font-medium text-[#1A1A1A] mb-4">Optional Specifications</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
                         Serial Number
