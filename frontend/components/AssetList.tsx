@@ -95,6 +95,11 @@ export default function AssetList({ onAddClick }: AssetListProps) {
 
                 {/* Category Items */}
                 {isExpanded && assets.map((asset) => {
+                  // Use the trend percentage to determine the color of the current market value
+                  // In a real app, this would be based on the 1D change specifically
+                  const isPositive = asset.trendPercentage >= 0;
+                  const trendColor = isPositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
+
                   return (
                     <button
                       key={asset.portfolioId}
@@ -107,9 +112,9 @@ export default function AssetList({ onAddClick }: AssetListProps) {
                         <div className="text-xs text-[#7A7A75] mt-1 uppercase tracking-wider truncate">{asset.model}</div>
                       </div>
 
-                      {/* Right: Price Only */}
+                      {/* Right: Price Only (Color-coded) */}
                       <div className="text-left sm:text-right flex-shrink-0">
-                        <div className="font-medium text-sm md:text-base text-[#1A1A1A]">{formatCurrency(asset.currentMarketValue)}</div>
+                        <div className={`font-medium text-sm md:text-base ${trendColor}`}>{formatCurrency(asset.currentMarketValue)}</div>
                       </div>
                     </button>
                   );
