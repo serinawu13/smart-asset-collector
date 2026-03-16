@@ -19,7 +19,6 @@ export default function Header() {
   
   // Settings state
   const [currency, setCurrency] = useState('USD');
-  const [alertThreshold, setAlertThreshold] = useState('5');
   
   const searchRef = useRef<HTMLDivElement>(null);
   const settingsRef = useRef<HTMLDivElement>(null);
@@ -264,26 +263,6 @@ export default function Header() {
                       <option value="GBP">GBP (£) - British Pound</option>
                       <option value="CHF">CHF (Fr) - Swiss Franc</option>
                     </select>
-                  </div>
-
-                  {/* Alert Preferences */}
-                  <div>
-                    <label className="block text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">
-                      Watchlist Alerts
-                    </label>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-[#1A1A1A]">Notify me when price drops by</span>
-                      <select 
-                        value={alertThreshold}
-                        onChange={(e) => setAlertThreshold(e.target.value)}
-                        className="bg-white border border-[#E8E8E3] py-1 px-2 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] transition-colors appearance-none"
-                      >
-                        <option value="2">2%</option>
-                        <option value="5">5%</option>
-                        <option value="10">10%</option>
-                        <option value="15">15%</option>
-                      </select>
-                    </div>
                   </div>
                 </div>
 
