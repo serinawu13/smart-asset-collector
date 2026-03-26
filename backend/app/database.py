@@ -18,7 +18,7 @@ async def connect_to_mongodb():
     try:
         logger.info("Connecting to MongoDB Atlas...")
         client = AsyncIOMotorClient(
-            settings.mongodb_uri,
+            settings.mongodb_connection_string,
             maxPoolSize=10,
             minPoolSize=1,
             serverSelectionTimeoutMS=5000

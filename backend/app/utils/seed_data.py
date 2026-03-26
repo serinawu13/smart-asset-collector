@@ -232,7 +232,7 @@ async def seed_luxury_items():
     try:
         # Connect to MongoDB
         logger.info("Connecting to MongoDB Atlas...")
-        client = AsyncIOMotorClient(settings.mongodb_uri)
+        client = AsyncIOMotorClient(settings.mongodb_connection_string)
         db = client.get_default_database()
         collection = db["luxury_items"]
         
@@ -283,7 +283,7 @@ async def clear_luxury_items():
     """
     try:
         logger.info("Connecting to MongoDB Atlas...")
-        client = AsyncIOMotorClient(settings.mongodb_uri)
+        client = AsyncIOMotorClient(settings.mongodb_connection_string)
         db = client.get_default_database()
         collection = db["luxury_items"]
         
@@ -304,7 +304,7 @@ async def seed_market_news():
     try:
         # Connect to MongoDB
         logger.info("Connecting to MongoDB Atlas...")
-        client = AsyncIOMotorClient(settings.mongodb_uri)
+        client = AsyncIOMotorClient(settings.mongodb_connection_string)
         db = client.get_default_database()
         collection = db["market_news"]
         

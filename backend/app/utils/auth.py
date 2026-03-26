@@ -62,7 +62,7 @@ def create_access_token(user_id: str) -> str:
     
     encoded_jwt = jwt.encode(
         to_encode,
-        settings.jwt_secret,
+        settings.jwt_secret_key,
         algorithm="HS256"
     )
     
@@ -85,7 +85,7 @@ def decode_access_token(token: str) -> dict:
     try:
         payload = jwt.decode(
             token,
-            settings.jwt_secret,
+            settings.jwt_secret_key,
             algorithms=["HS256"]
         )
         return payload

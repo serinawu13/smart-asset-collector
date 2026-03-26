@@ -7,10 +7,24 @@ class Settings(BaseSettings):
     
     app_env: str = "development"
     port: int = 8000
-    mongodb_uri: str
-    jwt_secret: str
+    mongodb_uri: str = ""
+    database_url: str = ""
+    jwt_secret: str = ""
+    secret_key: str = ""
     jwt_expires_in: int = 86400  # 24 hours in seconds
+    access_token_expire_minutes: int = 30
+    algorithm: str = "HS256"
     cors_origins: str = "http://localhost:3000"
+    
+    @property
+    def mongodb_connection_string(self) -> str:
+        """Get MongoDB connection string from either mongodb_uri or database_url"""
+        return self.mongodb_uri or self.database_url
+    
+    @property
+    def jwt_secret_key(self) -> str:
+        """Get JWT secret from either jwt_secret or secret_key"""
+        return self.jwt_secret or self.secret_key
     
     model_config = SettingsConfigDict(
         env_file=".env",
