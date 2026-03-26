@@ -1,22 +1,63 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { ApiError } from '@/lib/api';
 
 export default function LandingPage() {
   const router = useRouter();
+  const { login, signup, isAuthenticated, loading: authLoading } = useAuth();
+  const [isLogin, setIsLogin] = useState(true);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSignIn = (e: React.FormEvent) => {
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, authLoading, router]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (name && email) {
-      // In a real app, you would save this to state/context/localStorage
-      // For this MVP, we'll just pass it via URL parameters to simulate state
-      router.push(`/dashboard?name=${encodeURIComponent(name)}`);
+    setError('');
+    setLoading(true);
+
+    try {
+      if (isLogin) {
+        await login(email, password);
+      } else {
+        if (!name) {
+          setError('Please enter your name');
+          setLoading(false);
+          return;
+        }
+        await signup(name, email, password);
+      }
+      // Redirect will happen automatically via useEffect
+      router.push('/dashboard');
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
+      setLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#FAF9F6] flex items-center justify-center">
+        <div className="text-[#7A7A75] text-sm uppercase tracking-widest">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FAF9F6] flex flex-col overflow-hidden selection:bg-[#1A1A1A] selection:text-[#FAF9F6]">
@@ -44,17 +85,50 @@ export default function LandingPage() {
               Track the value of your collection of fine watches, jewelry, and bags with real-time market data, news, and analytics.
             </p>
 
-            {/* Sign In Form */}
-            <form onSubmit={handleSignIn} className="w-full max-w-md relative z-20 space-y-4">
+            {/* Auth Form */}
+            <form onSubmit={handleSubmit} className="w-full max-w-md relative z-20 space-y-4">
+              <div className="flex gap-2 mb-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsLogin(true);
+                    setError('');
+                  }}
+                  className={`flex-1 px-4 py-2 text-xs font-medium uppercase tracking-widest transition-colors ${
+                    isLogin
+                      ? 'bg-[#1A1A1A] text-[#FAF9F6]'
+                      : 'bg-white text-[#7A7A75] border border-[#E8E8E3] hover:text-[#1A1A1A]'
+                  }`}
+                >
+                  Login
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsLogin(false);
+                    setError('');
+                  }}
+                  className={`flex-1 px-4 py-2 text-xs font-medium uppercase tracking-widest transition-colors ${
+                    !isLogin
+                      ? 'bg-[#1A1A1A] text-[#FAF9F6]'
+                      : 'bg-white text-[#7A7A75] border border-[#E8E8E3] hover:text-[#1A1A1A]'
+                  }`}
+                >
+                  Sign Up
+                </button>
+              </div>
+
               <div className="flex flex-col gap-4">
-                <input 
-                  type="text" 
-                  required
-                  placeholder="Enter your full name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-white border border-[#E8E8E3] px-6 py-4 text-[#1A1A1A] placeholder:text-[#7A7A75] focus:outline-none focus:border-[#1A1A1A] transition-colors text-sm"
-                />
+                {!isLogin && (
+                  <input 
+                    type="text" 
+                    required
+                    placeholder="Enter your full name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full bg-white border border-[#E8E8E3] px-6 py-4 text-[#1A1A1A] placeholder:text-[#7A7A75] focus:outline-none focus:border-[#1A1A1A] transition-colors text-sm"
+                  />
+                )}
                 <input 
                   type="email" 
                   required
@@ -63,16 +137,33 @@ export default function LandingPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-white border border-[#E8E8E3] px-6 py-4 text-[#1A1A1A] placeholder:text-[#7A7A75] focus:outline-none focus:border-[#1A1A1A] transition-colors text-sm"
                 />
+                <input 
+                  type="password" 
+                  required
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  minLength={6}
+                  className="w-full bg-white border border-[#E8E8E3] px-6 py-4 text-[#1A1A1A] placeholder:text-[#7A7A75] focus:outline-none focus:border-[#1A1A1A] transition-colors text-sm"
+                />
+                
+                {error && (
+                  <div className="text-[#9B2226] text-xs px-2 py-2 bg-red-50 border border-red-200">
+                    {error}
+                  </div>
+                )}
+
                 <button 
                   type="submit"
-                  className="w-full bg-[#1A1A1A] text-[#FAF9F6] px-8 py-4 text-sm font-medium uppercase tracking-widest hover:bg-[#333333] transition-colors flex items-center justify-center gap-2 group"
+                  disabled={loading}
+                  className="w-full bg-[#1A1A1A] text-[#FAF9F6] px-8 py-4 text-sm font-medium uppercase tracking-widest hover:bg-[#333333] transition-colors flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Enter Vault
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  {loading ? 'Please wait...' : isLogin ? 'Enter Vault' : 'Create Account'}
+                  {!loading && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
                 </button>
               </div>
               <p className="text-xs text-[#7A7A75] mt-4 uppercase tracking-wider text-center">
-                By entering, you agree to our Terms of Service.
+                By {isLogin ? 'entering' : 'signing up'}, you agree to our Terms of Service.
               </p>
             </form>
           </div>
@@ -162,4 +253,3 @@ export default function LandingPage() {
     </div>
   );
 }
-

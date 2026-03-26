@@ -2,8 +2,11 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Edit2, Check, XIcon, Plus, Bell, BellOff, Trash2, DollarSign } from 'lucide-react';
-import { PortfolioAsset } from '../lib/mockData';
+import { PortfolioAsset } from '../lib/types';
 import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
+import { api } from '../lib/api';
+import { useAuth } from '@/contexts/AuthContext';
+import { convertAndFormatCurrency } from '@/lib/currency';
 
 interface ItemDetailModalProps {
   isOpen: boolean;
@@ -11,9 +14,12 @@ interface ItemDetailModalProps {
   asset: PortfolioAsset | null;
   isWatchlistItem?: boolean;
   isSearchResult?: boolean;
+  onAssetUpdated?: () => void;
 }
 
-export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistItem = false, isSearchResult = false }: ItemDetailModalProps) {
+export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistItem = false, isSearchResult = false, onAssetUpdated }: ItemDetailModalProps) {
+  const { user } = useAuth();
+  const currency = user?.currency || 'USD';
   const [activeTimeframe, setActiveTimeframe] = useState('1Y');
   const [isEditingPurchase, setIsEditingPurchase] = useState(false);
   const [isEditingSpecs, setIsEditingSpecs] = useState(false);
@@ -42,6 +48,37 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
   const [salePrice, setSalePrice] = useState('');
   const [saleDate, setSaleDate] = useState(new Date().toISOString().split('T')[0]);
 
+  // Initialize alert settings from watchlist item or collection item
+  useEffect(() => {
+    if (asset && !isSearchResult) {
+      // Check if asset has alert data (from watchlist or collection)
+      const assetWithAlerts = asset as any;
+      console.log('🔔 Loading alert settings from asset:', {
+        alertType: assetWithAlerts.alertType,
+        alertThreshold: assetWithAlerts.alertThreshold,
+        alertActive: assetWithAlerts.alertActive,
+        isWatchlistItem,
+        isSearchResult
+      });
+      
+      if (assetWithAlerts.alertType) {
+        setAlertType(assetWithAlerts.alertType);
+      } else {
+        setAlertType('none');
+      }
+      
+      if (assetWithAlerts.alertThreshold !== undefined) {
+        setAlertThreshold(assetWithAlerts.alertThreshold.toString());
+      } else {
+        setAlertThreshold('5');
+      }
+    } else {
+      // Reset to defaults for search results
+      setAlertType('none');
+      setAlertThreshold('5');
+    }
+  }, [asset, isWatchlistItem, isSearchResult, isOpen]);
+
   // Scroll to sell form when opened
   useEffect(() => {
     if (isSelling && sellFormRef.current) {
@@ -62,41 +99,50 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
 
   if (!isOpen || !asset) return null;
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+  const formatCurrencyValue = (value: number) => {
+    return convertAndFormatCurrency(value, currency, {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(value);
+    });
   };
 
-  const formatPercentage = (value: number) => {
-    return value.toFixed(2);
+  const formatPercentage = (value: number | undefined) => {
+    return (value ?? 0).toFixed(2);
   };
 
   // Calculate ROI (Total Return based on Purchase Price)
-  const totalGain = asset.currentMarketValue - asset.purchasePrice;
-  const totalROI = (totalGain / asset.purchasePrice) * 100;
+  const currentMarketValue = asset.current_market_value ?? 0;
+  const purchasePrice = asset.purchase_price ?? 0;
+  const totalGain = currentMarketValue - purchasePrice;
+  const totalROI = purchasePrice > 0 ? (totalGain / purchasePrice) * 100 : 0;
   const isPositive = totalGain >= 0;
   const trendColor = isPositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
   const trendHex = isPositive ? '#00A82D' : '#9B2226';
 
   // Get retail price and calculate premium/discount
-  const retailPrice = asset.retailPrice || asset.purchasePrice;
-  const retailDifference = asset.currentMarketValue - retailPrice;
-  const retailPremium = (retailDifference / retailPrice) * 100;
+  // Backend sends retailPrice at the top level of the asset object
+  const assetWithRetail = asset as any;
+  const retailPrice = assetWithRetail.retailPrice ?? assetWithRetail.retail_price ?? purchasePrice;
+  const retailDifference = currentMarketValue - retailPrice;
+  const retailPremium = retailPrice > 0 ? (retailDifference / retailPrice) * 100 : 0;
   const isAboveRetail = retailDifference >= 0;
   const retailTrendColor = isAboveRetail ? 'text-[#00A82D]' : 'text-[#9B2226]';
+
+  // Get market trend from the item's catalog data (not user's personal gain)
+  const marketTrendPercentage = assetWithRetail.trendPercentage ?? assetWithRetail.trend_percentage ?? 0;
+  const isMarketTrendPositive = marketTrendPercentage >= 0;
+  const marketTrendColor = isMarketTrendPositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
 
   // Generate mock historical data for this specific item based on timeframe
   // IMPORTANT: This now uses historical market value as the starting point, NOT purchase price
   const generateItemHistory = (timeframe: string) => {
-    const endValue = asset.currentMarketValue;
+    const endValue = currentMarketValue;
     
     // Calculate the starting market value based on the item's overall trend percentage
     // If trend is +10%, then startValue was 10% lower than endValue
-    const historicalMarketValue = endValue / (1 + (asset.trendPercentage / 100));
+    // For watchlist items, use marketTrendPercentage; for collection items, use gain_loss_percentage
+    const trendPercentage = isWatchlistItem ? marketTrendPercentage : (asset.gain_loss_percentage ?? 0);
+    const historicalMarketValue = endValue / (1 + (trendPercentage / 100));
     
     // For the chart, we need to determine how much of that total historical change 
     // applies to the specific timeframe selected
@@ -104,25 +150,25 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
     
     switch (timeframe) {
       case '1D':
-        timeframeStartValue = endValue / (1 + (asset.trendPercentage * 0.02 / 100));
+        timeframeStartValue = endValue / (1 + (trendPercentage * 0.02 / 100));
         break;
       case '1W':
-        timeframeStartValue = endValue / (1 + (asset.trendPercentage * 0.05 / 100));
+        timeframeStartValue = endValue / (1 + (trendPercentage * 0.05 / 100));
         break;
       case '1M':
-        timeframeStartValue = endValue / (1 + (asset.trendPercentage * 0.15 / 100));
+        timeframeStartValue = endValue / (1 + (trendPercentage * 0.15 / 100));
         break;
       case 'YTD':
-        timeframeStartValue = endValue / (1 + (asset.trendPercentage * 0.4 / 100));
+        timeframeStartValue = endValue / (1 + (trendPercentage * 0.4 / 100));
         break;
       case '1Y':
-        timeframeStartValue = endValue / (1 + (asset.trendPercentage * 0.6 / 100));
+        timeframeStartValue = endValue / (1 + (trendPercentage * 0.6 / 100));
         break;
       case '5Y':
-        timeframeStartValue = endValue / (1 + (asset.trendPercentage * 0.9 / 100));
+        timeframeStartValue = endValue / (1 + (trendPercentage * 0.9 / 100));
         break;
       case '10Y':
-        timeframeStartValue = endValue / (1 + (asset.trendPercentage * 0.95 / 100));
+        timeframeStartValue = endValue / (1 + (trendPercentage * 0.95 / 100));
         break;
       case 'ALL':
         timeframeStartValue = historicalMarketValue;
@@ -210,10 +256,11 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
     let percent = 0;
     let label = '';
 
-    // Base the mock changes on the item's market trend percentage, NOT purchase price
-    const basePercent = asset.trendPercentage;
-    const historicalMarketValue = asset.currentMarketValue / (1 + (basePercent / 100));
-    const baseChange = asset.currentMarketValue - historicalMarketValue;
+    // Use market trend percentage for all items (not purchase-based gain/loss)
+    // This shows how the market value has changed over time, regardless of when user bought it
+    const basePercent = marketTrendPercentage;
+    const historicalMarketValue = currentMarketValue / (1 + (basePercent / 100));
+    const baseChange = currentMarketValue - historicalMarketValue;
 
     switch (timeframe) {
       case '1D':
@@ -272,14 +319,38 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
 
   // Edit handlers
   const handleEditPurchase = () => {
-    setEditedPurchasePrice(asset.purchasePrice.toString());
-    setEditedPurchaseDate(asset.purchaseDate);
+    setEditedPurchasePrice(purchasePrice.toString());
+    setEditedPurchaseDate(asset.purchase_date ?? '');
     setIsEditingPurchase(true);
   };
 
-  const handleSavePurchase = () => {
-    console.log('Saving purchase details:', { editedPurchasePrice, editedPurchaseDate });
-    setIsEditingPurchase(false);
+  const handleSavePurchase = async () => {
+    if (!asset?.portfolio_id) return;
+    
+    try {
+      const newPurchasePrice = parseFloat(editedPurchasePrice);
+      
+      await api.updatePortfolioAsset(asset.portfolio_id, {
+        purchasePrice: newPurchasePrice,
+        purchaseDate: editedPurchaseDate,
+      });
+      
+      // Update local asset state to avoid flickering
+      if (asset) {
+        asset.purchase_price = newPurchasePrice;
+        asset.purchase_date = editedPurchaseDate;
+        
+        // Recalculate gain/loss with new purchase price
+        const currentMarketValue = asset.current_market_value ?? 0;
+        asset.gain_loss = currentMarketValue - newPurchasePrice;
+        asset.gain_loss_percentage = newPurchasePrice > 0 ? ((currentMarketValue - newPurchasePrice) / newPurchasePrice) * 100 : 0;
+      }
+      
+      setIsEditingPurchase(false);
+    } catch (error) {
+      console.error('Failed to save purchase details:', error);
+      alert('Failed to save purchase details. Please try again.');
+    }
   };
 
   const handleCancelPurchase = () => {
@@ -287,39 +358,157 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
   };
 
   const handleEditSpecs = () => {
-    setEditedCondition(asset.condition);
-    setEditedMaterial(asset.material || '');
-    setEditedSize(asset.size || '');
-    setEditedSerialNumber(asset.serialNumber || '');
-    setEditedColor(asset.color || '');
+    setEditedCondition(asset.item_details?.condition ?? '');
+    setEditedMaterial(asset.material ?? '');
+    setEditedSize(asset.size ?? '');
+    setEditedSerialNumber(asset.serial_number ?? '');
+    setEditedColor(asset.color ?? '');
     setIsEditingSpecs(true);
   };
 
-  const handleSaveSpecs = () => {
-    console.log('Saving specifications:', { editedCondition, editedMaterial, editedSize, editedSerialNumber, editedColor });
-    setIsEditingSpecs(false);
+  const handleSaveSpecs = async () => {
+    if (!asset?.portfolio_id) return;
+    
+    try {
+      // Use different API endpoints based on whether it's a watchlist item or collection item
+      if (isWatchlistItem) {
+        // Watchlist items only support material, size, and color (no condition or serial number)
+        const updateData: {
+          material?: string;
+          size?: string;
+          color?: string;
+        } = {};
+        
+        if (editedMaterial) updateData.material = editedMaterial;
+        if (editedSize) updateData.size = editedSize;
+        if (editedColor) updateData.color = editedColor;
+        
+        await api.updateWatchlistItem(asset.portfolio_id, updateData);
+      } else {
+        // Collection items support all specification fields
+        const updateData: {
+          condition?: string;
+          material?: string;
+          size?: string;
+          color?: string;
+          serialNumber?: string;
+        } = {};
+        
+        if (editedCondition) updateData.condition = editedCondition;
+        if (editedMaterial) updateData.material = editedMaterial;
+        if (editedSize) updateData.size = editedSize;
+        if (editedSerialNumber) updateData.serialNumber = editedSerialNumber;
+        if (editedColor) updateData.color = editedColor;
+        
+        await api.updatePortfolioAsset(asset.portfolio_id, updateData);
+      }
+      
+      // Update local asset state to avoid flickering
+      if (asset) {
+        if (editedCondition && asset.item_details) asset.item_details.condition = editedCondition;
+        if (editedMaterial) asset.material = editedMaterial;
+        if (editedSize) asset.size = editedSize;
+        if (editedSerialNumber) asset.serial_number = editedSerialNumber;
+        if (editedColor) asset.color = editedColor;
+      }
+      
+      setIsEditingSpecs(false);
+    } catch (error) {
+      console.error('Failed to save specifications:', error);
+      alert('Failed to save specifications. Please try again.');
+    }
   };
 
   const handleCancelSpecs = () => {
     setIsEditingSpecs(false);
   };
 
-  const handleWatchlistAction = () => {
+  const handleWatchlistAction = async () => {
     if (isSearchResult) {
-      // If it's a search item, toggle adding/removing
-      setIsAddedToWatchlist(!isAddedToWatchlist);
-      console.log(isAddedToWatchlist ? 'Removed from watchlist:' : 'Added to watchlist:', asset.brand, asset.model);
+      // If it's a search item and not yet added, add it to watchlist
+      if (!isAddedToWatchlist) {
+        try {
+          await api.addToWatchlist({
+            itemId: asset.item_id,
+            alertActive: alertType !== 'none',
+            alertType: alertType === 'up' ? 'price_increase' : alertType === 'down' ? 'price_drop' : alertType === 'both' ? 'both' : 'none',
+            alertThreshold: parseFloat(alertThreshold) || 5,
+          });
+          
+          setIsAddedToWatchlist(true);
+          console.log('Added to watchlist:', asset.item_details?.brand, asset.item_details?.model);
+          
+          // Notify parent to refresh
+          if (onAssetUpdated) {
+            await onAssetUpdated();
+          }
+        } catch (error) {
+          console.error('Failed to add to watchlist:', error);
+          alert('Failed to add to watchlist. Please try again.');
+        }
+      } else {
+        // If already added, this shouldn't happen but handle it
+        console.log('Item already in watchlist');
+      }
     } else {
-      // If it's already in the watchlist, this removes it
-      console.log('Removed from watchlist:', asset.brand, asset.model);
-      onClose(); // Close modal after removing
+      // If it's already in the watchlist, remove it
+      if (!asset?.portfolio_id) {
+        console.error('Cannot remove from watchlist: missing portfolio_id');
+        return;
+      }
+
+      const confirmed = window.confirm(
+        `Are you sure you want to remove ${asset.item_details?.brand} ${asset.item_details?.model} from your watchlist?`
+      );
+      
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+        await api.deleteWatchlistItem(asset.portfolio_id);
+        
+        // Notify parent to refresh, then close modal
+        if (onAssetUpdated) {
+          await onAssetUpdated();
+        }
+        
+        onClose();
+      } catch (error) {
+        console.error('Failed to remove from watchlist:', error);
+        alert('Failed to remove from watchlist. Please try again.');
+      }
     }
   };
 
-  const handleRemoveFromCollection = () => {
-    // In a real app, this would trigger an API call to remove the item from the user's portfolio
-    console.log('Removed from collection:', asset.brand, asset.model);
-    onClose(); // Close modal after removing
+  const handleRemoveFromCollection = async () => {
+    if (!asset?.portfolio_id) {
+      console.error('Cannot remove asset: missing portfolio_id');
+      return;
+    }
+
+    // Confirm deletion with user
+    const confirmed = window.confirm(
+      `Are you sure you want to remove ${asset.item_details?.brand} ${asset.item_details?.model} from your collection?`
+    );
+    
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await api.deletePortfolioAsset(asset.portfolio_id);
+      
+      // Notify parent to refresh, then close modal
+      if (onAssetUpdated) {
+        await onAssetUpdated();
+      }
+      
+      onClose();
+    } catch (error) {
+      console.error('Failed to remove asset:', error);
+      alert('Failed to remove asset. Please try again.');
+    }
   };
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -331,27 +520,111 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
     }
   };
 
-  const handleConfirmSale = (e: React.FormEvent) => {
+  const handleConfirmSale = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!asset?.portfolio_id) {
+      console.error('Cannot sell asset: missing portfolio_id');
+      alert('Failed to liquidate asset: Invalid asset data');
+      return;
+    }
+    
     const numericSalePrice = Number(salePrice.replace(/,/g, ''));
-    const realizedGain = numericSalePrice - asset.purchasePrice;
-    const realizedROI = (realizedGain / asset.purchasePrice) * 100;
     
-    console.log('Asset Sold:', {
-      item: asset.brand + ' ' + asset.model,
-      salePrice: numericSalePrice,
-      saleDate,
-      realizedGain,
-      realizedROI
-    });
+    if (!numericSalePrice || numericSalePrice <= 0) {
+      alert('Please enter a valid sale price');
+      return;
+    }
     
-    setIsSelling(false);
-    onClose();
+    // Confirm sale with user
+    const confirmed = window.confirm(
+      `Are you sure you want to liquidate ${asset.item_details?.brand} ${asset.item_details?.model} for ${formatCurrencyValue(numericSalePrice)}?`
+    );
+    
+    if (!confirmed) {
+      return;
+    }
+    
+    try {
+      console.log('Liquidating asset:', {
+        portfolio_id: asset.portfolio_id,
+        salePrice: numericSalePrice,
+        saleDate
+      });
+      
+      const result = await api.sellPortfolioAsset(asset.portfolio_id, {
+        salePrice: numericSalePrice,
+        saleDate: saleDate
+      });
+      
+      console.log('Asset liquidated successfully:', result);
+      
+      // Show success message with realized gain/loss
+      const gainLossText = result.realizedGain >= 0
+        ? `Profit: ${formatCurrencyValue(result.realizedGain)}`
+        : `Loss: ${formatCurrencyValue(Math.abs(result.realizedGain))}`;
+      
+      alert(`Asset liquidated successfully!\n${gainLossText}\nROI: ${result.realizedROI.toFixed(2)}%`);
+      
+      setIsSelling(false);
+      
+      // Refresh the asset data
+      if (onAssetUpdated) {
+        await onAssetUpdated();
+      }
+      
+      onClose();
+    } catch (error) {
+      console.error('Failed to liquidate asset:', error);
+      alert(`Failed to liquidate asset: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   };
 
-  const handleSaveAlert = () => {
-    console.log('Saving alert preferences:', { alertType, alertThreshold });
-    setIsAlertMenuOpen(false);
+  const handleSaveAlert = async () => {
+    if (!asset?.portfolio_id) {
+      console.error('Cannot save alert: missing portfolio_id');
+      return;
+    }
+
+    try {
+      const alertActive = alertType !== 'none';
+      const threshold = parseFloat(alertThreshold);
+
+      // Use different API endpoints based on whether it's a watchlist item or collection item
+      if (isWatchlistItem) {
+        await api.updateWatchlistItem(asset.portfolio_id, {
+          alertActive,
+          alertType,
+          alertThreshold: threshold,
+        });
+      } else {
+        // Collection item - use portfolio API
+        await api.updatePortfolioAsset(asset.portfolio_id, {
+          alertActive,
+          alertType,
+          alertThreshold: threshold,
+        });
+      }
+
+      console.log('✅ Alert preferences saved successfully', {
+        alertType,
+        alertThreshold: threshold,
+        alertActive
+      });
+      
+      // Update the asset object with the new alert data to persist it locally
+      // This avoids needing to refresh the entire parent component
+      if (asset) {
+        (asset as any).alertType = alertType;
+        (asset as any).alertThreshold = threshold;
+        (asset as any).alertActive = alertActive;
+      }
+      
+      setIsAlertMenuOpen(false);
+    } catch (error) {
+      console.error('❌ Failed to save alert preferences:', error);
+      alert('Failed to save alert preferences. Please try again.');
+    }
   };
 
   return (
@@ -360,10 +633,10 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
         {/* Header */}
         <div className="sticky top-0 bg-[#FAF9F6] border-b border-[#E8E8E3] p-6 flex justify-between items-start z-10">
           <div className="flex-1">
-            <h2 className="font-editorial text-3xl md:text-4xl text-[#1A1A1A] mb-2">{asset.brand}</h2>
-            <p className="text-sm text-[#7A7A75] uppercase tracking-wider">{asset.model}</p>
+            <h2 className="font-editorial text-3xl md:text-4xl text-[#1A1A1A] mb-2">{asset.item_details?.brand ?? 'Unknown'}</h2>
+            <p className="text-sm text-[#7A7A75] uppercase tracking-wider">{asset.item_details?.model ?? 'Unknown'}</p>
             <div className="flex flex-wrap gap-3 mt-3">
-              <span className="text-xs bg-[#F5F5F0] px-3 py-1 text-[#7A7A75] uppercase tracking-widest">{asset.category}</span>
+              <span className="text-xs bg-[#F5F5F0] px-3 py-1 text-[#7A7A75] uppercase tracking-widest">{asset.item_details?.category ?? 'Unknown'}</span>
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -485,16 +758,16 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
               </div>
             )}
 
-            {isWatchlistItem && (
-              <button 
+            {(isWatchlistItem || isSearchResult) && (
+              <button
                 onClick={handleWatchlistAction}
                 className={`px-4 py-2 text-xs font-medium uppercase tracking-widest transition-colors flex items-center gap-2 ${
-                  (!isSearchResult || isAddedToWatchlist)
-                    ? 'bg-[#9B2226]/10 text-[#9B2226] border border-[#9B2226]/20 hover:bg-[#9B2226]/20' 
+                  (isWatchlistItem || isAddedToWatchlist)
+                    ? 'bg-[#9B2226]/10 text-[#9B2226] border border-[#9B2226]/20 hover:bg-[#9B2226]/20'
                     : 'bg-[#1A1A1A] text-[#FAF9F6] hover:bg-[#333333]'
                 }`}
               >
-                {(!isSearchResult || isAddedToWatchlist) ? (
+                {(isWatchlistItem || isAddedToWatchlist) ? (
                   <>
                     <BellOff className="w-3.5 h-3.5" />
                     Remove from Watchlist
@@ -544,14 +817,14 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
                         required
                         value={salePrice}
                         onChange={handlePriceChange}
-                        placeholder={asset.currentMarketValue.toLocaleString('en-US')}
+                        placeholder={currentMarketValue.toLocaleString('en-US')}
                         className="w-full bg-white border border-[#E8E8E3] py-3 pl-8 pr-4 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] transition-colors font-medium"
                         autoFocus
                       />
                     </div>
                     {salePrice && (
-                      <p className={`text-xs mt-2 font-medium ${Number(salePrice.replace(/,/g, '')) >= asset.purchasePrice ? 'text-[#00A82D]' : 'text-[#9B2226]'}`}>
-                        Realized Gain/Loss: {formatCurrency(Number(salePrice.replace(/,/g, '')) - asset.purchasePrice)}
+                      <p className={`text-xs mt-2 font-medium ${Number(salePrice.replace(/,/g, '')) >= purchasePrice ? 'text-[#00A82D]' : 'text-[#9B2226]'}`}>
+                        Realized Gain/Loss: {formatCurrencyValue(Number(salePrice.replace(/,/g, '')) - purchasePrice)}
                       </p>
                     )}
                   </div>
@@ -594,16 +867,14 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
           <div className={isSelling ? 'opacity-50 pointer-events-none transition-opacity' : 'transition-opacity'}>
             <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">Current Market Value</p>
             <h3 className="text-4xl md:text-5xl font-editorial text-[#1A1A1A] mb-3">
-              {formatCurrency(asset.currentMarketValue)}
+              {formatCurrencyValue(currentMarketValue)}
             </h3>
-            {!isWatchlistItem && (
-              <div className="flex items-center gap-3 text-sm font-medium">
-                <span className={`${timeframeTrendColor}`}>
-                  {isTimeframePositive ? '+' : ''}{formatCurrency(timeframeData.change)} ({isTimeframePositive ? '+' : ''}{formatPercentage(timeframeData.percent)}%)
-                </span>
-                <span className="text-[#7A7A75] uppercase tracking-wider text-xs">{timeframeData.label}</span>
-              </div>
-            )}
+            <div className="flex items-center gap-3 text-sm font-medium">
+              <span className={`${timeframeTrendColor}`}>
+                {isTimeframePositive ? '+' : ''}{formatCurrencyValue(timeframeData.change)} ({isTimeframePositive ? '+' : ''}{formatPercentage(timeframeData.percent)}%)
+              </span>
+              <span className="text-[#7A7A75] uppercase tracking-wider text-xs">{timeframeData.label}</span>
+            </div>
           </div>
 
           {/* Performance Chart */}
@@ -613,13 +884,13 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={itemHistory}>
                   <YAxis domain={['dataMin - 500', 'dataMax + 500']} hide />
-                  <Line 
-                    type="monotone" 
-                    dataKey="value" 
-                    stroke={trendHex} 
+                  <Line
+                    type="monotone"
+                    dataKey="value"
+                    stroke={timeframeTrendHex}
                     strokeWidth={2}
                     dot={false}
-                    activeDot={{ r: 5, fill: trendHex, stroke: "#FAF9F6", strokeWidth: 2 }}
+                    activeDot={{ r: 5, fill: timeframeTrendHex, stroke: "#FAF9F6", strokeWidth: 2 }}
                     isAnimationActive={true}
                   />
                 </LineChart>
@@ -647,9 +918,9 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
           </div>
 
           {/* Stats Grid */}
-          <div className={`grid grid-cols-1 ${!isWatchlistItem ? 'sm:grid-cols-2' : ''} gap-6 ${isSelling ? 'opacity-50 pointer-events-none transition-opacity' : 'transition-opacity'}`}>
-            {/* Purchase Details - Only show for Collection items */}
-            {!isWatchlistItem && (
+          <div className={`grid grid-cols-1 ${!isWatchlistItem && !isSearchResult ? 'sm:grid-cols-2' : ''} gap-6 ${isSelling ? 'opacity-50 pointer-events-none transition-opacity' : 'transition-opacity'}`}>
+            {/* Purchase Details - Only show for Collection items (not for Watchlist or Search Results) */}
+            {!isWatchlistItem && !isSearchResult && (
               <div className="vault-card p-6">
                 <div className="flex justify-between items-center mb-3">
                   <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest">Purchase Details</p>
@@ -688,7 +959,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
                         className="font-medium text-[#1A1A1A] bg-white border border-[#E8E8E3] px-2 py-1 text-sm text-right w-32"
                       />
                     ) : (
-                      <span className="font-medium text-[#1A1A1A]">{formatCurrency(asset.purchasePrice)}</span>
+                      <span className="font-medium text-[#1A1A1A]">{formatCurrencyValue(purchasePrice)}</span>
                     )}
                   </div>
                   <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
@@ -701,7 +972,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
                         className="font-medium text-[#1A1A1A] bg-white border border-[#E8E8E3] px-2 py-1 text-sm"
                       />
                     ) : (
-                      <span className="font-medium text-[#1A1A1A]">{new Date(asset.purchaseDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                      <span className="font-medium text-[#1A1A1A]">{new Date(asset.purchase_date ?? '').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                     )}
                   </div>
                 </div>
@@ -712,23 +983,23 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
             <div className="vault-card p-6">
               <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-3">Performance Metrics</p>
               <div className="space-y-3">
-                {!isWatchlistItem && (
+                {!isWatchlistItem && !isSearchResult && (
                   <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
                     <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Total Return</span>
                     <span className={`font-medium ${trendColor}`}>
-                      {isPositive ? '+' : ''}{formatCurrency(totalGain)} ({isPositive ? '+' : ''}{formatPercentage(totalROI)}%)
+                      {isPositive ? '+' : ''}{formatCurrencyValue(totalGain)} ({isPositive ? '+' : ''}{formatPercentage(totalROI)}%)
                     </span>
                   </div>
                 )}
                 <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
                   <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Market Trend</span>
-                  <span className={`font-medium ${trendColor}`}>
-                    {isPositive ? '+' : ''}{formatPercentage(asset.trendPercentage)}%
+                  <span className={`font-medium ${marketTrendColor}`}>
+                    {isMarketTrendPositive ? '+' : ''}{formatPercentage(marketTrendPercentage)}%
                   </span>
                 </div>
                 <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
                   <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Retail Price</span>
-                  <span className="font-medium text-[#1A1A1A]">{formatCurrency(retailPrice)}</span>
+                  <span className="font-medium text-[#1A1A1A]">{formatCurrencyValue(retailPrice)}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Market vs Retail</span>
@@ -745,7 +1016,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
             <div className="flex justify-between items-center mb-3">
               <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest">Specifications</p>
               {!isEditingSpecs ? (
-                <button 
+                <button
                   onClick={handleEditSpecs}
                   className="p-1.5 hover:bg-[#E8E8E3] transition-colors rounded"
                 >
@@ -753,13 +1024,13 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
                 </button>
               ) : (
                 <div className="flex gap-2">
-                  <button 
+                  <button
                     onClick={handleSaveSpecs}
                     className="p-1.5 hover:bg-[#00A82D]/10 transition-colors rounded"
                   >
                     <Check className="w-3.5 h-3.5 text-[#00A82D]" />
                   </button>
-                  <button 
+                  <button
                     onClick={handleCancelSpecs}
                     className="p-1.5 hover:bg-[#9B2226]/10 transition-colors rounded"
                   >
@@ -768,8 +1039,15 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
                 </div>
               )}
             </div>
+            
+            {/* Note about specifications affecting value */}
+            <div className="mb-4 p-3 bg-[#F5F5F0] border-l-2 border-[#7A7A75]">
+              <p className="text-xs text-[#7A7A75] leading-relaxed">
+                <span className="font-medium">Note:</span> Specifications such as condition, material, size, and color significantly affect real-world market value. Current market values shown are baseline estimates and may vary based on these attributes.
+              </p>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {!isWatchlistItem && (
+              {!isWatchlistItem && !isSearchResult && (
                 <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
                   <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Condition</span>
                   {isEditingSpecs ? (
@@ -784,7 +1062,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
                       <option value="Fair">Fair</option>
                     </select>
                   ) : (
-                    <span className="font-medium text-[#1A1A1A]">{asset.condition}</span>
+                    <span className="font-medium text-[#1A1A1A]">{asset.item_details?.condition ?? '—'}</span>
                   )}
                 </div>
               )}
@@ -799,7 +1077,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
                     className="font-medium text-[#1A1A1A] bg-white border border-[#E8E8E3] px-2 py-1 text-sm text-right w-40"
                   />
                 ) : (
-                  <span className="font-medium text-[#1A1A1A]">{asset.material || '—'}</span>
+                  <span className="font-medium text-[#1A1A1A]">{asset.material ?? '—'}</span>
                 )}
               </div>
               <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
@@ -813,12 +1091,12 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
                     className="font-medium text-[#1A1A1A] bg-white border border-[#E8E8E3] px-2 py-1 text-sm text-right w-40"
                   />
                 ) : (
-                  <span className="font-medium text-[#1A1A1A]">{asset.size || '—'}</span>
+                  <span className="font-medium text-[#1A1A1A]">{asset.size ?? '—'}</span>
                 )}
               </div>
               
               {/* Color - Only for Bags */}
-              {asset.category === 'Bag' && (
+              {asset.item_details?.category === 'Bag' && (
                 <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
                   <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Color</span>
                   {isEditingSpecs ? (
@@ -830,12 +1108,12 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
                       className="font-medium text-[#1A1A1A] bg-white border border-[#E8E8E3] px-2 py-1 text-sm text-right w-40"
                     />
                   ) : (
-                    <span className="font-medium text-[#1A1A1A]">{asset.color || '—'}</span>
+                    <span className="font-medium text-[#1A1A1A]">{asset.color ?? '—'}</span>
                   )}
                 </div>
               )}
 
-              {!isWatchlistItem && (
+              {!isWatchlistItem && !isSearchResult && (
                 <div className="flex justify-between items-center pb-2 border-b border-[#E8E8E3]">
                   <span className="text-sm text-[#7A7A75] uppercase tracking-wider">Serial Number</span>
                   {isEditingSpecs ? (
@@ -847,7 +1125,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
                       className="font-medium text-[#1A1A1A] bg-white border border-[#E8E8E3] px-2 py-1 text-sm text-right w-40"
                     />
                   ) : (
-                    <span className="font-medium text-[#1A1A1A]">{asset.serialNumber || '—'}</span>
+                    <span className="font-medium text-[#1A1A1A]">{asset.serial_number ?? '—'}</span>
                   )}
                 </div>
               )}
@@ -855,10 +1133,10 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
           </div>
         </div>
 
-        {/* Footer - Only show for Collection items */}
-        {!isWatchlistItem && (
+        {/* Footer - Only show for Collection items (not for Watchlist or Search Results) */}
+        {!isWatchlistItem && !isSearchResult && (
           <div className="p-6 border-t border-[#E8E8E3] bg-white flex flex-col sm:flex-row justify-end gap-4">
-            <button 
+            <button
               onClick={handleRemoveFromCollection}
               className="px-6 py-3 text-xs font-medium uppercase tracking-widest text-[#7A7A75] hover:text-[#9B2226] hover:bg-[#9B2226]/5 transition-colors flex items-center justify-center gap-2 border border-transparent hover:border-[#9B2226]/20"
             >

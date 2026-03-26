@@ -1,22 +1,48 @@
 "use client";
 
-import React, { useState } from 'react';
-import { 
-  LineChart, 
-  Line, 
+import React, { useState, useEffect } from 'react';
+import {
+  LineChart,
+  Line,
   ResponsiveContainer,
   YAxis
 } from 'recharts';
-import { initialPortfolio } from '../lib/mockData';
+import { api } from '@/lib/api';
+import type { PortfolioAsset } from '@/lib/types';
+import { useAuth } from '@/contexts/AuthContext';
+import { convertAndFormatCurrency } from '@/lib/currency';
 
 export default function PortfolioOverview() {
+  const { user } = useAuth();
   const [activeTimeframe, setActiveTimeframe] = useState('1Y');
+  const [portfolio, setPortfolio] = useState<PortfolioAsset[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const currency = user?.currency || 'USD';
 
-  // Calculate totals
-  const totalValue = initialPortfolio.reduce((sum, item) => sum + item.currentMarketValue, 0);
-  const totalCost = initialPortfolio.reduce((sum, item) => sum + item.purchasePrice, 0);
+  useEffect(() => {
+    const fetchPortfolio = async () => {
+      try {
+        setLoading(true);
+        const data = await api.getPortfolio();
+        setPortfolio(data);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to fetch portfolio:', err);
+        setError('Failed to load portfolio data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPortfolio();
+  }, [currency]); // Re-fetch when currency changes
+
+  // Calculate totals from real data
+  const totalValue = portfolio.reduce((sum, item) => sum + item.total_value, 0);
+  const totalCost = portfolio.reduce((sum, item) => sum + (item.purchase_price * item.quantity), 0);
   const totalGain = totalValue - totalCost;
-  const totalGainPercent = (totalGain / totalCost) * 100;
+  const totalGainPercent = totalCost > 0 ? (totalGain / totalCost) * 100 : 0;
   
   // Dynamic timeframe data calculation for the header
   const getTimeframeData = (timeframe: string) => {
@@ -157,13 +183,11 @@ export default function PortfolioOverview() {
   const timeframeData = getTimeframeData(activeTimeframe);
   const chartData = generateChartData(activeTimeframe);
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+  const formatCurrencyValue = (value: number) => {
+    return convertAndFormatCurrency(value, currency, {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(value);
+    });
   };
 
   const formatPercentage = (value: number) => {
@@ -182,17 +206,91 @@ export default function PortfolioOverview() {
   const timeframeTrendClass = isTimeframePositive ? 'text-[#00A82D]' : 'text-[#9B2226]';
   const timeframeTrendHex = isTimeframePositive ? '#00A82D' : '#9B2226';
 
+  if (loading) {
+    return (
+      <div className="flex flex-col w-full h-full items-center justify-center py-12">
+        <div className="text-[#7A7A75] text-sm uppercase tracking-widest">Loading portfolio...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col w-full h-full items-center justify-center py-12">
+        <div className="text-[#9B2226] text-sm mb-2">{error}</div>
+        <div className="text-[#7A7A75] text-xs">Please try refreshing the page</div>
+      </div>
+    );
+  }
+
+  if (portfolio.length === 0) {
+    return (
+      <div className="flex flex-col w-full h-full">
+        {/* Header with zero state */}
+        <div className="mb-4 md:mb-6">
+          <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">Portfolio Value</p>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-editorial text-[#7A7A75] mb-2 md:mb-3">
+            {convertAndFormatCurrency(0, currency, {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
+            })}
+          </h1>
+          <div className="flex flex-wrap items-center gap-2 md:gap-3 text-sm font-medium">
+            <span className="text-[#7A7A75]">—</span>
+            <span className="text-[#7A7A75] uppercase tracking-wider text-xs">No data yet</span>
+          </div>
+        </div>
+
+        {/* Zero-state chart placeholder */}
+        <div className="h-[200px] sm:h-[250px] md:h-[300px] w-full -ml-2 relative">
+          <div className="absolute inset-0 flex items-center justify-center bg-[#F5F5F0] border border-[#E8E8E3] border-dashed">
+            <div className="text-center px-4">
+              <div className="w-12 h-12 mx-auto mb-3 bg-white border border-[#E8E8E3] rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-[#7A7A75]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                </svg>
+              </div>
+              <p className="text-sm font-medium text-[#7A7A75] mb-1">Performance Analytics</p>
+              <p className="text-xs text-[#7A7A75]">Add assets to unlock insights</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Timeframe Selector (disabled state) */}
+        <div className="flex items-center justify-between border-b border-[#E8E8E3] pb-3 mt-3 md:mt-4 overflow-x-auto opacity-50">
+          <div className="flex gap-3 md:gap-6">
+            {['1D', '1W', '1M', 'YTD', '1Y', '5Y', '10Y', 'ALL'].map((period) => (
+              <button
+                key={period}
+                disabled
+                className="px-2 py-1 text-xs font-medium uppercase tracking-widest text-[#7A7A75] whitespace-nowrap cursor-not-allowed"
+              >
+                {period}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Summary Row (disabled state) */}
+        <div className="py-3 md:py-4 border-b border-[#E8E8E3] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 px-4 -mx-4 opacity-50">
+          <span className="font-editorial text-base md:text-lg text-[#7A7A75]">Total Return</span>
+          <span className="font-medium text-sm md:text-base text-[#7A7A75]">—</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col w-full h-full">
       {/* Big Number Header */}
       <div className="mb-4 md:mb-6">
         <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">All Assets</p>
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-editorial text-[#1A1A1A] mb-2 md:mb-3">
-          {formatCurrency(totalValue)}
+          {formatCurrencyValue(totalValue)}
         </h1>
         <div className="flex flex-wrap items-center gap-2 md:gap-3 text-sm font-medium">
           <span className={`${timeframeTrendClass}`}>
-            {isTimeframePositive ? '+' : ''}{formatCurrency(timeframeData.change)} ({isTimeframePositive ? '+' : ''}{formatPercentage(timeframeData.percent)}%)
+            {isTimeframePositive ? '+' : ''}{formatCurrencyValue(timeframeData.change)} ({isTimeframePositive ? '+' : ''}{formatPercentage(timeframeData.percent)}%)
           </span>
           <span className="text-[#7A7A75] uppercase tracking-wider text-xs">{timeframeData.label}</span>
         </div>
@@ -239,10 +337,9 @@ export default function PortfolioOverview() {
       <div className="py-3 md:py-4 border-b border-[#E8E8E3] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 vault-hover px-4 -mx-4">
         <span className="font-editorial text-base md:text-lg text-[#1A1A1A]">Total Return</span>
         <span className={`font-medium text-sm md:text-base ${overallTrendClass}`}>
-          {isOverallPositive ? '+' : ''}{formatCurrency(totalGain)} ({isOverallPositive ? '+' : ''}{formatPercentage(totalGainPercent)}%)
+          {isOverallPositive ? '+' : ''}{formatCurrencyValue(totalGain)} ({isOverallPositive ? '+' : ''}{formatPercentage(totalGainPercent)}%)
         </span>
       </div>
     </div>
   );
 }
-

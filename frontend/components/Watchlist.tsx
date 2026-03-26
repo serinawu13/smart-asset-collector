@@ -1,22 +1,71 @@
 "use client";
 
-import React, { useState } from 'react';
-import { initialWatchlist } from '../lib/mockData';
+import React, { useState, useEffect } from 'react';
 import { Bell, ChevronDown, ChevronRight } from 'lucide-react';
 import ItemDetailModal from './ItemDetailModal';
-import type { WatchlistItem, PortfolioAsset } from '../lib/mockData';
+import { api } from '../lib/api';
+import { PortfolioAsset, LuxuryItem } from '../lib/types';
+import { useAuth } from '@/contexts/AuthContext';
+import { convertAndFormatCurrency } from '@/lib/currency';
 
-export default function Watchlist() {
+interface WatchlistItem {
+  watchlistId: string;
+  itemId: string;
+  brand: string;
+  model: string;
+  category: string;
+  currentMarketValue: number;
+  retailPrice?: number;
+  trend: string;
+  trendPercentage: number;
+  targetPrice?: number;
+  alertActive: boolean;
+  alertType: string;
+  alertThreshold: number;
+  imageUrl?: string;
+  material?: string;
+  size?: string;
+  color?: string;
+}
+
+interface WatchlistProps {
+  refreshTrigger?: number;
+}
+
+export default function Watchlist({ refreshTrigger }: WatchlistProps = {}) {
+  const { user } = useAuth();
   const [expandedCategories, setExpandedCategories] = useState<string[]>(['Watch', 'Bag', 'Jewelry']);
   const [selectedItem, setSelectedItem] = useState<PortfolioAsset | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [watchlistItems, setWatchlistItems] = useState<WatchlistItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const currency = user?.currency || 'USD';
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+  // Fetch watchlist data from API
+  useEffect(() => {
+    fetchWatchlist();
+  }, [currency, refreshTrigger]); // Re-fetch when currency or refreshTrigger changes
+
+  const fetchWatchlist = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const items = await api.getWatchlist();
+      setWatchlistItems(items);
+    } catch (err) {
+      console.error('Error fetching watchlist:', err);
+      setError('Failed to load watchlist');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const formatCurrencyValue = (value: number) => {
+    return convertAndFormatCurrency(value, currency, {
+      minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(value);
+    });
   };
 
   const toggleCategory = (category: string) => {
@@ -29,29 +78,127 @@ export default function Watchlist() {
 
   const handleItemClick = (item: WatchlistItem) => {
     // Convert WatchlistItem to PortfolioAsset format for the modal
-    const assetForModal: PortfolioAsset = {
-      ...item,
-      portfolioId: item.watchlistId,
-      purchasePrice: item.targetPrice || item.currentMarketValue,
-      purchaseDate: new Date().toISOString().split('T')[0], // Use today's date as placeholder
-      condition: 'N/A', // Watchlist items don't have condition yet
-      serialNumber: undefined,
+    const itemDetails: LuxuryItem = {
+      item_id: item.itemId,
+      category: item.category,
+      brand: item.brand,
+      model: item.model,
+      image_url: item.imageUrl,
+      market_value: item.currentMarketValue,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    const assetForModal: PortfolioAsset & { alertType?: string; alertThreshold?: number; alertActive?: boolean; retailPrice?: number; retail_price?: number; trendPercentage?: number; trend_percentage?: number } = {
+      portfolio_id: item.watchlistId,
+      user_id: '', // Not needed for watchlist items
+      item_id: item.itemId,
+      purchase_price: item.targetPrice || item.currentMarketValue,
+      purchase_date: new Date().toISOString().split('T')[0],
+      quantity: 1,
+      material: item.material,
+      size: item.size,
+      color: item.color,
+      serial_number: undefined,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      item_details: itemDetails,
+      current_market_value: item.currentMarketValue,
+      total_value: item.currentMarketValue,
+      gain_loss: 0,
+      gain_loss_percentage: 0,
+      // Include alert data for watchlist items
+      alertType: item.alertType,
+      alertThreshold: item.alertThreshold,
+      alertActive: item.alertActive,
+      // Include retail price and trend data from watchlist item
+      retailPrice: item.retailPrice,
+      retail_price: item.retailPrice,
+      trendPercentage: item.trendPercentage,
+      trend_percentage: item.trendPercentage,
     };
     setSelectedItem(assetForModal);
     setIsDetailModalOpen(true);
   };
 
+  const handleModalClose = () => {
+    setIsDetailModalOpen(false);
+    // Refresh watchlist after modal closes (in case changes were made)
+    fetchWatchlist();
+  };
+
   // Group watchlist items by category
-  const groupedItems = initialWatchlist.reduce((acc, item) => {
+  const groupedItems = watchlistItems.reduce((acc, item) => {
     if (!acc[item.category]) {
       acc[item.category] = [];
     }
     acc[item.category].push(item);
     return acc;
-  }, {} as Record<string, typeof initialWatchlist>);
+  }, {} as Record<string, WatchlistItem[]>);
 
   // Define category order
   const categoryOrder = ['Jewelry', 'Watch', 'Bag'];
+
+  if (isLoading) {
+    return (
+      <div className="vault-card mt-6 md:mt-8">
+        <div className="p-4 md:p-6 border-b border-[#E8E8E3] bg-[#FAF9F6]">
+          <h2 className="font-editorial text-xl md:text-2xl text-[#1A1A1A]">Watchlist</h2>
+        </div>
+        <div className="p-8 text-center text-[#7A7A75]">
+          Loading watchlist...
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="vault-card mt-6 md:mt-8">
+        <div className="p-4 md:p-6 border-b border-[#E8E8E3] bg-[#FAF9F6]">
+          <h2 className="font-editorial text-xl md:text-2xl text-[#1A1A1A]">Watchlist</h2>
+        </div>
+        <div className="p-8 text-center text-[#9B2226]">
+          {error}
+        </div>
+      </div>
+    );
+  }
+
+  if (watchlistItems.length === 0) {
+    return (
+      <div className="vault-card mt-6 md:mt-8">
+        <div className="p-4 md:p-6 border-b border-[#E8E8E3] bg-[#FAF9F6]">
+          <h2 className="font-editorial text-xl md:text-2xl text-[#1A1A1A]">Watchlist</h2>
+        </div>
+        <div className="p-8 md:p-12 text-center">
+          <div className="mb-6">
+            <div className="w-16 h-16 mx-auto mb-4 bg-[#F5F5F0] border border-[#E8E8E3] rounded-full flex items-center justify-center">
+              <Bell className="w-7 h-7 text-[#7A7A75]" />
+            </div>
+            <h3 className="font-editorial text-xl text-[#1A1A1A] mb-2">No Items Tracked</h3>
+            <p className="text-sm text-[#7A7A75] max-w-xs mx-auto">
+              Search the catalog to discover luxury items and add them to your watchlist for price tracking.
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              // Focus on the search bar in the header
+              const searchInput = document.querySelector('input[placeholder*="Search"]') as HTMLInputElement;
+              if (searchInput) {
+                searchInput.focus();
+                searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            }}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#1A1A1A] text-[#FAF9F6] text-xs uppercase tracking-widest hover:bg-[#333333] transition-colors"
+          >
+            <Bell className="w-4 h-4" />
+            Discover Assets
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -88,7 +235,7 @@ export default function Watchlist() {
                     </span>
                     <span className="text-xs text-[#7A7A75]">({items.length})</span>
                   </div>
-                  <span className="text-sm font-medium text-[#1A1A1A]">{formatCurrency(categoryTotal)}</span>
+                  <span className="text-sm font-medium text-[#1A1A1A]">{formatCurrencyValue(categoryTotal)}</span>
                 </button>
 
                 {/* Category Items */}
@@ -133,12 +280,12 @@ export default function Watchlist() {
                           onClick={() => handleItemClick(item)}
                           className="text-left sm:text-right"
                         >
-                          <div className={`font-medium text-sm md:text-base ${trendColor}`}>{formatCurrency(item.currentMarketValue)}</div>
+                          <div className={`font-medium text-sm md:text-base ${trendColor}`}>{formatCurrencyValue(item.currentMarketValue)}</div>
                         </button>
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
-                            console.log('Toggle alert for:', item.brand);
+                            handleItemClick(item);
                           }}
                           className={`p-2 rounded-full transition-colors ${item.alertActive ? 'bg-[#1A1A1A] text-[#FAF9F6]' : 'bg-[#E8E8E3] text-[#7A7A75]'}`}
                         >
@@ -158,12 +305,12 @@ export default function Watchlist() {
       {isDetailModalOpen && (
         <ItemDetailModal 
           isOpen={isDetailModalOpen}
-          onClose={() => setIsDetailModalOpen(false)}
+          onClose={handleModalClose}
           asset={selectedItem}
           isWatchlistItem={true}
+          onAssetUpdated={fetchWatchlist}
         />
       )}
     </>
   );
 }
-

@@ -1,21 +1,47 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Search, ChevronRight, ArrowLeft } from 'lucide-react';
-import { luxuryDatabase, AssetCategory } from '../lib/mockData';
+import { AssetCategory } from '../lib/mockData';
+import { api } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
+import { convertAndFormatCurrency } from '@/lib/currency';
 
 interface AddAssetModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onAssetAdded?: () => void; // Callback to refresh the asset list
 }
 
 type Step = 'category' | 'search' | 'details';
 
-export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
+interface CatalogItem {
+  id: string;
+  item_id?: string;
+  brand: string;
+  model: string;
+  category: string;
+  currentMarketValue: number;
+  current_market_value?: number;
+  retailPrice?: number;
+  retail_price?: number;
+  imageUrl?: string;
+  image_url?: string;
+  size?: string;
+  color?: string;
+  material?: string;
+}
+
+export default function AddAssetModal({ isOpen, onClose, onAssetAdded }: AddAssetModalProps) {
   const [step, setStep] = useState<Step>('category');
   const [selectedCategory, setSelectedCategory] = useState<AssetCategory | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedItem, setSelectedItem] = useState<typeof luxuryDatabase[0] | null>(null);
+  const [selectedItem, setSelectedItem] = useState<CatalogItem | null>(null);
+  
+  // API state
+  const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
+  const [isLoadingItems, setIsLoadingItems] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   
   // Form state
   const [purchasePrice, setPurchasePrice] = useState('');
@@ -25,6 +51,51 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
   const [color, setColor] = useState('');
   const [material, setMaterial] = useState('');
   const [serialNumber, setSerialNumber] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Fetch items when category is selected
+  useEffect(() => {
+    if (selectedCategory && step === 'search') {
+      fetchCatalogItems();
+    }
+  }, [selectedCategory, step]);
+
+  const fetchCatalogItems = async () => {
+    if (!selectedCategory) return;
+    
+    setIsLoadingItems(true);
+    setLoadError(null);
+    
+    try {
+      const items = await api.getItems({ category: selectedCategory });
+      
+      // Normalize the items to handle both snake_case and camelCase
+      const normalizedItems = items.map((item: any) => ({
+        id: item.id || item.item_id,
+        item_id: item.item_id || item.id,
+        brand: item.brand,
+        model: item.model,
+        category: item.category,
+        currentMarketValue: item.current_market_value || item.currentMarketValue,
+        current_market_value: item.current_market_value || item.currentMarketValue,
+        retailPrice: item.retail_price || item.retailPrice,
+        retail_price: item.retail_price || item.retailPrice,
+        imageUrl: item.image_url || item.imageUrl,
+        image_url: item.image_url || item.imageUrl,
+        size: item.size,
+        color: item.color,
+        material: item.material,
+      }));
+      
+      setCatalogItems(normalizedItems);
+    } catch (error) {
+      console.error('Failed to fetch catalog items:', error);
+      setLoadError('Failed to load items. Please try again.');
+    } finally {
+      setIsLoadingItems(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -47,7 +118,7 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
     setStep('search');
   };
 
-  const handleItemSelect = (item: typeof luxuryDatabase[0]) => {
+  const handleItemSelect = (item: CatalogItem) => {
     setSelectedItem(item);
     // Format the initial price with commas
     const initialPrice = item.retailPrice?.toString() || item.currentMarketValue.toString();
@@ -66,6 +137,7 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
       setStep('category');
       setSelectedCategory(null);
       setSearchQuery('');
+      setCatalogItems([]);
     }
   };
 
@@ -80,23 +152,105 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Remove commas before saving to backend
-    const numericPrice = Number(purchasePrice.replace(/,/g, ''));
+    if (!selectedItem) return;
     
-    // In a real app, this would save to backend/state
-    console.log('Adding asset:', {
-      item: selectedItem,
-      purchasePrice: numericPrice,
-      purchaseDate,
-      condition,
-      size,
-      material,
-      color: color || undefined,
-      serialNumber: serialNumber || undefined
-    });
-    handleClose();
+    setIsSubmitting(true);
+    setSubmitError(null);
+    
+    try {
+      // Remove commas before saving to backend
+      const numericPrice = Number(purchasePrice.replace(/,/g, ''));
+      
+      console.log('🔍 DEBUG: Starting asset addition process');
+      console.log('🔍 DEBUG: Selected item:', selectedItem);
+      
+      // Step 1: Search for the item in the backend by brand and model
+      console.log('🔍 Searching for item in backend...');
+      console.log('🔍 Looking for:', { brand: selectedItem.brand, model: selectedItem.model, category: selectedItem.category });
+      
+      const searchResponse = await api.getItems({
+        category: selectedItem.category,
+        brand: selectedItem.brand,
+      });
+      
+      console.log('🔍 Search response:', searchResponse);
+      
+      // The API returns an array of items directly
+      const searchResults = Array.isArray(searchResponse) ? searchResponse : [];
+      
+      console.log('🔍 Search results array:', searchResults);
+      console.log('🔍 Number of results:', searchResults.length);
+      
+      // Find exact match by model (try both exact and partial match)
+      let matchingItem = searchResults.find(
+        (item: any) => {
+          console.log('🔍 Comparing:', {
+            backendModel: item.model,
+            frontendModel: selectedItem.model,
+            match: item.model === selectedItem.model
+          });
+          return item.model === selectedItem.model && item.brand === selectedItem.brand;
+        }
+      );
+      
+      // If no exact match, try partial match (e.g., "Birkin 30" matches "Birkin 30")
+      if (!matchingItem) {
+        matchingItem = searchResults.find(
+          (item: any) => {
+            const backendModelLower = item.model.toLowerCase();
+            const frontendModelLower = selectedItem.model.toLowerCase();
+            return backendModelLower.includes(frontendModelLower) || frontendModelLower.includes(backendModelLower);
+          }
+        );
+      }
+      
+      if (!matchingItem) {
+        console.error('❌ No matching item found');
+        console.error('Available items:', searchResults.map((i: any) => ({ brand: i.brand, model: i.model })));
+        throw new Error(
+          `Item "${selectedItem.brand} ${selectedItem.model}" not found in catalog. Please contact support to add this item.`
+        );
+      }
+      
+      console.log('✅ Found matching item in backend:', matchingItem);
+      
+      // Step 2: Add the item to the user's portfolio
+      console.log('📝 Adding item to portfolio...');
+      const itemId = matchingItem.id || matchingItem.item_id;
+      if (!itemId) {
+        throw new Error('Item ID not found');
+      }
+      
+      await api.addToPortfolio({
+        itemId: itemId,
+        purchasePrice: numericPrice,
+        purchaseDate: purchaseDate,
+        condition: condition,
+        material: material,
+        size: size,
+        color: color || undefined,
+        serialNumber: serialNumber || undefined,
+      });
+      
+      // Step 3: Trigger refresh of the asset list
+      if (onAssetAdded) {
+        onAssetAdded();
+      }
+      
+      // Close the modal
+      handleClose();
+    } catch (error) {
+      console.error('❌ ERROR: Failed to add asset:', error);
+      setSubmitError(
+        error instanceof Error
+          ? error.message
+          : 'Failed to add asset. Please try again.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Helper function to remove accents/diacritics from strings
@@ -104,26 +258,26 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
     return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   };
 
-  // Filter database based on selected category and search query (ignoring accents)
-  const filteredItems = luxuryDatabase.filter(item => {
-    const matchesCategory = selectedCategory ? item.category === selectedCategory : true;
-    
+  // Filter catalog items based on search query (ignoring accents)
+  const filteredItems = catalogItems.filter((item: CatalogItem) => {
     const normalizedQuery = removeAccents(searchQuery.toLowerCase());
     const normalizedBrand = removeAccents(item.brand.toLowerCase());
     const normalizedModel = removeAccents(item.model.toLowerCase());
     
-    const matchesSearch = normalizedBrand.includes(normalizedQuery) || 
+    const matchesSearch = normalizedBrand.includes(normalizedQuery) ||
                          normalizedModel.includes(normalizedQuery);
                          
-    return matchesCategory && matchesSearch;
+    return matchesSearch;
   });
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+  const { user } = useAuth();
+  const currency = user?.currency || 'USD';
+  
+  const formatCurrencyValue = (value: number) => {
+    return convertAndFormatCurrency(value, currency, {
+      minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(value);
+    });
   };
 
   return (
@@ -180,19 +334,31 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
             <div className="space-y-6">
               <div className="relative">
                 <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-[#7A7A75]" />
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Search by brand or model"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-white border border-[#E8E8E3] py-4 pl-12 pr-4 text-[#1A1A1A] placeholder:text-[#7A7A75] focus:outline-none focus:border-[#1A1A1A] transition-colors"
                   autoFocus
+                  disabled={isLoadingItems}
                 />
               </div>
 
-              <div className="space-y-2">
-                {filteredItems.length > 0 ? (
-                  filteredItems.map((item) => (
+              {loadError && (
+                <div className="p-4 bg-[#9B2226]/10 border border-[#9B2226] text-[#9B2226] text-sm">
+                  {loadError}
+                </div>
+              )}
+
+              {isLoadingItems ? (
+                <div className="text-center py-12 text-[#7A7A75]">
+                  Loading items...
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {filteredItems.length > 0 ? (
+                    filteredItems.map((item: CatalogItem) => (
                     <button
                       key={item.id}
                       onClick={() => handleItemSelect(item)}
@@ -211,21 +377,24 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
                       </div>
                       <div className="flex items-center gap-4">
                         <div className="text-right hidden sm:block">
-                          <div className="text-sm font-medium text-[#1A1A1A]">Market: {formatCurrency(item.currentMarketValue)}</div>
+                          <div className="text-sm font-medium text-[#1A1A1A]">Market: {formatCurrencyValue(item.currentMarketValue)}</div>
                           {item.retailPrice && (
-                            <div className="text-xs text-[#7A7A75] mt-1">Retail: {formatCurrency(item.retailPrice)}</div>
+                            <div className="text-xs text-[#7A7A75] mt-1">Retail: {formatCurrencyValue(item.retailPrice)}</div>
                           )}
                         </div>
                         <ChevronRight className="w-5 h-5 text-[#7A7A75]" />
                       </div>
                     </button>
-                  ))
-                ) : (
-                  <div className="text-center py-12 text-[#7A7A75]">
-                    No items found matching your search.
-                  </div>
-                )}
-              </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-12 text-[#7A7A75]">
+                      {catalogItems.length === 0
+                        ? 'No items available in this category.'
+                        : 'No items found matching your search.'}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
@@ -262,7 +431,7 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
                       />
                     </div>
                     <p className="text-xs text-[#7A7A75] mt-2">
-                      Current Market Value: {formatCurrency(selectedItem.currentMarketValue)}
+                      Current Market Value: {formatCurrencyValue(selectedItem.currentMarketValue)}
                     </p>
                   </div>
 
@@ -364,12 +533,19 @@ export default function AddAssetModal({ isOpen, onClose }: AddAssetModalProps) {
                 </div>
               </div>
 
+              {submitError && (
+                <div className="p-4 bg-[#9B2226]/10 border border-[#9B2226] text-[#9B2226] text-sm">
+                  {submitError}
+                </div>
+              )}
+
               <div className="pt-4">
-                <button 
+                <button
                   type="submit"
-                  className="w-full bg-[#1A1A1A] text-[#FAF9F6] py-4 text-sm font-medium uppercase tracking-widest hover:bg-[#333333] transition-colors"
+                  disabled={isSubmitting}
+                  className="w-full bg-[#1A1A1A] text-[#FAF9F6] py-4 text-sm font-medium uppercase tracking-widest hover:bg-[#333333] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Add to Vault
+                  {isSubmitting ? 'Adding to Vault...' : 'Add to Vault'}
                 </button>
               </div>
             </form>
