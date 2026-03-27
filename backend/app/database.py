@@ -20,11 +20,6 @@ async def connect_to_mongodb():
     try:
         logger.info("Connecting to MongoDB Atlas...")
         
-        # Create SSL context with certifi certificates
-        ssl_context = ssl.create_default_context(cafile=certifi.where())
-        ssl_context.check_hostname = True
-        ssl_context.verify_mode = ssl.CERT_REQUIRED
-        
         client = AsyncIOMotorClient(
             settings.mongodb_connection_string,
             maxPoolSize=10,
@@ -32,8 +27,7 @@ async def connect_to_mongodb():
             serverSelectionTimeoutMS=10000,
             connectTimeoutMS=10000,
             socketTimeoutMS=10000,
-            tlsCAFile=certifi.where(),
-            ssl_cert_reqs=ssl.CERT_REQUIRED
+            tlsCAFile=certifi.where()
         )
         
         # Get database name from URI or use default
