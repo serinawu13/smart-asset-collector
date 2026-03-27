@@ -4,8 +4,8 @@
  */
 
 const API_BASE_URL = typeof window !== 'undefined'
-  ? (window as any).ENV?.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
-  : 'http://localhost:8000/api/v1';
+  ? (window as any).ENV?.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
+  : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
 /**
  * Custom error class for API errors
