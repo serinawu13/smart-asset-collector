@@ -21,7 +21,9 @@ async def connect_to_mongodb():
             settings.mongodb_connection_string,
             maxPoolSize=10,
             minPoolSize=1,
-            serverSelectionTimeoutMS=5000
+            serverSelectionTimeoutMS=5000,
+            tls=True,
+            tlsAllowInvalidCertificates=False
         )
         
         # Get database name from URI or use default
