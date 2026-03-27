@@ -39,7 +39,10 @@ async def connect_to_mongodb():
         
     except Exception as e:
         logger.error(f"Failed to connect to MongoDB: {e}")
-        raise
+        logger.warning("Application will start without database connection. Check MongoDB Atlas network access settings.")
+        # Don't raise - allow app to start for debugging
+        client = None
+        db = None
 
 
 async def close_mongodb_connection():
@@ -55,5 +58,5 @@ async def close_mongodb_connection():
 def get_database() -> AsyncIOMotorDatabase:
     """Get database instance"""
     if db is None:
-        raise RuntimeError("Database not initialized. Call connect_to_mongodb() first.")
+        raise RuntimeError("Database not connected. Check MongoDB Atlas network access settings and connection string.")
     return db
