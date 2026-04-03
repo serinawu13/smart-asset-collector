@@ -638,9 +638,6 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
             <div className="flex flex-wrap gap-3 mt-3">
               <span className="text-xs bg-[#F5F5F0] px-3 py-1 text-[#7A7A75] uppercase tracking-widest">{asset.item_details?.category ?? 'Unknown'}</span>
             </div>
-            <p className="text-xs text-[#7A7A75] mt-3 italic">
-              Market data sourced from TheRealReal, Vestiaire Collective, Sotheby's, Chrono24
-            </p>
           </div>
           <div className="flex items-center gap-4">
             
@@ -904,12 +901,12 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
             <div className="flex items-center justify-between border-b border-[#E8E8E3] pb-3 mt-4 overflow-x-auto">
               <div className="flex gap-3 md:gap-6">
                 {timeframes.map((period) => (
-                  <button 
+                  <button
                     key={period}
                     onClick={() => setActiveTimeframe(period)}
                     className={`px-2 py-1 text-xs font-medium uppercase tracking-widest transition-colors whitespace-nowrap ${
-                      activeTimeframe === period 
-                        ? 'text-[#1A1A1A] border-b border-[#1A1A1A]' 
+                      activeTimeframe === period
+                        ? 'text-[#1A1A1A] border-b border-[#1A1A1A]'
                         : 'text-[#7A7A75] hover:text-[#1A1A1A]'
                     }`}
                   >
@@ -918,6 +915,11 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
                 ))}
               </div>
             </div>
+            
+            {/* Data Source Attribution */}
+            <p className="text-xs text-[#7A7A75] mt-3 italic">
+              Market data sourced from TheRealReal, Vestiaire Collective, Sotheby's, Chrono24
+            </p>
           </div>
 
           {/* Stats Grid */}
