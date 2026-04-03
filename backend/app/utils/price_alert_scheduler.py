@@ -179,7 +179,7 @@ class PriceAlertChecker:
                 return False
             
             # Get notification preferences from user settings (global preferences)
-            notification_prefs = user.get("notification_prefs", {"in_app": True, "email": False})
+            notification_prefs = user.get("notification_prefs", {"in_app": True, "email": True})
             
             success = False
             
@@ -191,7 +191,7 @@ class PriceAlertChecker:
                 success = success or in_app_success
             
             # Send email notification
-            if notification_prefs.get("email", False):
+            if notification_prefs.get("email", True):
                 email_success = await self._send_email_notification(
                     user, item, watchlist_item
                 )

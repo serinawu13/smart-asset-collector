@@ -7,7 +7,7 @@ import logging
 
 from app.config import settings
 from app.database import connect_to_mongodb, close_mongodb_connection, get_database
-from app.routes import auth, items, portfolio, watchlist, news, notifications
+from app.routes import auth, items, portfolio, watchlist, news, notifications, admin
 from app.routes import settings as settings_router
 
 # Configure logging
@@ -55,6 +55,7 @@ app.include_router(watchlist.router)
 app.include_router(settings_router.router)
 app.include_router(news.router)
 app.include_router(notifications.router)
+app.include_router(admin.router)
 
 
 @app.get("/healthz")

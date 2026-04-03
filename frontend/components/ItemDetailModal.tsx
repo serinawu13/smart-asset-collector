@@ -638,6 +638,9 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
             <div className="flex flex-wrap gap-3 mt-3">
               <span className="text-xs bg-[#F5F5F0] px-3 py-1 text-[#7A7A75] uppercase tracking-widest">{asset.item_details?.category ?? 'Unknown'}</span>
             </div>
+            <p className="text-xs text-[#7A7A75] mt-3 italic">
+              Market data sourced from TheRealReal, Vestiaire Collective, Sotheby's, Chrono24
+            </p>
           </div>
           <div className="flex items-center gap-4">
             

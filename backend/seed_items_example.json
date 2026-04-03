@@ -1,0 +1,72 @@
+[
+  {
+    "brand": "Rolex",
+    "model": "Daytona 116500LN",
+    "category": "Watch",
+    "material": "Oystersteel",
+    "size": "40mm",
+    "color": "White",
+    "currentMarketValue": 35000,
+    "retailPrice": 14550,
+    "trend": "up",
+    "trendPercentage": 3.5,
+    "mentions30Days": 18500,
+    "imageUrl": "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&h=800&fit=crop&q=80"
+  },
+  {
+    "brand": "Omega",
+    "model": "Speedmaster Professional Moonwatch",
+    "category": "Watch",
+    "material": "Stainless Steel",
+    "size": "42mm",
+    "color": "Black",
+    "currentMarketValue": 6800,
+    "retailPrice": 6300,
+    "trend": "stable",
+    "trendPercentage": 0.8,
+    "mentions30Days": 9200,
+    "imageUrl": "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?w=800&h=800&fit=crop&q=80"
+  },
+  {
+    "brand": "Louis Vuitton",
+    "model": "Neverfull MM",
+    "category": "Bag",
+    "material": "Monogram Canvas",
+    "size": "MM",
+    "color": "Brown",
+    "currentMarketValue": 1850,
+    "retailPrice": 1760,
+    "trend": "up",
+    "trendPercentage": 1.2,
+    "mentions30Days": 14300,
+    "imageUrl": "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&h=800&fit=crop&q=80"
+  },
+  {
+    "brand": "Tiffany & Co.",
+    "model": "T Smile Pendant",
+    "category": "Jewelry",
+    "material": "18K Rose Gold",
+    "size": "Small",
+    "color": "Rose Gold",
+    "currentMarketValue": 2100,
+    "retailPrice": 1950,
+    "trend": "up",
+    "trendPercentage": 0.9,
+    "mentions30Days": 7800,
+    "imageUrl": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&h=800&fit=crop&q=80"
+  },
+  {
+    "brand": "Gucci",
+    "model": "Dionysus Small",
+    "category": "Bag",
+    "material": "GG Supreme Canvas",
+    "size": "Small",
+    "color": "Beige",
+    "currentMarketValue": 2400,
+    "retailPrice": 2200,
+    "trend": "stable",
+    "trendPercentage": 0.3,
+    "mentions30Days": 11500,
+    "imageUrl": "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=800&h=800&fit=crop&q=80"
+  }
+]

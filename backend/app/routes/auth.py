@@ -51,6 +51,10 @@ async def signup(user_data: UserSignupRequest):
         "email": user_data.email,
         "password_hash": password_hash,
         "currency": "USD",
+        "notification_prefs": {
+            "in_app": True,
+            "email": True
+        },
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow()
     }

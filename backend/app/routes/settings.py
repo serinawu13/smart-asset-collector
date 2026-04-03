@@ -14,7 +14,7 @@ router = APIRouter(prefix="/api/v1/settings", tags=["settings"])
 class NotificationPreferencesSchema(BaseModel):
     """Schema for notification preferences"""
     inApp: bool = Field(True, description="Enable in-app notifications")
-    email: bool = Field(False, description="Enable email notifications")
+    email: bool = Field(True, description="Enable email notifications")
 
 
 class SettingsUpdate(BaseModel):
@@ -37,13 +37,13 @@ async def get_settings(current_user: Dict[str, Any] = Depends(get_current_user))
     Returns:
         User settings (currency and notification preferences)
     """
-    notification_prefs = current_user.get("notification_prefs", {"in_app": True, "email": False})
+    notification_prefs = current_user.get("notification_prefs", {"in_app": True, "email": True})
     
     return SettingsResponse(
         currency=current_user.get("currency", "USD"),
         notificationPrefs=NotificationPreferencesSchema(
             inApp=notification_prefs.get("in_app", True),
-            email=notification_prefs.get("email", False)
+            email=notification_prefs.get("email", True)
         )
     )
 
@@ -93,14 +93,14 @@ async def update_settings(
     
     # Fetch updated user to return current settings
     updated_user = await db["users"].find_one({"_id": ObjectId(current_user["id"])})
-    notification_prefs = updated_user.get("notification_prefs", {"in_app": True, "email": False})
+    notification_prefs = updated_user.get("notification_prefs", {"in_app": True, "email": True})
     
     return {
         "settings": {
             "currency": updated_user.get("currency", "USD"),
             "notificationPrefs": {
                 "inApp": notification_prefs.get("in_app", True),
-                "email": notification_prefs.get("email", False)
+                "email": notification_prefs.get("email", True)
             }
         },
         "message": "Settings updated"
