@@ -33,9 +33,21 @@ export default function Dashboard() {
   const checkOnboardingStatus = async () => {
     try {
       setIsCheckingOnboarding(true);
+      
+      // Fetch portfolio and watchlist with individual error handling
+      const portfolioPromise = api.getPortfolio().catch(err => {
+        console.error('Failed to fetch portfolio:', err);
+        return []; // Return empty array on error
+      });
+      
+      const watchlistPromise = api.getWatchlist().catch(err => {
+        console.error('Failed to fetch watchlist:', err);
+        return []; // Return empty array on error
+      });
+      
       const [portfolio, watchlist] = await Promise.all([
-        api.getPortfolio(),
-        api.getWatchlist()
+        portfolioPromise,
+        watchlistPromise
       ]);
       
       // User is "new" if they have no portfolio assets AND no watchlist items

@@ -39,8 +39,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const userData = await api.getCurrentUser();
           setUser(userData);
         } catch (error) {
-          console.error('Failed to fetch user:', error);
-          removeAuthToken();
+          console.error('Failed to fetch user on init:', error);
+          // Only remove token if it's actually invalid (401/403)
+          // Network errors shouldn't log user out
+          if (error instanceof Error && error.message.includes('401')) {
+            removeAuthToken();
+          }
         }
       }
       setLoading(false);

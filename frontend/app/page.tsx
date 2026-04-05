@@ -137,13 +137,13 @@ export default function LandingPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-white border border-[#E8E8E3] px-6 py-4 text-[#1A1A1A] placeholder:text-[#7A7A75] focus:outline-none focus:border-[#1A1A1A] transition-colors text-sm"
                 />
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   required
-                  placeholder="Enter your password"
+                  placeholder="Enter your password (min 8 characters)"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  minLength={6}
+                  minLength={8}
                   className="w-full bg-white border border-[#E8E8E3] px-6 py-4 text-[#1A1A1A] placeholder:text-[#7A7A75] focus:outline-none focus:border-[#1A1A1A] transition-colors text-sm"
                 />
                 
