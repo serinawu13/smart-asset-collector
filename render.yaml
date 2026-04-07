@@ -20,4 +20,4 @@ services:
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
         value: 30
       - key: CORS_ORIGINS
-        value: https://smart-asset-collector.onrender.com,http://localhost:3000
+        value: https://smart-asset-collector.onrender.com,https://smartassetcollector.com,https://www.smartassetcollector.com,http://localhost:3000
