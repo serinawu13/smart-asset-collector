@@ -23,9 +23,12 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 /**
  * Convert amount from USD to target currency
  */
-export function convertCurrency(amountInUSD: number, targetCurrency: string): number {
-  const rate = EXCHANGE_RATES[targetCurrency] || 1.0;
-  return amountInUSD * rate;
+export function convertCurrency(
+  amountInUSD: number,
+  targetCurrency: string,
+  rates: Record<string, number> = EXCHANGE_RATES
+): number {
+  return amountInUSD * (rates[targetCurrency] ?? 1.0);
 }
 
 /**
@@ -65,8 +68,9 @@ export function convertAndFormatCurrency(
   options?: {
     minimumFractionDigits?: number;
     maximumFractionDigits?: number;
-  }
+  },
+  rates: Record<string, number> = EXCHANGE_RATES
 ): string {
-  const convertedAmount = convertCurrency(amountInUSD, targetCurrency);
+  const convertedAmount = convertCurrency(amountInUSD, targetCurrency, rates);
   return formatCurrency(convertedAmount, targetCurrency, options);
 }

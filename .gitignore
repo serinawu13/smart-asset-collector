@@ -45,3 +45,7 @@ yarn-error.log*
 # Testing
 coverage/
 .pytest_cache/
+
+*.pdf
+.claudeignore
+CLAUDE.md

@@ -7,6 +7,7 @@ import { api } from '../lib/api';
 import { PortfolioAsset, LuxuryItem } from '../lib/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { convertAndFormatCurrency } from '@/lib/currency';
+import { useExchangeRates } from '@/hooks/useExchangeRates';
 
 interface WatchlistItem {
   watchlistId: string;
@@ -34,6 +35,7 @@ interface WatchlistProps {
 
 export default function Watchlist({ refreshTrigger }: WatchlistProps = {}) {
   const { user } = useAuth();
+  const rates = useExchangeRates();
   const [expandedCategories, setExpandedCategories] = useState<string[]>(['Watch', 'Bag', 'Jewelry']);
   const [selectedItem, setSelectedItem] = useState<PortfolioAsset | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -61,12 +63,8 @@ export default function Watchlist({ refreshTrigger }: WatchlistProps = {}) {
     }
   };
 
-  const formatCurrencyValue = (value: number) => {
-    return convertAndFormatCurrency(value, currency, {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    });
-  };
+  const formatCurrencyValue = (value: number) =>
+    convertAndFormatCurrency(value, currency, { minimumFractionDigits: 0, maximumFractionDigits: 0 }, rates);
 
   const toggleCategory = (category: string) => {
     setExpandedCategories(prev => 

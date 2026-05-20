@@ -831,6 +831,37 @@ export const api = {
     });
   },
 
+  // ==================== Exchange Rates ====================
+
+  getExchangeRates: () => apiRequest<{ source: string; rates: Record<string, number> }>('/exchange-rates'),
+
+  // ==================== Admin ====================
+
+  startHermesRefresh: async () => {
+    return apiRequest<{ job_id: string; status: string; message: string }>(
+      '/admin/hermes/refresh',
+      { method: 'POST' }
+    );
+  },
+
+  getHermesRefreshStatus: async (jobId: string) => {
+    return apiRequest<{
+      job_id: string;
+      status: 'running' | 'completed' | 'failed';
+      result?: {
+        listings_scraped: number;
+        listings_normalized: number;
+        listings_inserted: number;
+        listings_updated: number;
+        catalog_created: number;
+        catalog_updated: number;
+      };
+      error?: string;
+      started_at?: string;
+      finished_at?: string;
+    }>(`/admin/hermes/refresh/status/${jobId}`);
+  },
+
   // ==================== Market News ====================
 
   /**

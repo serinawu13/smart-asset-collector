@@ -7,6 +7,7 @@ import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
 import { api } from '../lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { convertAndFormatCurrency } from '@/lib/currency';
+import { useExchangeRates } from '@/hooks/useExchangeRates';
 
 interface ItemDetailModalProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ interface ItemDetailModalProps {
 
 export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistItem = false, isSearchResult = false, onAssetUpdated }: ItemDetailModalProps) {
   const { user } = useAuth();
+  const rates = useExchangeRates();
   const currency = user?.currency || 'USD';
   const [activeTimeframe, setActiveTimeframe] = useState('1Y');
   const [isEditingPurchase, setIsEditingPurchase] = useState(false);
@@ -99,12 +101,8 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
 
   if (!isOpen || !asset) return null;
 
-  const formatCurrencyValue = (value: number) => {
-    return convertAndFormatCurrency(value, currency, {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    });
-  };
+  const formatCurrencyValue = (value: number) =>
+    convertAndFormatCurrency(value, currency, { minimumFractionDigits: 0, maximumFractionDigits: 0 }, rates);
 
   const formatPercentage = (value: number | undefined) => {
     return (value ?? 0).toFixed(2);
@@ -632,11 +630,29 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
       <div className="bg-[#FAF9F6] w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-[#E8E8E3] shadow-2xl flex flex-col">
         {/* Header */}
         <div className="sticky top-0 bg-[#FAF9F6] border-b border-[#E8E8E3] p-6 flex justify-between items-start z-10">
-          <div className="flex-1">
-            <h2 className="font-editorial text-3xl md:text-4xl text-[#1A1A1A] mb-2">{asset.item_details?.brand ?? 'Unknown'}</h2>
-            <p className="text-sm text-[#7A7A75] uppercase tracking-wider">{asset.item_details?.model ?? 'Unknown'}</p>
-            <div className="flex flex-wrap gap-3 mt-3">
-              <span className="text-xs bg-[#F5F5F0] px-3 py-1 text-[#7A7A75] uppercase tracking-widest">{asset.item_details?.category ?? 'Unknown'}</span>
+          <div className="flex-1 flex items-start gap-5">
+            {(() => {
+              const imageUrl =
+                asset.item_details?.image_url ||
+                (asset as any).imageUrl ||
+                (asset as any).image_url;
+              return imageUrl ? (
+                <img
+                  src={imageUrl}
+                  alt={`${asset.item_details?.brand ?? ''} ${asset.item_details?.model ?? ''}`.trim()}
+                  className="w-24 h-24 md:w-28 md:h-28 object-cover border border-[#E8E8E3] bg-[#F5F5F0] flex-shrink-0"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              ) : null;
+            })()}
+            <div className="flex-1 min-w-0">
+              <h2 className="font-editorial text-3xl md:text-4xl text-[#1A1A1A] mb-2">{asset.item_details?.brand ?? 'Unknown'}</h2>
+              <p className="text-sm text-[#7A7A75] uppercase tracking-wider">{asset.item_details?.model ?? 'Unknown'}</p>
+              <div className="flex flex-wrap gap-3 mt-3">
+                <span className="text-xs bg-[#F5F5F0] px-3 py-1 text-[#7A7A75] uppercase tracking-widest">{asset.item_details?.category ?? 'Unknown'}</span>
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -918,7 +934,7 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
             
             {/* Data Source Attribution */}
             <p className="text-xs text-[#7A7A75] mt-3 italic">
-              Market data sourced from TheRealReal, Vestiaire Collective, Sotheby's, Chrono24
+              Market data sourced from Vestiaire Collective, Sotheby's, Chrono24
             </p>
           </div>
 

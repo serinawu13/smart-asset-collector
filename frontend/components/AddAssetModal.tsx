@@ -6,6 +6,7 @@ import { AssetCategory } from '../lib/mockData';
 import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { convertAndFormatCurrency } from '@/lib/currency';
+import { useExchangeRates } from '@/hooks/useExchangeRates';
 
 interface AddAssetModalProps {
   isOpen: boolean;
@@ -33,6 +34,8 @@ interface CatalogItem {
 }
 
 export default function AddAssetModal({ isOpen, onClose, onAssetAdded }: AddAssetModalProps) {
+  const { user } = useAuth();
+  const rates = useExchangeRates();
   const [step, setStep] = useState<Step>('category');
   const [selectedCategory, setSelectedCategory] = useState<AssetCategory | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -270,15 +273,10 @@ export default function AddAssetModal({ isOpen, onClose, onAssetAdded }: AddAsse
     return matchesSearch;
   });
 
-  const { user } = useAuth();
   const currency = user?.currency || 'USD';
-  
-  const formatCurrencyValue = (value: number) => {
-    return convertAndFormatCurrency(value, currency, {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    });
-  };
+
+  const formatCurrencyValue = (value: number) =>
+    convertAndFormatCurrency(value, currency, { minimumFractionDigits: 0, maximumFractionDigits: 0 }, rates);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1A1A1A]/60 backdrop-blur-sm">

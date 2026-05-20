@@ -11,9 +11,11 @@ import { api } from '@/lib/api';
 import type { PortfolioAsset } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { convertAndFormatCurrency } from '@/lib/currency';
+import { useExchangeRates } from '@/hooks/useExchangeRates';
 
 export default function PortfolioOverview() {
   const { user } = useAuth();
+  const rates = useExchangeRates();
   const [activeTimeframe, setActiveTimeframe] = useState('1Y');
   const [portfolio, setPortfolio] = useState<PortfolioAsset[]>([]);
   const [loading, setLoading] = useState(true);
@@ -183,12 +185,8 @@ export default function PortfolioOverview() {
   const timeframeData = getTimeframeData(activeTimeframe);
   const chartData = generateChartData(activeTimeframe);
 
-  const formatCurrencyValue = (value: number) => {
-    return convertAndFormatCurrency(value, currency, {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    });
-  };
+  const formatCurrencyValue = (value: number) =>
+    convertAndFormatCurrency(value, currency, { minimumFractionDigits: 0, maximumFractionDigits: 0 }, rates);
 
   const formatPercentage = (value: number) => {
     return value.toFixed(2);
@@ -230,10 +228,7 @@ export default function PortfolioOverview() {
         <div className="mb-4 md:mb-6">
           <p className="text-xs font-medium text-[#7A7A75] uppercase tracking-widest mb-2">Portfolio Value</p>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-editorial text-[#7A7A75] mb-2 md:mb-3">
-            {convertAndFormatCurrency(0, currency, {
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 0,
-            })}
+            {convertAndFormatCurrency(0, currency, { minimumFractionDigits: 0, maximumFractionDigits: 0 }, rates)}
           </h1>
           <div className="flex flex-wrap items-center gap-2 md:gap-3 text-sm font-medium">
             <span className="text-[#7A7A75]">—</span>

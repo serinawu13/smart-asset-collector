@@ -7,6 +7,7 @@ import type { PortfolioAsset } from '@/lib/types';
 import ItemDetailModal from './ItemDetailModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { convertAndFormatCurrency } from '@/lib/currency';
+import { useExchangeRates } from '@/hooks/useExchangeRates';
 
 interface AssetListProps {
   onAddClick: () => void;
@@ -15,6 +16,7 @@ interface AssetListProps {
 
 export default function AssetList({ onAddClick, onAssetDeleted }: AssetListProps) {
   const { user } = useAuth();
+  const rates = useExchangeRates();
   const [expandedCategories, setExpandedCategories] = useState<string[]>(['Watch', 'Bag', 'Jewelry']);
   const [selectedAsset, setSelectedAsset] = useState<PortfolioAsset | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -66,12 +68,8 @@ export default function AssetList({ onAddClick, onAssetDeleted }: AssetListProps
   };
   
 
-  const formatCurrencyValue = (value: number) => {
-    return convertAndFormatCurrency(value, currency, {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    });
-  };
+  const formatCurrencyValue = (value: number) =>
+    convertAndFormatCurrency(value, currency, { minimumFractionDigits: 0, maximumFractionDigits: 0 }, rates);
 
   const toggleCategory = (category: string) => {
     setExpandedCategories(prev => 

@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 30
     algorithm: str = "HS256"
     cors_origins: str = "http://localhost:3000"
+    exchange_rate_api_key: str = ""
+    apify_token: str = ""
     
     @property
     def mongodb_connection_string(self) -> str:
