@@ -16,9 +16,10 @@ interface ItemDetailModalProps {
   isWatchlistItem?: boolean;
   isSearchResult?: boolean;
   onAssetUpdated?: () => void;
+  onAddToVault?: () => void;
 }
 
-export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistItem = false, isSearchResult = false, onAssetUpdated }: ItemDetailModalProps) {
+export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistItem = false, isSearchResult = false, onAssetUpdated, onAddToVault }: ItemDetailModalProps) {
   const { user } = useAuth();
   const rates = useExchangeRates();
   const currency = user?.currency || 'USD';
@@ -774,13 +775,23 @@ export default function ItemDetailModal({ isOpen, onClose, asset, isWatchlistIte
               </div>
             )}
 
+            {isSearchResult && onAddToVault && (
+              <button
+                onClick={onAddToVault}
+                className="px-4 py-2 text-xs font-medium uppercase tracking-widest transition-colors flex items-center gap-2 bg-[#1A1A1A] text-[#FAF9F6] hover:bg-[#333333]"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Add to Vault
+              </button>
+            )}
+
             {(isWatchlistItem || isSearchResult) && (
               <button
                 onClick={handleWatchlistAction}
                 className={`px-4 py-2 text-xs font-medium uppercase tracking-widest transition-colors flex items-center gap-2 ${
                   (isWatchlistItem || isAddedToWatchlist)
                     ? 'bg-[#9B2226]/10 text-[#9B2226] border border-[#9B2226]/20 hover:bg-[#9B2226]/20'
-                    : 'bg-[#1A1A1A] text-[#FAF9F6] hover:bg-[#333333]'
+                    : 'border border-[#E8E8E3] text-[#1A1A1A] hover:border-[#1A1A1A]'
                 }`}
               >
                 {(isWatchlistItem || isAddedToWatchlist) ? (

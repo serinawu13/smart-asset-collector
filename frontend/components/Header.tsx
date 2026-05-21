@@ -61,7 +61,7 @@ export default function Header({ userName, onDataUpdated }: HeaderProps) {
   return (
     <>
       <header className="h-20 px-4 md:px-6 lg:px-12 flex items-center justify-between border-b border-[#E8E8E3] bg-[#FAF9F6] sticky top-0 z-50">
-        {/* Left: Logo */}
+        {/* Left: Logo + Nav */}
         <div className="flex items-center gap-2 md:gap-8 flex-shrink-0">
           <div className="text-xl md:text-2xl font-editorial font-bold tracking-widest text-[#1A1A1A]">
             SAC
@@ -69,6 +69,12 @@ export default function Header({ userName, onDataUpdated }: HeaderProps) {
           <div className="hidden xl:block text-xs font-medium text-[#7A7A75] uppercase tracking-widest">
             Smart Asset Collector
           </div>
+          <button
+            onClick={() => router.push('/catalog')}
+            className="hidden sm:block text-xs font-medium text-[#7A7A75] uppercase tracking-widest hover:text-[#1A1A1A] transition-colors"
+          >
+            Catalog
+          </button>
         </div>
 
         {/* Center: Search Bar - Desktop (md and up) */}

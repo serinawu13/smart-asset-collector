@@ -117,8 +117,8 @@ export default function SearchBar({ onDataUpdated }: SearchBarProps = {}) {
   const performSearch = async (query: string) => {
     try {
       setIsSearching(true);
-      const items = await api.getItems({ search: query, limit: 10 });
-      
+      const { items } = await api.getItems({ search: query, pageSize: 10 });
+
       // Transform items to match SearchResult interface
       const results: SearchResult[] = items.map((item: any) => ({
         id: item.id || item.item_id,

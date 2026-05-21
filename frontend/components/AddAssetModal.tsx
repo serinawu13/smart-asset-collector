@@ -11,7 +11,8 @@ import { useExchangeRates } from '@/hooks/useExchangeRates';
 interface AddAssetModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAssetAdded?: () => void; // Callback to refresh the asset list
+  onAssetAdded?: () => void;
+  initialItem?: CatalogItem;
 }
 
 type Step = 'category' | 'search' | 'details';
@@ -33,7 +34,7 @@ interface CatalogItem {
   material?: string;
 }
 
-export default function AddAssetModal({ isOpen, onClose, onAssetAdded }: AddAssetModalProps) {
+export default function AddAssetModal({ isOpen, onClose, onAssetAdded, initialItem }: AddAssetModalProps) {
   const { user } = useAuth();
   const rates = useExchangeRates();
   const [step, setStep] = useState<Step>('category');
@@ -57,6 +58,20 @@ export default function AddAssetModal({ isOpen, onClose, onAssetAdded }: AddAsse
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // Pre-fill from initialItem and jump straight to details step
+  useEffect(() => {
+    if (isOpen && initialItem) {
+      setSelectedItem(initialItem);
+      setSelectedCategory(initialItem.category as AssetCategory);
+      setSize(initialItem.size || '');
+      setColor(initialItem.color || '');
+      setMaterial(initialItem.material || '');
+      const price = initialItem.retailPrice || initialItem.retail_price || initialItem.currentMarketValue || initialItem.current_market_value || 0;
+      setPurchasePrice(Number(price).toLocaleString('en-US'));
+      setStep('details');
+    }
+  }, [isOpen, initialItem]);
+
   // Fetch items when category is selected
   useEffect(() => {
     if (selectedCategory && step === 'search') {
@@ -71,8 +86,8 @@ export default function AddAssetModal({ isOpen, onClose, onAssetAdded }: AddAsse
     setLoadError(null);
     
     try {
-      const items = await api.getItems({ category: selectedCategory });
-      
+      const { items } = await api.getItems({ category: selectedCategory });
+
       // Normalize the items to handle both snake_case and camelCase
       const normalizedItems = items.map((item: any) => ({
         id: item.id || item.item_id,
@@ -175,13 +190,12 @@ export default function AddAssetModal({ isOpen, onClose, onAssetAdded }: AddAsse
       
       const searchResponse = await api.getItems({
         category: selectedItem.category,
-        brand: selectedItem.brand,
+        search: selectedItem.brand,
       });
-      
+
       console.log('🔍 Search response:', searchResponse);
-      
-      // The API returns an array of items directly
-      const searchResults = Array.isArray(searchResponse) ? searchResponse : [];
+
+      const searchResults = searchResponse.items || [];
       
       console.log('🔍 Search results array:', searchResults);
       console.log('🔍 Number of results:', searchResults.length);

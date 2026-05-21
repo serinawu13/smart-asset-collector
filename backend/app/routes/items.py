@@ -6,7 +6,7 @@ from fastapi import APIRouter, Query, HTTPException, status
 from typing import Optional
 from bson import ObjectId
 from app.database import get_database
-from app.schemas.luxury_item import LuxuryItemResponse, LuxuryItemListResponse
+from app.schemas.luxury_item import LuxuryItemResponse, LuxuryItemListResponse, CatalogListResponse
 import logging
 import re
 import unicodedata
@@ -68,50 +68,60 @@ def format_luxury_item(item: dict) -> dict:
     }
 
 
-@router.get("", response_model=LuxuryItemListResponse)
+@router.get("", response_model=CatalogListResponse)
 async def get_luxury_items(
     category: Optional[str] = Query(None, pattern="^(Watch|Bag|Jewelry)$", description="Filter by category"),
     search: Optional[str] = Query(None, min_length=1, description="Search in brand and model"),
-    limit: int = Query(50, ge=1, le=100, description="Maximum number of items to return")
+    page: int = Query(1, ge=1, description="Page number"),
+    pageSize: int = Query(20, ge=1, le=100, description="Number of items per page")
 ):
     """
-    Get luxury items catalog with optional filtering
-    
+    Get luxury items catalog with optional filtering and pagination
+
     - **category**: Filter by Watch, Bag, or Jewelry
     - **search**: Search text in brand and model (case-insensitive)
-    - **limit**: Maximum number of results (default 50)
+    - **page**: Page number (default 1)
+    - **pageSize**: Items per page (default 20, max 100)
     """
     try:
         db = get_database()
         collection = db["luxury_items"]
-        
+
         # Build query filter
         query = {}
-        
+
         # Category filter
         if category:
             query["category"] = category
-        
+
         # Search filter (case-insensitive and accent-insensitive)
         if search:
-            # Create regex pattern that matches both accented and non-accented versions
             search_pattern = create_accent_insensitive_regex(search)
             query["$or"] = [
                 {"brand": {"$regex": search_pattern, "$options": "i"}},
                 {"model": {"$regex": search_pattern, "$options": "i"}}
             ]
-        
-        # Execute query
-        cursor = collection.find(query).limit(limit)
-        items = await cursor.to_list(length=limit)
-        
+
+        # Pagination
+        skip = (page - 1) * pageSize
+        total = await collection.count_documents(query)
+        cursor = collection.find(query).skip(skip).limit(pageSize)
+        items = await cursor.to_list(length=pageSize)
+        has_more = (skip + pageSize) < total
+
         # Format items for response
         formatted_items = [format_luxury_item(item) for item in items]
-        
-        logger.info(f"Retrieved {len(formatted_items)} luxury items (category={category}, search={search})")
-        
-        return {"items": formatted_items}
-        
+
+        logger.info(f"Retrieved {len(formatted_items)}/{total} luxury items (page={page}, category={category}, search={search})")
+
+        return {
+            "items": formatted_items,
+            "total": total,
+            "page": page,
+            "pageSize": pageSize,
+            "hasMore": has_more
+        }
+
     except Exception as e:
         logger.error(f"Error retrieving luxury items: {e}")
         raise HTTPException(

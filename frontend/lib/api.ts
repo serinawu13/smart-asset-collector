@@ -401,43 +401,40 @@ export const api = {
    */
   getItems: async (params?: {
     category?: string;
-    brand?: string;
     search?: string;
-    skip?: number;
-    limit?: number;
+    page?: number;
+    pageSize?: number;
   }) => {
     const queryParams = new URLSearchParams();
     if (params?.category) queryParams.append('category', params.category);
-    if (params?.brand) queryParams.append('brand', params.brand);
     if (params?.search) queryParams.append('search', params.search);
-    if (params?.skip !== undefined) queryParams.append('skip', params.skip.toString());
-    if (params?.limit !== undefined) queryParams.append('limit', params.limit.toString());
-    
+    if (params?.page !== undefined) queryParams.append('page', params.page.toString());
+    if (params?.pageSize !== undefined) queryParams.append('pageSize', params.pageSize.toString());
+
     const queryString = queryParams.toString();
     const endpoint = queryString ? `/items?${queryString}` : '/items';
-    
-    const response = await apiRequest<{
+
+    return apiRequest<{
       items: Array<{
         id: string;
-        item_id?: string;
         category: string;
         brand: string;
         model: string;
-        reference_number?: string;
-        year?: number;
-        condition?: string;
-        description?: string;
-        image_url?: string;
+        material?: string;
+        size?: string;
+        color?: string;
+        currentMarketValue: number;
+        retailPrice?: number;
+        trend: string;
+        trendPercentage: number;
+        mentions30Days: number;
         imageUrl?: string;
-        market_value?: number;
-        currentMarketValue?: number;
-        created_at?: string;
-        updated_at?: string;
       }>;
+      total: number;
+      page: number;
+      pageSize: number;
+      hasMore: boolean;
     }>(endpoint);
-    
-    // Return the items array directly for easier consumption
-    return response.items || [];
   },
 
   /**

@@ -99,6 +99,17 @@ class LuxuryItemListResponse(BaseModel):
     """
     items: list[LuxuryItemResponse] = Field(..., description="List of luxury items")
 
+
+class CatalogListResponse(BaseModel):
+    """
+    Response schema for paginated catalog listing
+    """
+    items: list[LuxuryItemResponse] = Field(..., description="List of luxury items")
+    total: int = Field(..., description="Total number of matching items")
+    page: int = Field(..., description="Current page number")
+    pageSize: int = Field(..., description="Number of items per page")
+    hasMore: bool = Field(..., description="Whether more pages exist")
+
     class Config:
         json_schema_extra = {
             "example": {

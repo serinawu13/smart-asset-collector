@@ -1,6 +1,7 @@
 """MongoDB database connection using Motor (async driver)"""
 from typing import Optional
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+from fastapi import HTTPException, status
 from app.config import settings
 import logging
 import certifi
@@ -58,5 +59,8 @@ async def close_mongodb_connection():
 def get_database() -> AsyncIOMotorDatabase:
     """Get database instance"""
     if db is None:
-        raise RuntimeError("Database not connected. Check MongoDB Atlas network access settings and connection string.")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database unavailable. Check MongoDB Atlas network access settings and connection string."
+        )
     return db

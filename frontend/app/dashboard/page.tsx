@@ -127,21 +127,14 @@ export default function Dashboard() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <button
-                onClick={() => setIsAddAssetModalOpen(true)}
+                onClick={() => router.push('/catalog')}
                 className="bg-[#1A1A1A] text-[#FAF9F6] px-8 py-4 text-sm font-medium uppercase tracking-widest hover:bg-[#333333] transition-colors flex items-center justify-center gap-3 group"
               >
                 <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
                 Acquire First Asset
               </button>
               <button
-                onClick={() => {
-                  // Focus on the search bar in the header
-                  const searchInput = document.querySelector('input[placeholder*="Search"]') as HTMLInputElement;
-                  if (searchInput) {
-                    searchInput.focus();
-                    searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  }
-                }}
+                onClick={() => router.push('/catalog')}
                 className="bg-white border border-[#E8E8E3] text-[#1A1A1A] px-8 py-4 text-sm font-medium uppercase tracking-widest hover:border-[#1A1A1A] transition-colors flex items-center justify-center gap-3 group"
               >
                 <Search className="w-4 h-4" />
@@ -161,7 +154,7 @@ export default function Dashboard() {
             <div className="w-full lg:w-[40%] space-y-8 md:space-y-12">
               <AssetList
                 key={`assetlist-${refreshTrigger}`}
-                onAddClick={() => setIsAddAssetModalOpen(true)}
+                onAddClick={() => router.push('/catalog')}
                 onAssetDeleted={handleAssetAdded}
               />
               <Watchlist refreshTrigger={refreshTrigger} />
